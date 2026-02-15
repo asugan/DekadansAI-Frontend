@@ -71,8 +71,10 @@ export default function DashboardPage() {
 
   const [keyName, setKeyName] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [isCreatingKey, setIsCreatingKey] = useState(false);
+  const [deletingKeyId, setDeletingKeyId] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
 
   const loadSnapshot = useCallback(
@@ -126,6 +128,7 @@ export default function DashboardPage() {
   async function handleCreateKey(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setCreateError(null);
+    setDeleteError(null);
     setCreatedKey(null);
 
     setIsCreatingKey(true);
@@ -167,6 +170,26 @@ export default function DashboardPage() {
     window.setTimeout(() => {
       setCopyState("idle");
     }, 1600);
+  }
+
+  async function handleDeleteKey(keyId: string) {
+    setDeleteError(null);
+    setDeletingKeyId(keyId);
+
+    try {
+      const { error } = await authClient.apiKey.delete({
+        keyId
+      });
+
+      if (error) {
+        setDeleteError(resolveErrorMessage(error, "API key silinemedi"));
+        return;
+      }
+
+      await loadSnapshot(true);
+    } finally {
+      setDeletingKeyId(null);
+    }
   }
 
   async function handleSignOut() {
@@ -302,6 +325,13 @@ export default function DashboardPage() {
 
       <section className="panel mt-6 p-5 md:p-6">
         <h2 className="headline text-xl font-semibold">Key bazli limitler</h2>
+
+        {deleteError ? (
+          <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {deleteError}
+          </p>
+        ) : null}
+
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[620px] border-collapse text-sm">
             <thead>
@@ -312,6 +342,7 @@ export default function DashboardPage() {
                 <th className="py-2 pr-3">Max</th>
                 <th className="py-2 pr-3">Remaining</th>
                 <th className="py-2 pr-3">Reset</th>
+                <th className="py-2 pr-3">Islem</th>
               </tr>
             </thead>
             <tbody>
@@ -324,11 +355,21 @@ export default function DashboardPage() {
                     <td className="py-2 pr-3">{item.max}</td>
                     <td className="py-2 pr-3">{item.remaining}</td>
                     <td className="py-2 pr-3">{formatTime(item.resetAt)}</td>
+                    <td className="py-2 pr-3">
+                      <button
+                        type="button"
+                        onClick={() => void handleDeleteKey(item.id)}
+                        disabled={deletingKeyId === item.id}
+                        className="rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {deletingKeyId === item.id ? "Siliniyor..." : "Sil"}
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td className="py-4 text-[var(--ink-muted)]" colSpan={6}>
+                  <td className="py-4 text-[var(--ink-muted)]" colSpan={7}>
                     Henuz API key bulunmuyor.
                   </td>
                 </tr>

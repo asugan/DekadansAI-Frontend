@@ -97,15 +97,15 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
         name: typeof key.name === "string" ? key.name : null,
         start: typeof key.start === "string" ? key.start : null,
         enabled: asBoolean(key.enabled, true),
-        windowMs: Math.max(1, asNumber(key.windowMs, asNumber(defaults.windowMs, 60000))),
-        max: Math.max(0, asNumber(key.max, asNumber(defaults.max, 30))),
+        windowMs: Math.max(1, asNumber(key.windowMs, asNumber(defaults.windowMs, 86400000))),
+        max: Math.max(0, asNumber(key.max, asNumber(defaults.max, 800))),
         used: Math.max(0, asNumber(key.used, 0)),
         remaining: Math.max(0, asNumber(key.remaining, 0)),
         lastRequestAt: typeof key.lastRequestAt === "string" ? key.lastRequestAt : null,
         resetAt:
           typeof key.resetAt === "string"
             ? key.resetAt
-            : new Date(Date.now() + Math.max(1, asNumber(key.windowMs, 60000))).toISOString()
+            : new Date(Date.now() + Math.max(1, asNumber(key.windowMs, 86400000))).toISOString()
       } satisfies RateLimitKey;
     })
     .filter((entry): entry is RateLimitKey => entry !== null);
@@ -114,8 +114,8 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
     generatedAt:
       typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
     defaults: {
-      windowMs: Math.max(1, asNumber(defaults.windowMs, 60000)),
-      max: Math.max(0, asNumber(defaults.max, 30))
+      windowMs: Math.max(1, asNumber(defaults.windowMs, 86400000)),
+      max: Math.max(0, asNumber(defaults.max, 800))
     },
     overview: {
       activeKeys: Math.max(0, asNumber(overview.activeKeys, keys.filter((item) => item.enabled).length)),
