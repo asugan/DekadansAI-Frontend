@@ -5,8 +5,10 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   ApiRequestError,
+  type ModelInfo,
   type RateLimitSnapshot,
   getBillingSnapshot,
+  getModelsSnapshot,
   getRateLimitSnapshot
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
@@ -88,6 +90,10 @@ export default function DashboardPage() {
   const [snapshotError, setSnapshotError] = useState<string | null>(null);
   const [billingStatus, setBillingStatus] = useState<BillingStatus>("loading");
   const [billingError, setBillingError] = useState<string | null>(null);
+  const [models, setModels] = useState<ModelInfo[]>([]);
+  const [selectedModelId, setSelectedModelId] = useState("");
+  const [isLoadingModels, setIsLoadingModels] = useState(true);
+  const [modelsError, setModelsError] = useState<string | null>(null);
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
@@ -141,6 +147,28 @@ export default function DashboardPage() {
     }
   }, [router]);
 
+  const loadModels = useCallback(async () => {
+    setModelsError(null);
+    setIsLoadingModels(true);
+
+    try {
+      const payload = await getModelsSnapshot();
+      setModels(payload.data);
+      setSelectedModelId((current) =>
+        payload.data.some((model) => model.id === current) ? current : payload.data[0]?.id || ""
+      );
+    } catch (error) {
+      if (error instanceof ApiRequestError && error.status === 401) {
+        router.replace("/login");
+        return;
+      }
+
+      setModelsError(resolveErrorMessage(error, "Model listesi yuklenemedi"));
+    } finally {
+      setIsLoadingModels(false);
+    }
+  }, [router]);
+
   useEffect(() => {
     if (isSessionPending) return;
 
@@ -151,6 +179,7 @@ export default function DashboardPage() {
 
     void loadSnapshot(false);
     void loadBillingStatus();
+    void loadModels();
     const timer = window.setInterval(() => {
       void loadSnapshot(true);
     }, POLL_INTERVAL_MS);
@@ -158,12 +187,28 @@ export default function DashboardPage() {
     return () => {
       window.clearInterval(timer);
     };
-  }, [isSessionPending, loadBillingStatus, loadSnapshot, router, session?.user]);
+  }, [isSessionPending, loadBillingStatus, loadModels, loadSnapshot, router, session?.user]);
 
   const usagePercent = useMemo(() => {
     if (!snapshot || snapshot.overview.totalMax <= 0) return 0;
     return Math.min(100, Math.round((snapshot.overview.totalUsed / snapshot.overview.totalMax) * 100));
   }, [snapshot]);
+
+  const selectedModel = useMemo(
+    () => models.find((model) => model.id === selectedModelId) || null,
+    [models, selectedModelId]
+  );
+
+  const selectedModelCurl = useMemo(
+    () => `curl -X POST https://api.dekadans.ai/ai/chat/completions \\
+  -H "Authorization: Bearer dk_live_..." \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "${selectedModelId || "model-id"}",
+    "messages": [{"role": "user", "content": "Merhaba"}]
+  }'`,
+    [selectedModelId]
+  );
 
   async function handleCreateKey(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -403,6 +448,74 @@ export default function DashboardPage() {
         {isLoadingSnapshot ? (
           <p className="mt-4 text-sm text-(--ink-muted)">Veriler yukleniyor...</p>
         ) : null}
+      </section>
+
+      <section className="panel mt-6 p-5 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="label">CLIProxy modelleri</p>
+            <h2 className="headline text-xl font-semibold">Model secimi</h2>
+            <p className="mt-1 text-sm text-(--ink-muted)">
+              CLIProxy&apos;de ekli modelleri buradan secip API isteginde model alanina yazabilirsin.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void loadModels()}
+            className="rounded-xl border border-(--line) px-3 py-1.5 text-sm font-medium transition hover:border-(--ink-muted)"
+          >
+            Yenile
+          </button>
+        </div>
+
+        {modelsError ? (
+          <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            {modelsError}
+          </p>
+        ) : null}
+
+        <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
+          <div>
+            <label className="label mb-2 block" htmlFor="model-select">
+              Kullanilacak model
+            </label>
+            <select
+              id="model-select"
+              value={selectedModelId}
+              onChange={(event) => setSelectedModelId(event.target.value)}
+              disabled={isLoadingModels || models.length === 0}
+              className="w-full rounded-xl border border-(--line) bg-[#15171b] px-4 py-2.5 outline-none transition focus:border-(--brand) disabled:cursor-not-allowed disabled:opacity-65"
+            >
+              {models.length ? (
+                models.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.name} ({model.id})
+                  </option>
+                ))
+              ) : (
+                <option value="">
+                  {isLoadingModels ? "Modeller yukleniyor..." : "Model bulunamadi"}
+                </option>
+              )}
+            </select>
+            {selectedModel ? (
+              <div className="mt-3 rounded-xl border border-(--line) bg-white/5 p-4 text-sm">
+                <p className="font-semibold text-white">{selectedModel.name}</p>
+                <p className="mt-1 font-mono text-xs text-(--ink-muted)">{selectedModel.id}</p>
+                {selectedModel.provider ? (
+                  <p className="mt-2 text-(--ink-muted)">Provider: {selectedModel.provider}</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          <div>
+            <p className="label mb-2">Secili model ile ornek istek</p>
+            <pre className="overflow-x-auto rounded-xl border border-(--line) bg-black/30 p-4 text-xs leading-5 text-white/90">
+              <code>{selectedModelCurl}</code>
+            </pre>
+          </div>
+        </div>
       </section>
 
       <section className="panel mt-6 p-5 md:p-6">

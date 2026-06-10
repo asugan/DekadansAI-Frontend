@@ -58,6 +58,18 @@ export interface BillingSnapshot {
   };
 }
 
+export interface ModelInfo {
+  id: string;
+  name: string;
+  provider: string | null;
+  enabled: boolean;
+}
+
+export interface ModelsSnapshot {
+  generatedAt: string;
+  data: ModelInfo[];
+}
+
 function asObject(value: unknown): JsonObject {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return value as JsonObject;
@@ -178,6 +190,33 @@ function normalizeBillingSnapshot(payload: unknown): BillingSnapshot {
   };
 }
 
+function normalizeModelsSnapshot(payload: unknown): ModelsSnapshot {
+  const root = asObject(payload);
+  const rawModels = Array.isArray(root.data) ? root.data : [];
+
+  const data = rawModels
+    .map((entry) => {
+      const model = asObject(entry);
+      const id = typeof model.id === "string" ? model.id.trim() : "";
+      if (!id) return null;
+
+      return {
+        id,
+        name: typeof model.name === "string" && model.name.trim() ? model.name : id,
+        provider:
+          typeof model.provider === "string" && model.provider.trim() ? model.provider : null,
+        enabled: asBoolean(model.enabled, true)
+      } satisfies ModelInfo;
+    })
+    .filter((entry): entry is ModelInfo => entry !== null);
+
+  return {
+    generatedAt:
+      typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
+    data
+  };
+}
+
 function parseErrorMessage(payload: unknown, fallback: string): string {
   const parsed = asObject(payload);
   const error = parsed.error;
@@ -224,4 +263,23 @@ export async function getBillingSnapshot(): Promise<BillingSnapshot> {
   }
 
   return normalizeBillingSnapshot(responsePayload);
+}
+
+export async function getModelsSnapshot(): Promise<ModelsSnapshot> {
+  const response = await fetch("/api/account/models", {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store"
+  });
+
+  const responsePayload: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new ApiRequestError(
+      parseErrorMessage(responsePayload, "Model listesi alinamadi"),
+      response.status
+    );
+  }
+
+  return normalizeModelsSnapshot(responsePayload);
 }
