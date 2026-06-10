@@ -27,18 +27,17 @@ export default function Home() {
         <div className="mx-auto flex max-w-[1440px] items-center justify-between">
           <div className="flex items-center gap-8">
             <Link
-              className="flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-[var(--brand)]"
+              className="group flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-[var(--brand)]"
               href="/"
             >
               <Image
                 alt="Dekadans AI logo"
-                className="h-9 w-9 object-contain"
-                height={36}
+                className="h-16 w-16 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
+                height={64}
                 priority
                 src="/logo.png"
-                width={36}
+                width={64}
               />
-              Dekadans AI
             </Link>
             <div className="hidden items-center gap-6 md:flex">
               {["Models", "Pricing", "Docs"].map((item) => (
@@ -248,15 +247,14 @@ export default function Home() {
       </main>
 
       <footer className="flex w-full flex-col items-center justify-between gap-8 border-t border-white/5 bg-[#0c0e12] px-4 py-12 font-mono text-[13px] tracking-wider text-[#454747] md:flex-row md:px-6">
-        <div className="flex items-center gap-3 font-sans text-xl font-bold tracking-tight text-white">
+        <div className="group flex items-center gap-3 font-sans text-xl font-bold tracking-tight text-white">
           <Image
             alt="Dekadans AI logo"
-            className="h-10 w-10 object-contain"
-            height={40}
+            className="h-16 w-16 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
+            height={64}
             src="/logo.png"
-            width={40}
+            width={64}
           />
-          Dekadans AI
         </div>
         <div className="flex flex-wrap justify-center gap-6">
           {["Privacy Policy", "Terms of Service", "API Status", "GitHub", "Discord"].map((item) => (
