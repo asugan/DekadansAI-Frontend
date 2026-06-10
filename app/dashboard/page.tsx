@@ -325,6 +325,7 @@ export default function DashboardPage() {
             </h2>
             <p className="mt-1 text-sm text-(--ink-muted)">
               AI endpointlerini kullanmak icin aktif weekly plan aboneligi gerekir.
+              Limit hesap bazlidir: 5 saatte 500 request.
             </p>
             {billingError ? (
               <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
@@ -389,7 +390,7 @@ export default function DashboardPage() {
             <div className="progress-bar" style={{ width: `${usagePercent}%` }} />
           </div>
           <p className="mt-2 text-sm text-(--ink-muted)">
-            Sonraki reset: {formatTime(snapshot?.overview.nextResetAt || null)}
+            5 saatlik hesap kotasi reset: {formatTime(snapshot?.overview.nextResetAt || null)}
           </p>
         </div>
 
@@ -453,7 +454,10 @@ export default function DashboardPage() {
       </section>
 
       <section className="panel mt-6 p-5 md:p-6">
-        <h2 className="headline text-xl font-semibold">Key bazli limitler</h2>
+        <h2 className="headline text-xl font-semibold">API keyler</h2>
+        <p className="mt-1 text-sm text-(--ink-muted)">
+          Rate limit key bazli degil, hesaptaki tum keylerin toplam kullanimi uzerinden hesaplanir.
+        </p>
 
         {deleteError ? (
           <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
@@ -467,10 +471,7 @@ export default function DashboardPage() {
               <tr className="border-b border-(--line) text-left text-(--ink-muted)">
                 <th className="py-2 pr-3">Key</th>
                 <th className="py-2 pr-3">Durum</th>
-                <th className="py-2 pr-3">Used</th>
-                <th className="py-2 pr-3">Max</th>
-                <th className="py-2 pr-3">Remaining</th>
-                <th className="py-2 pr-3">Reset</th>
+                <th className="py-2 pr-3">Son istek</th>
                 <th className="py-2 pr-3">Islem</th>
               </tr>
             </thead>
@@ -480,10 +481,7 @@ export default function DashboardPage() {
                   <tr key={item.id} className="border-b border-(--line) last:border-0">
                     <td className="py-2 pr-3 font-medium">{item.name || maskKey(item.start)}</td>
                     <td className="py-2 pr-3">{item.enabled ? "Aktif" : "Pasif"}</td>
-                    <td className="py-2 pr-3">{item.used}</td>
-                    <td className="py-2 pr-3">{item.max}</td>
-                    <td className="py-2 pr-3">{item.remaining}</td>
-                    <td className="py-2 pr-3">{formatTime(item.resetAt)}</td>
+                    <td className="py-2 pr-3">{formatTime(item.lastRequestAt)}</td>
                     <td className="py-2 pr-3">
                       <button
                         type="button"
@@ -498,7 +496,7 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <tr>
-                  <td className="py-4 text-(--ink-muted)" colSpan={7}>
+                  <td className="py-4 text-(--ink-muted)" colSpan={4}>
                     Henuz API key bulunmuyor.
                   </td>
                 </tr>

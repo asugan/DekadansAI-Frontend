@@ -39,7 +39,7 @@ export default function Home() {
     { name: "ChatGPT 5.5", version: "gpt-5.5", logo: "/chatgptlogo.png" }
   ];
   const pricingItems = [
-    ["⚡", "300 requests included"],
+    ["⚡", "500 requests included"],
     ["◴", "Up to 5 hours of AI usage"],
     ["▦", "Multiple model access"],
     ["⌁", "API key included"],
@@ -202,7 +202,7 @@ export default function Home() {
                 <div className="space-y-2">
                   <div className="flex justify-between font-mono text-[13px] tracking-wider">
                     <span>Remaining Requests</span>
-                    <span className="text-[#e1fdff]">184 / 300</span>
+                    <span className="text-[#e1fdff]">184 / 500</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-[#333539]">
                     <div className="h-full w-[61%] bg-(--brand) shadow-[0_0_15px_rgba(0,242,255,0.3)]" />
@@ -268,7 +268,7 @@ export default function Home() {
                 Start Weekly Access
               </Link>
               <p className="text-center font-mono text-sm leading-6 text-[#849495]">
-                $10 per week includes up to 5 hours of AI access or 300 requests, whichever comes
+                $10 per week includes up to 5 hours of AI access or 500 requests, whichever comes
                 first.
               </p>
             </div>

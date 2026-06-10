@@ -15,12 +15,7 @@ export interface RateLimitKey {
   name: string | null;
   start: string | null;
   enabled: boolean;
-  windowMs: number;
-  max: number;
-  used: number;
-  remaining: number;
   lastRequestAt: string | null;
-  resetAt: string;
 }
 
 export interface RateLimitSnapshot {
@@ -28,6 +23,22 @@ export interface RateLimitSnapshot {
   defaults: {
     windowMs: number;
     max: number;
+  };
+  account: {
+    quota: {
+      windowMs: number;
+      max: number;
+      used: number;
+      remaining: number;
+      resetAt: string;
+    };
+    burst: {
+      windowMs: number;
+      max: number;
+      used: number;
+      remaining: number;
+      resetAt: string;
+    };
   };
   overview: {
     activeKeys: number;
@@ -91,6 +102,9 @@ function asBoolean(value: unknown, fallback: boolean): boolean {
 function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
   const root = asObject(payload);
   const defaults = asObject(root.defaults);
+  const account = asObject(root.account);
+  const quota = asObject(account.quota);
+  const burst = asObject(account.burst);
   const overview = asObject(root.overview);
   const keysRaw = Array.isArray(root.keys) ? root.keys : [];
 
@@ -105,15 +119,7 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
         name: typeof key.name === "string" ? key.name : null,
         start: typeof key.start === "string" ? key.start : null,
         enabled: asBoolean(key.enabled, true),
-        windowMs: Math.max(1, asNumber(key.windowMs, asNumber(defaults.windowMs, 86400000))),
-        max: Math.max(0, asNumber(key.max, asNumber(defaults.max, 800))),
-        used: Math.max(0, asNumber(key.used, 0)),
-        remaining: Math.max(0, asNumber(key.remaining, 0)),
-        lastRequestAt: typeof key.lastRequestAt === "string" ? key.lastRequestAt : null,
-        resetAt:
-          typeof key.resetAt === "string"
-            ? key.resetAt
-            : new Date(Date.now() + Math.max(1, asNumber(key.windowMs, 86400000))).toISOString()
+        lastRequestAt: typeof key.lastRequestAt === "string" ? key.lastRequestAt : null
       } satisfies RateLimitKey;
     })
     .filter((entry): entry is RateLimitKey => entry !== null);
@@ -122,8 +128,30 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
     generatedAt:
       typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
     defaults: {
-      windowMs: Math.max(1, asNumber(defaults.windowMs, 86400000)),
-      max: Math.max(0, asNumber(defaults.max, 800))
+      windowMs: Math.max(1, asNumber(defaults.windowMs, 18000000)),
+      max: Math.max(0, asNumber(defaults.max, 500))
+    },
+    account: {
+      quota: {
+        windowMs: Math.max(1, asNumber(quota.windowMs, asNumber(defaults.windowMs, 18000000))),
+        max: Math.max(0, asNumber(quota.max, asNumber(defaults.max, 500))),
+        used: Math.max(0, asNumber(quota.used, asNumber(overview.totalUsed, 0))),
+        remaining: Math.max(0, asNumber(quota.remaining, asNumber(overview.totalRemaining, 0))),
+        resetAt:
+          typeof quota.resetAt === "string"
+            ? quota.resetAt
+            : new Date(Date.now() + Math.max(1, asNumber(defaults.windowMs, 18000000))).toISOString()
+      },
+      burst: {
+        windowMs: Math.max(1, asNumber(burst.windowMs, 20000)),
+        max: Math.max(0, asNumber(burst.max, 5)),
+        used: Math.max(0, asNumber(burst.used, 0)),
+        remaining: Math.max(0, asNumber(burst.remaining, 0)),
+        resetAt:
+          typeof burst.resetAt === "string"
+            ? burst.resetAt
+            : new Date(Date.now() + Math.max(1, asNumber(burst.windowMs, 20000))).toISOString()
+      }
     },
     overview: {
       activeKeys: Math.max(0, asNumber(overview.activeKeys, keys.filter((item) => item.enabled).length)),
