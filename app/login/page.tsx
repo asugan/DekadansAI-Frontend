@@ -87,7 +87,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
-              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 outline-none transition focus:border-[var(--brand)]"
+              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="ornek@domain.com"
@@ -104,7 +104,7 @@ export default function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 outline-none transition focus:border-[var(--brand)]"
+              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="********"
@@ -114,7 +114,7 @@ export default function LoginPage() {
           </div>
 
           {formError ? (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
               {formError}
             </p>
           ) : null}

@@ -265,7 +265,7 @@ export default function DashboardPage() {
         </div>
 
         {snapshotError ? (
-          <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
             {snapshotError}
           </p>
         ) : null}
@@ -287,7 +287,7 @@ export default function DashboardPage() {
             value={keyName}
             onChange={(event) => setKeyName(event.target.value)}
             placeholder="ornek: frontend-key"
-            className="w-full rounded-xl border border-[var(--line)] bg-white px-4 py-2.5 outline-none transition focus:border-[var(--brand)]"
+            className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
             disabled={isCreatingKey}
             maxLength={80}
           />
@@ -301,15 +301,15 @@ export default function DashboardPage() {
         </form>
 
         {createError ? (
-          <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
             {createError}
           </p>
         ) : null}
 
         {createdKey ? (
-          <div className="mt-4 rounded-xl border border-[var(--line)] bg-white p-4">
+          <div className="mt-4 rounded-xl border border-[var(--line)] bg-white/5 p-4">
             <p className="label mb-1">Olusan key</p>
-            <code className="block overflow-x-auto rounded-lg bg-[#f3f0e8] px-3 py-2 text-xs font-semibold">
+            <code className="block overflow-x-auto rounded-lg bg-black/30 px-3 py-2 text-xs font-semibold text-white/90">
               {createdKey}
             </code>
             <button
@@ -327,7 +327,7 @@ export default function DashboardPage() {
         <h2 className="headline text-xl font-semibold">Key bazli limitler</h2>
 
         {deleteError ? (
-          <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
             {deleteError}
           </p>
         ) : null}
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                         type="button"
                         onClick={() => void handleDeleteKey(item.id)}
                         disabled={deletingKeyId === item.id}
-                        className="rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="rounded-md border border-red-400/35 px-2.5 py-1 text-xs font-semibold text-red-200 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {deletingKeyId === item.id ? "Siliniyor..." : "Sil"}
                       </button>

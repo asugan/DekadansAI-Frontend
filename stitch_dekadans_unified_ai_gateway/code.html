@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dekadans AI - Unified API for Frontier Models</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#454747",
+                        "outline": "#849495",
+                        "on-tertiary": "#2f3131",
+                        "on-secondary": "#490080",
+                        "on-secondary-container": "#d6a9ff",
+                        "tertiary-fixed-dim": "#c6c6c7",
+                        "secondary": "#ddb7ff",
+                        "surface-container-lowest": "#0c0e12",
+                        "surface-container-high": "#282a2e",
+                        "surface-variant": "#333539",
+                        "inverse-primary": "#00696f",
+                        "secondary-container": "#6f00be",
+                        "background": "#111318",
+                        "primary-fixed": "#74f5ff",
+                        "tertiary-fixed": "#e2e2e2",
+                        "on-surface-variant": "#b9cacb",
+                        "on-primary": "#00363a",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "primary": "#e1fdff",
+                        "surface": "#111318",
+                        "on-primary-container": "#006a71",
+                        "primary-fixed-dim": "#00dbe7",
+                        "primary-container": "#00f2ff",
+                        "surface-bright": "#37393e",
+                        "tertiary-container": "#dbdbdb",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "error": "#ffb4ab",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#004f54",
+                        "on-surface": "#e2e2e8",
+                        "tertiary": "#f7f8f8",
+                        "on-background": "#e2e2e8",
+                        "surface-container": "#1e2024",
+                        "surface-container-highest": "#333539",
+                        "surface-container-low": "#1a1c20",
+                        "surface-dim": "#111318",
+                        "inverse-surface": "#e2e2e8",
+                        "on-tertiary-container": "#5e6060",
+                        "on-primary-fixed": "#002022",
+                        "secondary-fixed": "#f0dbff",
+                        "inverse-on-surface": "#2f3035",
+                        "outline-variant": "#3a494b",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#00dbe7",
+                        "on-secondary-fixed": "#2c0051",
+                        "error-container": "#93000a",
+                        "secondary-fixed-dim": "#ddb7ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "gutter": "24px",
+                        "margin-desktop": "48px",
+                        "container-max": "1440px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-mono": ["JetBrains Mono"],
+                        "code-sm": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-mono": ["13px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "code-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glow-primary {
+            box-shadow: 0px 0px 15px rgba(0, 242, 255, 0.3);
+        }
+        .glow-primary:hover {
+            box-shadow: 0px 0px 25px rgba(0, 242, 255, 0.5);
+        }
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto bg-background/70 backdrop-blur-md border-b border-white/10">
+<div class="flex items-center gap-8">
+<a class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tighter hover:opacity-80 transition-opacity" href="#">Dekadans AI</a>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-mono text-label-mono hover:opacity-80" href="#models">Models</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-mono text-label-mono hover:opacity-80" href="#pricing">Pricing</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-mono text-label-mono hover:opacity-80" href="#docs">Docs</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-mono text-label-mono hidden md:block hover:opacity-80" href="#">Login</a>
+<a class="bg-primary-container text-on-primary-container px-4 py-2 rounded font-label-mono text-label-mono glow-primary transition-all active:scale-95 duration-150" href="#">Get Started</a>
+</div>
+</nav>
+<main class="pt-32 pb-24">
+<!-- Hero Section -->
+<section class="relative px-gutter max-w-container-max mx-auto mb-32 md:mb-48">
+<div class="absolute inset-0 bg-grid opacity-20 -z-10 [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+<div class="md:col-span-6 space-y-8">
+<div class="inline-block border border-primary/40 bg-primary/10 px-3 py-1 rounded font-label-mono text-label-mono text-primary-fixed-dim">
+                        v2.0 Unified API Gateway
+                    </div>
+<h1 class="font-headline-xl text-headline-xl text-primary">
+                        One API for MiniMax, GLM, Kimi, and ChatGPT
+                    </h1>
+<p class="text-on-surface-variant text-body-md font-body-md max-w-lg">
+                        Get secure, request-limited access to multiple frontier AI models with a single API key powered by CLIProxy.
+                    </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<a class="bg-primary-container text-on-primary-container px-6 py-3 rounded font-label-mono text-label-mono glow-primary transition-all active:scale-95 duration-150" href="#pricing">
+                            Get Started
+                        </a>
+<a class="border border-white/10 hover:border-white/20 text-on-surface px-6 py-3 rounded font-label-mono text-label-mono transition-all hover:bg-white/5 active:scale-95 duration-150" href="#pricing">
+                            View Pricing
+                        </a>
+</div>
+</div>
+<div class="md:col-span-6 relative h-[400px] md:h-[500px] rounded-xl border border-white/10 bg-surface-container-low overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary-container/10 to-secondary-container/5"></div>
+<img alt="Abstract representation of code and data streams" class="w-full h-full object-cover opacity-50 mix-blend-luminosity" data-alt="A dark, sophisticated abstract visualization of digital data streams and API routing. The image features glowing neon cyan and purple data lines crisscrossing a deep black void, symbolizing network requests. Subtle glassmorphism overlays create depth, while sharp geometric code-like fragments float in the background. The mood is high-tech, precise, and engineered for developers." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhF-ip4Kd9PCtCO1i9BLlDK9APTQCBEYQYlAxoYvMXQ-CqI0Ivi6GEMevcJAQ6w3J04HEOUQimxlTfC1tu5XfkV5v1ij27XDP5K8-Wlz9TJs8zTdPrNSwugjHUNM_m8RMzCQ6UGOT6Np1Usx3UWncA0It835y5AGFBXIWvEnM_gyysD0hqfoXJO6BLfSgJvaBwdH2IVabHbljT5CF8D8dz-CdPyXYqpJwvzPUR1ql51hqHf0XIZWu6jfmK9lpUEtfolafwA0oZPx8"/>
+<div class="absolute inset-0 flex items-center justify-center p-8">
+<div class="w-full max-w-md bg-black/80 backdrop-blur-md border border-white/10 rounded-lg p-6 shadow-2xl">
+<div class="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+<div class="w-3 h-3 rounded-full bg-error"></div>
+<div class="w-3 h-3 rounded-full bg-surface-tint"></div>
+<div class="w-3 h-3 rounded-full bg-primary-fixed"></div>
+<span class="ml-2 font-label-mono text-label-mono text-outline">terminal</span>
+</div>
+<pre class="font-code-sm text-code-sm text-on-surface overflow-x-auto"><code class="language-bash"><span class="text-secondary">curl</span> -X POST https://api.dekadans.ai/v1/chat/completions \
+  -H <span class="text-primary-fixed">"Authorization: Bearer dk_live_..."</span> \
+  -H <span class="text-primary-fixed">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="text-primary">"model"</span>: <span class="text-primary-fixed">"minimax-abab6.5"</span>,
+    <span class="text-primary">"messages"</span>: [{"role": "user", "content": "Hello"}]
+  }'</code></pre>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Model Access Section -->
+<section class="px-gutter max-w-container-max mx-auto mb-32 md:mb-48" id="models">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg md:font-headline-xl md:text-headline-xl text-on-surface mb-4">Unified Model Access</h2>
+<p class="text-on-surface-variant max-w-2xl mx-auto">Route your AI requests through a unified gateway instead of managing multiple providers separately.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+<!-- MiniMax Card -->
+<div class="group relative bg-surface-container border border-white/10 rounded-xl p-6 hover:border-primary/40 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="flex flex-col items-center justify-center text-center space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="hub">hub</span>
+<h3 class="font-label-mono text-label-mono text-on-surface font-bold">MiniMax</h3>
+<p class="text-code-sm font-code-sm text-outline">abab6.5</p>
+</div>
+</div>
+<!-- GLM Card -->
+<div class="group relative bg-surface-container border border-white/10 rounded-xl p-6 hover:border-primary/40 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="flex flex-col items-center justify-center text-center space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="memory">memory</span>
+<h3 class="font-label-mono text-label-mono text-on-surface font-bold">GLM</h3>
+<p class="text-code-sm font-code-sm text-outline">glm-4</p>
+</div>
+</div>
+<!-- Kimi Card -->
+<div class="group relative bg-surface-container border border-white/10 rounded-xl p-6 hover:border-primary/40 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="flex flex-col items-center justify-center text-center space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="smart_toy">smart_toy</span>
+<h3 class="font-label-mono text-label-mono text-on-surface font-bold">Kimi</h3>
+<p class="text-code-sm font-code-sm text-outline">moonshot-v1</p>
+</div>
+</div>
+<!-- ChatGPT Card -->
+<div class="group relative bg-surface-container border border-white/10 rounded-xl p-6 hover:border-primary/40 transition-colors">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+<div class="flex flex-col items-center justify-center text-center space-y-4">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="psychology">psychology</span>
+<h3 class="font-label-mono text-label-mono text-on-surface font-bold">ChatGPT</h3>
+<p class="text-code-sm font-code-sm text-outline">gpt-4-turbo</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Built for Developers -->
+<section class="px-gutter max-w-container-max mx-auto mb-32 md:mb-48 relative" id="docs">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+<div class="order-2 md:order-1 bg-surface-container-low border border-white/10 rounded-xl overflow-hidden relative">
+<div class="flex items-center gap-2 bg-surface-container px-4 py-3 border-b border-white/10">
+<span class="font-label-mono text-label-mono text-on-surface-variant">usage_dashboard.js</span>
+</div>
+<div class="p-6 space-y-6">
+<!-- Progress Widget -->
+<div class="space-y-2">
+<div class="flex justify-between font-label-mono text-label-mono">
+<span class="text-on-surface">Remaining Requests</span>
+<span class="text-primary">184 / 300</span>
+</div>
+<div class="h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[61%] glow-primary"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-mono text-label-mono">
+<span class="text-on-surface">Time Remaining</span>
+<span class="text-secondary">3h 45m / 5h</span>
+</div>
+<div class="h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container w-[75%]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="order-1 md:order-2 space-y-6">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Built for Developers</h2>
+<p class="text-on-surface-variant text-body-md font-body-md">
+                        No more juggling separate accounts and billing. One key, all the frontier models you need. Track your usage in real-time.
+                    </p>
+<ul class="space-y-4 font-label-mono text-label-mono text-on-surface-variant">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle">check_circle</span>
+                            Unified billing and invoicing
+                        </li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle">check_circle</span>
+                            Real-time usage monitoring
+                        </li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="check_circle">check_circle</span>
+                            Standardized API responses
+                        </li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section class="px-gutter max-w-container-max mx-auto mb-32 md:mb-48" id="pricing">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg md:font-headline-xl md:text-headline-xl text-on-surface mb-4">Simple Weekly Pricing</h2>
+</div>
+<div class="max-w-md mx-auto relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-primary-container to-secondary-container rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+<div class="relative bg-surface-container-high border border-white/10 rounded-2xl p-8 flex flex-col h-full">
+<div class="mb-8">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-2">Weekly Access</h3>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-xl text-headline-xl text-on-surface">$10</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant">/ week</span>
+</div>
+</div>
+<ul class="space-y-4 mb-8 flex-1">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5" data-icon="bolt">bolt</span>
+<span class="text-on-surface font-body-md text-body-md">300 requests included</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5" data-icon="timer">timer</span>
+<span class="text-on-surface font-body-md text-body-md">Up to 5 hours of AI usage</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5" data-icon="grid_view">grid_view</span>
+<span class="text-on-surface font-body-md text-body-md">Multiple model access</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5" data-icon="key">key</span>
+<span class="text-on-surface font-body-md text-body-md">API key included</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-0.5" data-icon="monitoring">monitoring</span>
+<span class="text-on-surface font-body-md text-body-md">Usage dashboard</span>
+</li>
+</ul>
+<button class="w-full bg-primary-container text-on-primary-container py-4 rounded font-label-mono text-label-mono glow-primary transition-all active:scale-95 duration-150 mb-4">
+                        Start Weekly Access
+                    </button>
+<p class="text-code-sm font-code-sm text-outline text-center">
+                        $10 per week includes up to 5 hours of AI access or 300 requests, whichever comes first.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-white/5 w-full py-12 px-gutter flex flex-col md:flex-row justify-between items-center gap-8 font-label-mono text-label-mono text-primary-fixed-dim">
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface">Dekadans AI</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors opacity-80 hover:opacity-100" href="#">API Status</a>
+<a class="text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors opacity-80 hover:opacity-100" href="#">GitHub</a>
+<a class="text-on-tertiary-fixed-variant hover:text-primary-fixed transition-colors opacity-80 hover:opacity-100" href="#">Discord</a>
+</div>
+<div class="text-on-tertiary-fixed-variant">
+            © 2024 Dekadans AI. Powered by CLIProxy
+        </div>
+</footer>
+</body></html>

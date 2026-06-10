@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f6f4ee;
-  --bg-soft: #fffdf7;
-  --ink: #1f2321;
-  --ink-muted: #4b5550;
-  --line: #d6d0c4;
-  --brand: #14532d;
-  --brand-soft: #d8f2db;
-  --accent: #b45309;
-  --card: rgba(255, 253, 247, 0.85);
+  --bg: #111318;
+  --bg-soft: #0d1117;
+  --ink: #e2e2e8;
+  --ink-muted: #b9cacb;
+  --line: rgba(255, 255, 255, 0.1);
+  --brand: #00f2ff;
+  --brand-soft: rgba(0, 242, 255, 0.1);
+  --accent: #a855f7;
+  --card: rgba(13, 17, 23, 0.72);
 }
 
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--ink);
-  --font-sans: var(--font-manrope);
-  --font-mono: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 body {
   min-height: 100vh;
   color: var(--ink);
   background:
-    radial-gradient(circle at 20% 15%, rgba(20, 83, 45, 0.16), transparent 45%),
-    radial-gradient(circle at 82% 0%, rgba(180, 83, 9, 0.15), transparent 40%),
-    linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 55%, #f0ebde 100%);
-  font-family: var(--font-manrope), sans-serif;
+    radial-gradient(circle at 12% 16%, rgba(0, 242, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 0%, rgba(168, 85, 247, 0.14), transparent 30%),
+    linear-gradient(180deg, #0a0c10 0%, var(--bg) 48%, #0b0d12 100%);
+  font-family: var(--font-inter), sans-serif;
 }
 
 a {
@@ -36,9 +36,9 @@ a {
 .panel {
   border: 1px solid var(--line);
   background: var(--card);
-  backdrop-filter: blur(6px);
-  border-radius: 1rem;
-  box-shadow: 0 14px 32px -24px rgba(31, 35, 33, 0.42);
+  backdrop-filter: blur(12px);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02), 0 24px 80px -48px rgba(0, 0, 0, 0.95);
 }
 
 .label {
@@ -48,7 +48,7 @@ a {
 }
 
 .headline {
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   letter-spacing: -0.02em;
 }
 
@@ -56,7 +56,7 @@ a {
   width: 100%;
   height: 0.58rem;
   border-radius: 999px;
-  background: color-mix(in oklab, var(--line) 75%, white 25%);
+  background: color-mix(in oklab, var(--line) 85%, black 15%);
   overflow: hidden;
 }
 

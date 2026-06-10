@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { Manrope, Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const jetBrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Dekadans AI Account",
-  description: "Account dashboard for Better Auth login, API key management and rate limit tracking",
+  title: "Dekadans AI | Multi-Model AI Gateway",
+  description:
+    "Weekly request-limited access to MiniMax, GLM, Kimi, and ChatGPT through one secure API key.",
 };
 
 export default function RootLayout({
@@ -23,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr">
-      <body className={`${manrope.variable} ${spaceGrotesk.variable} antialiased`}>
+    <html lang="en">
+      <body className={`${inter.variable} ${jetBrainsMono.variable} antialiased`}>
         {children}
       </body>
     </html>
