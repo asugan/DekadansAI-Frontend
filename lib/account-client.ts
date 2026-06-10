@@ -39,6 +39,14 @@ export interface RateLimitSnapshot {
   keys: RateLimitKey[];
 }
 
+export interface BillingSnapshot {
+  generatedAt: string;
+  weeklyPlan: {
+    active: boolean;
+    customerExists: boolean;
+  };
+}
+
 function asObject(value: unknown): JsonObject {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return value as JsonObject;
@@ -128,6 +136,20 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
   };
 }
 
+function normalizeBillingSnapshot(payload: unknown): BillingSnapshot {
+  const root = asObject(payload);
+  const weeklyPlan = asObject(root.weeklyPlan);
+
+  return {
+    generatedAt:
+      typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
+    weeklyPlan: {
+      active: asBoolean(weeklyPlan.active, false),
+      customerExists: asBoolean(weeklyPlan.customerExists, false)
+    }
+  };
+}
+
 function parseErrorMessage(payload: unknown, fallback: string): string {
   const parsed = asObject(payload);
   const error = parsed.error;
@@ -155,4 +177,23 @@ export async function getRateLimitSnapshot(): Promise<RateLimitSnapshot> {
   }
 
   return normalizeSnapshot(responsePayload);
+}
+
+export async function getBillingSnapshot(): Promise<BillingSnapshot> {
+  const response = await fetch("/api/account/billing", {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store"
+  });
+
+  const responsePayload: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new ApiRequestError(
+      parseErrorMessage(responsePayload, "Billing bilgisi alinamadi"),
+      response.status
+    );
+  }
+
+  return normalizeBillingSnapshot(responsePayload);
 }

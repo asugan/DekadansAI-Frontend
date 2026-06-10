@@ -6,11 +6,24 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
   ApiRequestError,
   type RateLimitSnapshot,
+  getBillingSnapshot,
   getRateLimitSnapshot
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
 
 const POLL_INTERVAL_MS = 15000;
+
+type BillingStatus = "loading" | "active" | "inactive" | "error";
+
+type JsonObject = Record<string, unknown>;
+
+function asObject(value: unknown): JsonObject {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as JsonObject;
+  }
+
+  return {};
+}
 
 function formatTime(value: string | null): string {
   if (!value) return "-";
@@ -61,6 +74,11 @@ function maskKey(start: string | null): string {
   return `${start}...`;
 }
 
+function extractRedirectUrl(payload: unknown): string | null {
+  const parsed = asObject(payload);
+  return typeof parsed.url === "string" && parsed.url.trim() ? parsed.url : null;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, isPending: isSessionPending } = useSession();
@@ -68,6 +86,10 @@ export default function DashboardPage() {
   const [snapshot, setSnapshot] = useState<RateLimitSnapshot | null>(null);
   const [isLoadingSnapshot, setIsLoadingSnapshot] = useState(true);
   const [snapshotError, setSnapshotError] = useState<string | null>(null);
+  const [billingStatus, setBillingStatus] = useState<BillingStatus>("loading");
+  const [billingError, setBillingError] = useState<string | null>(null);
+  const [isStartingCheckout, setIsStartingCheckout] = useState(false);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
   const [keyName, setKeyName] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
@@ -102,6 +124,23 @@ export default function DashboardPage() {
     [router]
   );
 
+  const loadBillingStatus = useCallback(async () => {
+    setBillingError(null);
+
+    try {
+      const payload = await getBillingSnapshot();
+      setBillingStatus(payload.weeklyPlan.active ? "active" : "inactive");
+    } catch (error) {
+      if (error instanceof ApiRequestError && error.status === 401) {
+        router.replace("/login");
+        return;
+      }
+
+      setBillingStatus("error");
+      setBillingError(resolveErrorMessage(error, "Billing bilgisi yuklenemedi"));
+    }
+  }, [router]);
+
   useEffect(() => {
     if (isSessionPending) return;
 
@@ -111,6 +150,7 @@ export default function DashboardPage() {
     }
 
     void loadSnapshot(false);
+    void loadBillingStatus();
     const timer = window.setInterval(() => {
       void loadSnapshot(true);
     }, POLL_INTERVAL_MS);
@@ -118,7 +158,7 @@ export default function DashboardPage() {
     return () => {
       window.clearInterval(timer);
     };
-  }, [isSessionPending, loadSnapshot, router, session?.user]);
+  }, [isSessionPending, loadBillingStatus, loadSnapshot, router, session?.user]);
 
   const usagePercent = useMemo(() => {
     if (!snapshot || snapshot.overview.totalMax <= 0) return 0;
@@ -192,6 +232,54 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleStartCheckout() {
+    setBillingError(null);
+    setIsStartingCheckout(true);
+
+    try {
+      const { data, error } = await authClient.checkout({
+        slug: "weekly",
+        redirect: false
+      });
+
+      if (error) {
+        setBillingError(resolveErrorMessage(error, "Checkout baslatilamadi"));
+        return;
+      }
+
+      const checkoutUrl = extractRedirectUrl(data);
+      if (!checkoutUrl) {
+        setBillingError("Checkout URL donmedi");
+        return;
+      }
+
+      window.location.assign(checkoutUrl);
+    } finally {
+      setIsStartingCheckout(false);
+    }
+  }
+
+  async function handleOpenPortal() {
+    setBillingError(null);
+    setIsOpeningPortal(true);
+
+    try {
+      const { data, error } = await authClient.customer.portal();
+
+      if (error) {
+        setBillingError(resolveErrorMessage(error, "Musteri portali acilamadi"));
+        return;
+      }
+
+      const portalUrl = extractRedirectUrl(data);
+      if (portalUrl) {
+        window.location.assign(portalUrl);
+      }
+    } finally {
+      setIsOpeningPortal(false);
+    }
+  }
+
   async function handleSignOut() {
     await authClient.signOut();
     router.replace("/login");
@@ -223,6 +311,47 @@ export default function DashboardPage() {
           Cikis yap
         </button>
       </header>
+
+      <section className="panel mb-6 p-5 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="label">Weekly Plan</p>
+            <h2 className="headline text-xl font-semibold">
+              {billingStatus === "active"
+                ? "Weekly plan aktif"
+                : billingStatus === "loading"
+                  ? "Plan durumu kontrol ediliyor"
+                  : "Weekly plan gerekli"}
+            </h2>
+            <p className="mt-1 text-sm text-(--ink-muted)">
+              AI endpointlerini kullanmak icin aktif weekly plan aboneligi gerekir.
+            </p>
+            {billingError ? (
+              <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                {billingError}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => void handleStartCheckout()}
+              disabled={isStartingCheckout}
+              className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
+            >
+              {isStartingCheckout ? "Yonlendiriliyor..." : "Weekly Plan'a gec"}
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleOpenPortal()}
+              disabled={isOpeningPortal}
+              className="rounded-xl border border-(--line) px-4 py-2.5 text-sm font-semibold transition hover:border-(--ink-muted) disabled:cursor-not-allowed disabled:opacity-65"
+            >
+              {isOpeningPortal ? "Aciliyor..." : "Aboneligi yonet"}
+            </button>
+          </div>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         <article className="panel p-5">
