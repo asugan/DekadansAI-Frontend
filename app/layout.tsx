@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: "Dekadans AI | Multi-Model AI Gateway",
   description:
     "Weekly request-limited access to MiniMax, GLM, Kimi, and ChatGPT through one secure API key.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

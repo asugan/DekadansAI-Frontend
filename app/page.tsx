@@ -26,7 +26,18 @@ export default function Home() {
       <nav className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#0a0c10]/70 px-4 py-4 backdrop-blur-md md:px-6">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link className="text-xl font-bold tracking-tighter text-white transition hover:text-[var(--brand)]" href="/">
+            <Link
+              className="flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-[var(--brand)]"
+              href="/"
+            >
+              <Image
+                alt="Dekadans AI logo"
+                className="h-9 w-9 object-contain"
+                height={36}
+                priority
+                src="/logo.png"
+                width={36}
+              />
               Dekadans AI
             </Link>
             <div className="hidden items-center gap-6 md:flex">
@@ -49,7 +60,7 @@ export default function Home() {
               Login
             </Link>
             <Link
-              className="rounded bg-[var(--brand)] px-4 py-2 font-mono text-[13px] tracking-wider text-[#00363a] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+              className="rounded-sm bg-[var(--brand)] px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] !text-[#002022] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
               href="/register"
             >
               Get Started
@@ -75,7 +86,7 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
                 <Link
-                  className="rounded bg-[var(--brand)] px-6 py-3 font-mono text-[13px] tracking-wider text-[#00363a] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+                  className="rounded-sm bg-[var(--brand)] px-6 py-3 font-mono text-[13px] font-medium tracking-[0.05em] !text-[#002022] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
                   href="/register"
                 >
                   Get Started
@@ -222,7 +233,7 @@ export default function Home() {
                 ))}
               </ul>
               <Link
-                className="mb-4 w-full rounded bg-[var(--brand)] py-4 text-center font-mono text-[13px] tracking-wider text-[#00363a] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+                className="mb-4 w-full rounded-sm bg-[var(--brand)] py-4 text-center font-mono text-[13px] font-medium tracking-[0.05em] !text-[#002022] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
                 href="/register"
               >
                 Start Weekly Access
@@ -237,7 +248,16 @@ export default function Home() {
       </main>
 
       <footer className="flex w-full flex-col items-center justify-between gap-8 border-t border-white/5 bg-[#0c0e12] px-4 py-12 font-mono text-[13px] tracking-wider text-[#454747] md:flex-row md:px-6">
-        <div className="font-sans text-xl font-bold tracking-tight text-white">Dekadans AI</div>
+        <div className="flex items-center gap-3 font-sans text-xl font-bold tracking-tight text-white">
+          <Image
+            alt="Dekadans AI logo"
+            className="h-10 w-10 object-contain"
+            height={40}
+            src="/logo.png"
+            width={40}
+          />
+          Dekadans AI
+        </div>
         <div className="flex flex-wrap justify-center gap-6">
           {["Privacy Policy", "Terms of Service", "API Status", "GitHub", "Discord"].map((item) => (
             <Link className="transition hover:text-[var(--brand)]" href="#" key={item}>
