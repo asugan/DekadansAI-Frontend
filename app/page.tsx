@@ -1,6 +1,36 @@
 import Image from "next/image";
 import Link from "next/link";
 
+function MailIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 text-[var(--brand)]" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M4 6.5h16A1.5 1.5 0 0 1 21.5 8v8A1.5 1.5 0 0 1 20 17.5H4A1.5 1.5 0 0 1 2.5 16V8A1.5 1.5 0 0 1 4 6.5Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path d="m4.75 8.25 7.25 5 7.25-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function WhatsappIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 text-[var(--brand)]" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12.02 3.5a8.5 8.5 0 0 0-7.23 12.97L4 20.5l4.17-1.03a8.5 8.5 0 1 0 3.85-15.97Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.3 8.6c.2-.43.44-.45.65-.45h.56c.18 0 .46-.07.7.5.25.58.84 1.99.91 2.14.08.15.14.32.03.52-.1.2-.16.32-.31.5-.16.18-.33.4-.47.53-.16.15-.31.31-.13.62.18.3.8 1.32 1.72 2.14 1.18 1.05 2.17 1.38 2.48 1.53.3.15.47.12.65-.07.18-.2.76-.88.97-1.19.2-.3.4-.25.67-.15.28.1 1.75.82 2.05.97.3.14.5.21.58.33.09.12.09.72-.11 1.4-.2.68-1.22 1.31-1.68 1.39-.45.08-1.06.12-1.72-.1-.67-.22-2.26-.76-3.84-2.03-1.23-.99-2.06-2.2-2.3-2.56-.24-.36-1-1.42-1-2.7 0-1.28.7-1.9.95-2.17Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export default function Home() {
   const models = [
     { name: "Minimax M3", version: "minimax-m3", logo: "/minimax.png" },
@@ -241,6 +271,38 @@ export default function Home() {
                 $10 per week includes up to 5 hours of AI access or 300 requests, whichever comes
                 first.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mb-32 max-w-[1440px] px-4 md:mb-48 md:px-6" id="contact">
+          <div className="mx-auto max-w-3xl rounded-xl border border-white/10 bg-[#1e2024] p-8 text-center md:p-10">
+            <p className="mb-3 font-mono text-[13px] font-medium tracking-[0.05em] text-[var(--brand)]">
+              Contact
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
+              Need help getting started?
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-[var(--ink-muted)]">
+              Contact us for weekly access, onboarding, billing, or technical questions.
+            </p>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              <a
+                className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/20 p-5 font-mono text-sm tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5"
+                href="mailto:contact@dekadans.net"
+              >
+                <MailIcon />
+                contact@dekadans.net
+              </a>
+              <a
+                className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/20 p-5 font-mono text-sm tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5"
+                href="https://wa.me/905016401800"
+                rel="noreferrer"
+                target="_blank"
+              >
+                <WhatsappIcon />
+                WhatsApp: +90 501 640 18 00
+              </a>
             </div>
           </div>
         </section>
