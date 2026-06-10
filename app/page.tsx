@@ -3,7 +3,7 @@ import Link from "next/link";
 
 function MailIcon() {
   return (
-    <svg aria-hidden="true" className="h-5 w-5 text-[var(--brand)]" viewBox="0 0 24 24" fill="none">
+    <svg aria-hidden="true" className="h-5 w-5 text-(--brand)" viewBox="0 0 24 24" fill="none">
       <path
         d="M4 6.5h16A1.5 1.5 0 0 1 21.5 8v8A1.5 1.5 0 0 1 20 17.5H4A1.5 1.5 0 0 1 2.5 16V8A1.5 1.5 0 0 1 4 6.5Z"
         stroke="currentColor"
@@ -16,7 +16,7 @@ function MailIcon() {
 
 function WhatsappIcon() {
   return (
-    <svg aria-hidden="true" className="h-5 w-5 text-[var(--brand)]" viewBox="0 0 24 24" fill="none">
+    <svg aria-hidden="true" className="h-5 w-5 text-(--brand)" viewBox="0 0 24 24" fill="none">
       <path
         d="M12.02 3.5a8.5 8.5 0 0 0-7.23 12.97L4 20.5l4.17-1.03a8.5 8.5 0 1 0 3.85-15.97Z"
         stroke="currentColor"
@@ -54,10 +54,10 @@ export default function Home() {
   return (
     <>
       <nav className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#0a0c10]/70 px-4 py-4 backdrop-blur-md md:px-6">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
+        <div className="mx-auto flex max-w-360 items-center justify-between">
           <div className="flex items-center gap-8">
             <Link
-              className="group flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-[var(--brand)]"
+              className="group flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-(--brand)"
               href="/"
             >
               <Image
@@ -73,7 +73,7 @@ export default function Home() {
               {["Models", "Pricing", "Docs"].map((item) => (
                 <Link
                   key={item}
-                  className="font-mono text-[13px] tracking-wider text-[var(--ink-muted)] transition hover:text-[var(--brand)]"
+                  className="font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand)"
                   href={`#${item.toLowerCase()}`}
                 >
                   {item}
@@ -83,13 +83,13 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <Link
-              className="hidden font-mono text-[13px] tracking-wider text-[var(--ink-muted)] transition hover:text-[var(--brand)] md:block"
+              className="hidden font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand) md:block"
               href="/login"
             >
               Login
             </Link>
             <Link
-              className="rounded-sm bg-[var(--brand)] px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] !text-[#002022] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+              className="rounded-sm bg-(--brand) px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
               href="/register"
             >
               Get Started
@@ -99,8 +99,8 @@ export default function Home() {
       </nav>
 
       <main className="overflow-hidden pb-24 pt-32">
-        <section className="relative mx-auto mb-32 max-w-[1440px] px-4 md:mb-48 md:px-6">
-          <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
+        <section className="relative mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6">
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-size-[40px_40px] opacity-20 mask-[linear-gradient(to_bottom,white,transparent)]" />
           <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12">
             <div className="space-y-8 md:col-span-6">
               <div className="inline-block rounded border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 font-mono text-[13px] font-medium tracking-wider text-cyan-300">
@@ -109,13 +109,13 @@ export default function Home() {
               <h1 className="max-w-3xl text-4xl font-bold leading-[1.1] tracking-[-0.02em] text-[#e1fdff] md:text-5xl">
                 One API for MiniMax, GLM, Kimi, and ChatGPT
               </h1>
-              <p className="max-w-lg text-base leading-relaxed text-[var(--ink-muted)]">
+              <p className="max-w-lg text-base leading-relaxed text-(--ink-muted)">
                 Get secure, request-limited access to multiple frontier AI models with a single
                 API key powered by CLIProxy.
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
                 <Link
-                  className="rounded-sm bg-[var(--brand)] px-6 py-3 font-mono text-[13px] font-medium tracking-[0.05em] !text-[#002022] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+                  className="rounded-sm bg-(--brand) px-6 py-3 font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
                   href="/register"
                 >
                   Get Started
@@ -129,9 +129,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative h-[400px] overflow-hidden rounded-lg border border-white/10 bg-[#1a1c20] md:col-span-6 md:h-[500px]">
+            <div className="relative h-100 overflow-hidden rounded-lg border border-white/10 bg-[#1a1c20] md:col-span-6 md:h-125">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(0,242,255,0.28),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(168,85,247,0.24),transparent_28%),linear-gradient(135deg,rgba(0,242,255,0.08),rgba(111,0,190,0.06))]" />
-              <div className="absolute inset-0 opacity-35 [background-image:repeating-linear-gradient(150deg,transparent_0px,transparent_20px,rgba(255,255,255,0.12)_21px,transparent_23px)]" />
+              <div className="absolute inset-0 opacity-35 bg-[repeating-linear-gradient(150deg,transparent_0px,transparent_20px,rgba(255,255,255,0.12)_21px,transparent_23px)]" />
               <div className="absolute inset-0 flex items-center justify-center p-8">
                 <div className="w-full max-w-md rounded-lg border border-white/10 bg-black/80 p-6 shadow-2xl backdrop-blur-md">
                   <div className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
@@ -155,12 +155,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto mb-32 max-w-[1440px] px-4 md:mb-48 md:px-6" id="models">
+        <section className="mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="models">
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
               Unified Model Access
             </h2>
-            <p className="mx-auto max-w-2xl text-[var(--ink-muted)]">
+            <p className="mx-auto max-w-2xl text-(--ink-muted)">
               Route your AI requests through a unified gateway instead of managing multiple
               providers separately.
             </p>
@@ -171,7 +171,7 @@ export default function Home() {
                 className="group relative rounded-lg border border-white/10 bg-[#1e2024] p-6 transition hover:border-cyan-300/40"
                 key={model.name}
               >
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-cyan-300/5 to-transparent opacity-0 transition group-hover:opacity-100" />
+                <div className="absolute inset-0 rounded-lg bg-linear-to-br from-cyan-300/5 to-transparent opacity-0 transition group-hover:opacity-100" />
                 <div className="relative flex flex-col items-center justify-center space-y-4 text-center">
                   <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-white/10 bg-white p-2 shadow-[0_0_18px_rgba(0,242,255,0.12)]">
                     <Image
@@ -190,11 +190,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative mx-auto mb-32 max-w-[1440px] px-4 md:mb-48 md:px-6" id="docs">
+        <section className="relative mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="docs">
           <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-2">
             <div className="order-2 overflow-hidden rounded-lg border border-white/10 bg-[#1a1c20] md:order-1">
               <div className="border-b border-white/10 bg-[#1e2024] px-4 py-3">
-                <span className="font-mono text-[13px] tracking-wider text-[var(--ink-muted)]">
+                <span className="font-mono text-[13px] tracking-wider text-(--ink-muted)">
                   usage_dashboard.js
                 </span>
               </div>
@@ -205,7 +205,7 @@ export default function Home() {
                     <span className="text-[#e1fdff]">184 / 300</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-[#333539]">
-                    <div className="h-full w-[61%] bg-[var(--brand)] shadow-[0_0_15px_rgba(0,242,255,0.3)]" />
+                    <div className="h-full w-[61%] bg-(--brand) shadow-[0_0_15px_rgba(0,242,255,0.3)]" />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -221,14 +221,14 @@ export default function Home() {
             </div>
             <div className="order-1 space-y-6 md:order-2">
               <h2 className="text-3xl font-semibold tracking-tight text-white">Built for Developers</h2>
-              <p className="leading-relaxed text-[var(--ink-muted)]">
+              <p className="leading-relaxed text-(--ink-muted)">
                 No more juggling separate accounts and billing. One key, all the frontier models
                 you need. Track your usage in real-time.
               </p>
-              <ul className="space-y-4 font-mono text-[13px] tracking-wider text-[var(--ink-muted)]">
+              <ul className="space-y-4 font-mono text-[13px] tracking-wider text-(--ink-muted)">
                 {developerItems.map((item) => (
                   <li className="flex items-center gap-3" key={item}>
-                    <span className="text-[var(--brand)]">⊙</span>
+                    <span className="text-(--brand)">⊙</span>
                     {item}
                   </li>
                 ))}
@@ -237,32 +237,32 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto mb-32 max-w-[1440px] px-4 md:mb-48 md:px-6" id="pricing">
+        <section className="mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="pricing">
           <div className="mb-16 text-center">
             <h2 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">
               Simple Weekly Pricing
             </h2>
           </div>
           <div className="group relative mx-auto max-w-md">
-            <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-[var(--brand)] to-[var(--accent)] opacity-25 blur transition duration-1000 group-hover:opacity-40" />
+            <div className="absolute -inset-1 rounded-xl bg-linear-to-r from-(--brand) to-(--accent) opacity-25 blur transition duration-1000 group-hover:opacity-40" />
             <div className="relative flex h-full flex-col rounded-xl border border-white/10 bg-[#282a2e] p-8">
               <div className="mb-8">
                 <h3 className="mb-2 text-2xl font-semibold text-[#e1fdff]">Weekly Access</h3>
                 <div className="flex items-baseline gap-2">
                   <span className="text-5xl font-bold leading-none text-white">$10</span>
-                  <span className="font-mono text-[13px] tracking-wider text-[var(--ink-muted)]">/ week</span>
+                  <span className="font-mono text-[13px] tracking-wider text-(--ink-muted)">/ week</span>
                 </div>
               </div>
               <ul className="mb-8 flex-1 space-y-4">
                 {pricingItems.map(([icon, item]) => (
                   <li className="flex items-start gap-3" key={item}>
-                    <span className="mt-0.5 text-[var(--brand)]">{icon}</span>
+                    <span className="mt-0.5 text-(--brand)">{icon}</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
               <Link
-                className="mb-4 w-full rounded-sm bg-[var(--brand)] py-4 text-center font-mono text-[13px] font-medium tracking-[0.05em] !text-[#002022] shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+                className="mb-4 w-full rounded-sm bg-(--brand) py-4 text-center font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
                 href="/register"
               >
                 Start Weekly Access
@@ -275,15 +275,15 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto mb-32 max-w-[1440px] px-4 md:mb-48 md:px-6" id="contact">
+        <section className="mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="contact">
           <div className="mx-auto max-w-3xl rounded-xl border border-white/10 bg-[#1e2024] p-8 text-center md:p-10">
-            <p className="mb-3 font-mono text-[13px] font-medium tracking-[0.05em] text-[var(--brand)]">
+            <p className="mb-3 font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
               Contact
             </p>
             <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
               Need help getting started?
             </h2>
-            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-[var(--ink-muted)]">
+            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-(--ink-muted)">
               Contact us for weekly access, onboarding, billing, or technical questions.
             </p>
             <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -320,7 +320,7 @@ export default function Home() {
         </div>
         <div className="flex flex-wrap justify-center gap-6">
           {["Privacy Policy", "Terms of Service", "API Status", "GitHub", "Discord"].map((item) => (
-            <Link className="transition hover:text-[var(--brand)]" href="#" key={item}>
+            <Link className="transition hover:text-(--brand)" href="#" key={item}>
               {item}
             </Link>
           ))}

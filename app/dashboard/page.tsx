@@ -213,12 +213,12 @@ export default function DashboardPage() {
         <div>
           <p className="label">Hesap Paneli</p>
           <h1 className="headline text-2xl font-semibold">Dekadans AI account dashboard</h1>
-          <p className="mt-1 text-sm text-[var(--ink-muted)]">{session?.user?.email || "-"}</p>
+          <p className="mt-1 text-sm text-(--ink-muted)">{session?.user?.email || "-"}</p>
         </div>
         <button
           type="button"
           onClick={handleSignOut}
-          className="rounded-xl border border-[var(--line)] px-4 py-2 text-sm font-semibold transition hover:border-[var(--ink-muted)]"
+          className="rounded-xl border border-(--line) px-4 py-2 text-sm font-semibold transition hover:border-(--ink-muted)"
         >
           Cikis yap
         </button>
@@ -245,7 +245,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => void loadSnapshot(false)}
-            className="rounded-xl border border-[var(--line)] px-3 py-1.5 text-sm font-medium transition hover:border-[var(--ink-muted)]"
+            className="rounded-xl border border-(--line) px-3 py-1.5 text-sm font-medium transition hover:border-(--ink-muted)"
           >
             Yenile
           </button>
@@ -259,7 +259,7 @@ export default function DashboardPage() {
           <div className="progress-track">
             <div className="progress-bar" style={{ width: `${usagePercent}%` }} />
           </div>
-          <p className="mt-2 text-sm text-[var(--ink-muted)]">
+          <p className="mt-2 text-sm text-(--ink-muted)">
             Sonraki reset: {formatTime(snapshot?.overview.nextResetAt || null)}
           </p>
         </div>
@@ -271,13 +271,13 @@ export default function DashboardPage() {
         ) : null}
 
         {isLoadingSnapshot ? (
-          <p className="mt-4 text-sm text-[var(--ink-muted)]">Veriler yukleniyor...</p>
+          <p className="mt-4 text-sm text-(--ink-muted)">Veriler yukleniyor...</p>
         ) : null}
       </section>
 
       <section className="panel mt-6 p-5 md:p-6">
         <h2 className="headline text-xl font-semibold">Yeni API key olustur</h2>
-        <p className="mt-1 text-sm text-[var(--ink-muted)]">
+        <p className="mt-1 text-sm text-(--ink-muted)">
           Key sadece olusturuldugu anda gorunur. Guvenli bir yerde saklayin.
         </p>
 
@@ -287,14 +287,14 @@ export default function DashboardPage() {
             value={keyName}
             onChange={(event) => setKeyName(event.target.value)}
             placeholder="ornek: frontend-key"
-            className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
+            className="w-full rounded-xl border border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
             disabled={isCreatingKey}
             maxLength={80}
           />
           <button
             type="submit"
             disabled={isCreatingKey}
-            className="headline rounded-xl bg-[var(--brand)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
+            className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
           >
             {isCreatingKey ? "Olusturuluyor..." : "Key olustur"}
           </button>
@@ -307,7 +307,7 @@ export default function DashboardPage() {
         ) : null}
 
         {createdKey ? (
-          <div className="mt-4 rounded-xl border border-[var(--line)] bg-white/5 p-4">
+          <div className="mt-4 rounded-xl border border-(--line) bg-white/5 p-4">
             <p className="label mb-1">Olusan key</p>
             <code className="block overflow-x-auto rounded-lg bg-black/30 px-3 py-2 text-xs font-semibold text-white/90">
               {createdKey}
@@ -315,7 +315,7 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={handleCopyKey}
-              className="mt-3 rounded-lg border border-[var(--line)] px-3 py-1.5 text-sm font-medium"
+              className="mt-3 rounded-lg border border-(--line) px-3 py-1.5 text-sm font-medium"
             >
               {copyState === "copied" ? "Kopyalandi" : copyState === "failed" ? "Kopyalanamadi" : "Kopyala"}
             </button>
@@ -333,9 +333,9 @@ export default function DashboardPage() {
         ) : null}
 
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[620px] border-collapse text-sm">
+          <table className="w-full min-w-155 border-collapse text-sm">
             <thead>
-              <tr className="border-b border-[var(--line)] text-left text-[var(--ink-muted)]">
+              <tr className="border-b border-(--line) text-left text-(--ink-muted)">
                 <th className="py-2 pr-3">Key</th>
                 <th className="py-2 pr-3">Durum</th>
                 <th className="py-2 pr-3">Used</th>
@@ -348,7 +348,7 @@ export default function DashboardPage() {
             <tbody>
               {snapshot?.keys.length ? (
                 snapshot.keys.map((item) => (
-                  <tr key={item.id} className="border-b border-[var(--line)] last:border-0">
+                  <tr key={item.id} className="border-b border-(--line) last:border-0">
                     <td className="py-2 pr-3 font-medium">{item.name || maskKey(item.start)}</td>
                     <td className="py-2 pr-3">{item.enabled ? "Aktif" : "Pasif"}</td>
                     <td className="py-2 pr-3">{item.used}</td>
@@ -369,7 +369,7 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <tr>
-                  <td className="py-4 text-[var(--ink-muted)]" colSpan={7}>
+                  <td className="py-4 text-(--ink-muted)" colSpan={7}>
                     Henuz API key bulunmuyor.
                   </td>
                 </tr>

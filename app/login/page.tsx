@@ -74,7 +74,7 @@ export default function LoginPage() {
       <section className="panel w-full max-w-md p-8">
         <p className="label mb-3">Dekadans AI Account</p>
         <h1 className="headline text-3xl font-semibold">Hesabina giris yap</h1>
-        <p className="mt-2 text-sm text-[var(--ink-muted)]">
+        <p className="mt-2 text-sm text-(--ink-muted)">
           Better Auth uzerinden oturum acip API key ve rate limit paneline gecis yap.
         </p>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
-              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
+              className="w-full rounded-xl border border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="ornek@domain.com"
@@ -104,7 +104,7 @@ export default function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
+              className="w-full rounded-xl border border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="********"
@@ -122,15 +122,15 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting || isSessionPending}
-            className="headline w-full rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
+            className="headline w-full rounded-xl bg-(--brand) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
           >
             {isSubmitting ? "Giris yapiliyor..." : "Giris yap"}
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-[var(--ink-muted)]">
+        <p className="mt-6 text-sm text-(--ink-muted)">
           Hesabin yok mu?{" "}
-          <Link className="font-semibold text-[var(--brand)]" href="/register">
+          <Link className="font-semibold text-(--brand)" href="/register">
             Kayit ol
           </Link>
         </p>

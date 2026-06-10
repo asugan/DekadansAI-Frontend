@@ -82,7 +82,7 @@ export default function RegisterPage() {
       <section className="panel w-full max-w-md p-8">
         <p className="label mb-3">Dekadans AI Account</p>
         <h1 className="headline text-3xl font-semibold">Yeni hesap olustur</h1>
-        <p className="mt-2 text-sm text-[var(--ink-muted)]">
+        <p className="mt-2 text-sm text-(--ink-muted)">
           Kayit tamamlandiginda otomatik giris yapip dashboarda yonlendirileceksin.
         </p>
 
@@ -95,7 +95,7 @@ export default function RegisterPage() {
               id="name"
               type="text"
               autoComplete="name"
-              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
+              className="w-full rounded-xl border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Ad Soyad"
@@ -112,7 +112,7 @@ export default function RegisterPage() {
               id="email"
               type="email"
               autoComplete="email"
-              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
+              className="w-full rounded-xl border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="ornek@domain.com"
@@ -129,7 +129,7 @@ export default function RegisterPage() {
               id="password"
               type="password"
               autoComplete="new-password"
-              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
+              className="w-full rounded-xl border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="En az 8 karakter"
@@ -147,7 +147,7 @@ export default function RegisterPage() {
               id="confirm-password"
               type="password"
               autoComplete="new-password"
-              className="w-full rounded-xl border border-[var(--line)] bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-[var(--brand)]"
+              className="w-full rounded-xl border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Sifreni tekrar yaz"
@@ -165,15 +165,15 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={isSubmitting || isSessionPending}
-            className="headline w-full rounded-xl bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
+            className="headline w-full rounded-xl bg-(--brand) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
           >
             {isSubmitting ? "Kayit yapiliyor..." : "Kayit ol"}
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-[var(--ink-muted)]">
+        <p className="mt-6 text-sm text-(--ink-muted)">
           Zaten hesabin var mi?{" "}
-          <Link className="font-semibold text-[var(--brand)]" href="/login">
+          <Link className="font-semibold text-(--brand)" href="/login">
             Giris yap
           </Link>
         </p>
