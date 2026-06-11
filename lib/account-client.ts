@@ -63,6 +63,7 @@ export interface ModelInfo {
   name: string;
   provider: string | null;
   enabled: boolean;
+  requestCost: number;
 }
 
 export interface ModelsSnapshot {
@@ -205,7 +206,8 @@ function normalizeModelsSnapshot(payload: unknown): ModelsSnapshot {
         name: typeof model.name === "string" && model.name.trim() ? model.name : id,
         provider:
           typeof model.provider === "string" && model.provider.trim() ? model.provider : null,
-        enabled: asBoolean(model.enabled, true)
+        enabled: asBoolean(model.enabled, true),
+        requestCost: Math.max(1, asNumber(model.requestCost, 1))
       } satisfies ModelInfo;
     })
     .filter((entry): entry is ModelInfo => entry !== null);

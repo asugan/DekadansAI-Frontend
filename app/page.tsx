@@ -1,6 +1,93 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { getBackendBaseUrl } from "@/lib/server/backend-url";
+
+type JsonObject = Record<string, unknown>;
+
+interface HomepageModel {
+  id: string;
+  name: string;
+  provider: string | null;
+  requestCost: number;
+}
+
+const FALLBACK_MODELS: HomepageModel[] = [
+  { id: "minimax-m3", name: "Minimax M3", provider: "minimax", requestCost: 1 },
+  { id: "glm-5.1", name: "GLM 5.1", provider: "zai", requestCost: 1 },
+  { id: "kimi-k2.6", name: "Kimi K2.6", provider: "kimi", requestCost: 1 },
+  { id: "gpt-5.5", name: "ChatGPT 5.5", provider: "openai", requestCost: 3 }
+];
+
+const FEATURED_MODELS = [
+  { name: "Minimax M3", version: "minimax-m3", logo: "/minimax.png" },
+  { name: "GLM 5.1", version: "glm-5.1", logo: "/zai.jpg" },
+  { name: "Kimi K2.6", version: "kimi-k2.6", logo: "/kimilogo.webp" },
+  { name: "ChatGPT 5.5", version: "gpt-5.5", logo: "/chatgptlogo.png" }
+];
+
+function asObject(value: unknown): JsonObject {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as JsonObject;
+  }
+
+  return {};
+}
+
+function asNumber(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  return fallback;
+}
+
+function normalizeHomepageModels(payload: unknown): HomepageModel[] {
+  const root = asObject(payload);
+  const rawModels = Array.isArray(root.data) ? root.data : [];
+
+  return rawModels
+    .map((entry): HomepageModel | null => {
+      const model = asObject(entry);
+      const id = typeof model.id === "string" ? model.id.trim() : "";
+      if (!id) return null;
+
+      return {
+        id,
+        name: typeof model.name === "string" && model.name.trim() ? model.name : id,
+        provider:
+          typeof model.provider === "string" && model.provider.trim() ? model.provider : null,
+        requestCost: Math.max(1, asNumber(model.requestCost, 1))
+      };
+    })
+    .filter((entry): entry is HomepageModel => entry !== null);
+}
+
+async function getHomepageModels(): Promise<HomepageModel[]> {
+  try {
+    const response = await fetch(new URL("/models", getBackendBaseUrl()), {
+      cache: "no-store"
+    });
+    const payload: unknown = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      return FALLBACK_MODELS;
+    }
+
+    const models = normalizeHomepageModels(payload);
+    return models.length ? models : FALLBACK_MODELS;
+  } catch {
+    return FALLBACK_MODELS;
+  }
+}
+
 function MailIcon() {
   return (
     <svg aria-hidden="true" className="h-5 w-5 text-(--brand)" viewBox="0 0 24 24" fill="none">
@@ -31,13 +118,8 @@ function WhatsappIcon() {
   );
 }
 
-export default function Home() {
-  const models = [
-    { name: "Minimax M3", version: "minimax-m3", logo: "/minimax.png" },
-    { name: "GLM 5.1", version: "glm-5.1", logo: "/zai.jpg" },
-    { name: "Kimi K2.6", version: "kimi-k2.6", logo: "/kimilogo.webp" },
-    { name: "ChatGPT 5.5", version: "gpt-5.5", logo: "/chatgptlogo.png" }
-  ];
+export default async function Home() {
+  const models = await getHomepageModels();
   const pricingItems = [
     ["⚡", "500 requests included"],
     ["◴", "Up to 5 hours of AI usage"],
@@ -165,8 +247,8 @@ export default function Home() {
               providers separately.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
-            {models.map((model) => (
+          <div className="mb-16 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
+            {FEATURED_MODELS.map((model) => (
               <article
                 className="group relative rounded-lg border border-white/10 bg-[#1e2024] p-6 transition hover:border-cyan-300/40"
                 key={model.name}
@@ -184,6 +266,47 @@ export default function Home() {
                   </div>
                   <h3 className="font-mono text-[13px] font-bold tracking-wider text-white">{model.name}</h3>
                   <p className="font-mono text-sm text-[#849495]">{model.version}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mb-8 text-center">
+            <h3 className="mb-3 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+              Live model catalog
+            </h3>
+            <p className="mx-auto max-w-2xl text-(--ink-muted)">
+              Model names and request multipliers are loaded directly from the backend.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {models.map((model) => (
+              <article
+                className="group relative rounded-xl border border-white/10 bg-[#101214] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-[#15171b]"
+                key={model.id}
+              >
+                <div className="absolute inset-0 rounded-xl bg-linear-to-r from-cyan-300/5 to-transparent opacity-0 transition group-hover:opacity-100" />
+                <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0 space-y-2">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h3 className="truncate font-mono text-[14px] font-bold tracking-wider text-white">
+                        {model.name}
+                      </h3>
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] tracking-wider text-[#94a3b8]">
+                        {model.requestCost}x
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 font-mono text-[12px] text-[#849495]">
+                      <span className="rounded border border-white/10 px-2 py-1">{model.id}</span>
+                      {model.provider ? (
+                        <span className="rounded border border-white/10 px-2 py-1">{model.provider}</span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono text-[12px]">
+                    <span className="text-[#22c55e]">available</span>
+                    <span className="text-[#fbbf24]">live</span>
+                  </div>
                 </div>
               </article>
             ))}
