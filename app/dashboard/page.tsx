@@ -31,7 +31,7 @@ function formatTime(value: string | null): string {
   if (!value) return "-";
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return "-";
-  return parsed.toLocaleTimeString("tr-TR", {
+  return parsed.toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit"
@@ -72,7 +72,7 @@ function extractCreatedKey(payload: unknown): string | null {
 }
 
 function maskKey(start: string | null): string {
-  if (!start) return "gizli-key";
+  if (!start) return "hidden-key";
   return `${start}...`;
 }
 
@@ -122,7 +122,7 @@ export default function DashboardPage() {
           return;
         }
 
-        setSnapshotError(resolveErrorMessage(error, "Rate limit verisi yuklenemedi"));
+        setSnapshotError(resolveErrorMessage(error, "Unable to load rate limit data."));
       } finally {
         setIsLoadingSnapshot(false);
       }
@@ -143,7 +143,7 @@ export default function DashboardPage() {
       }
 
       setBillingStatus("error");
-      setBillingError(resolveErrorMessage(error, "Billing bilgisi yuklenemedi"));
+      setBillingError(resolveErrorMessage(error, "Unable to load billing details."));
     }
   }, [router]);
 
@@ -163,7 +163,7 @@ export default function DashboardPage() {
         return;
       }
 
-      setModelsError(resolveErrorMessage(error, "Model listesi yuklenemedi"));
+      setModelsError(resolveErrorMessage(error, "Unable to load the model list."));
     } finally {
       setIsLoadingModels(false);
     }
@@ -205,7 +205,7 @@ export default function DashboardPage() {
   -H "Content-Type: application/json" \\
   -d '{
     "model": "${selectedModelId || "model-id"}",
-    "messages": [{"role": "user", "content": "Merhaba"}]
+    "messages": [{"role": "user", "content": "Hello"}]
   }'`,
     [selectedModelId]
   );
@@ -224,13 +224,13 @@ export default function DashboardPage() {
       });
 
       if (error) {
-        setCreateError(resolveErrorMessage(error, "API key olusturulamadi"));
+        setCreateError(resolveErrorMessage(error, "Unable to create an API key."));
         return;
       }
 
       const generatedKey = extractCreatedKey(data);
       if (!generatedKey) {
-        setCreateError("API key olustu ama key degeri donmedi");
+        setCreateError("The API key was created, but the key value was not returned.");
         return;
       }
 
@@ -267,7 +267,7 @@ export default function DashboardPage() {
       });
 
       if (error) {
-        setDeleteError(resolveErrorMessage(error, "API key silinemedi"));
+        setDeleteError(resolveErrorMessage(error, "Unable to delete the API key."));
         return;
       }
 
@@ -288,13 +288,13 @@ export default function DashboardPage() {
       });
 
       if (error) {
-        setBillingError(resolveErrorMessage(error, "Checkout baslatilamadi"));
+        setBillingError(resolveErrorMessage(error, "Unable to start checkout."));
         return;
       }
 
       const checkoutUrl = extractRedirectUrl(data);
       if (!checkoutUrl) {
-        setBillingError("Checkout URL donmedi");
+        setBillingError("Checkout did not return a redirect URL.");
         return;
       }
 
@@ -312,7 +312,7 @@ export default function DashboardPage() {
       const { data, error } = await authClient.customer.portal();
 
       if (error) {
-        setBillingError(resolveErrorMessage(error, "Musteri portali acilamadi"));
+        setBillingError(resolveErrorMessage(error, "Unable to open the customer portal."));
         return;
       }
 
@@ -334,7 +334,7 @@ export default function DashboardPage() {
     return (
       <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 py-10">
         <div className="panel w-full max-w-md p-8 text-center">
-          <p className="headline text-xl font-semibold">Oturum kontrol ediliyor...</p>
+          <p className="headline text-xl font-semibold">Checking your session...</p>
         </div>
       </main>
     );
@@ -344,8 +344,8 @@ export default function DashboardPage() {
     <main className="mx-auto min-h-screen w-full max-w-6xl px-5 py-8 md:px-8 md:py-10">
       <header className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
         <div>
-          <p className="label">Hesap Paneli</p>
-          <h1 className="headline text-2xl font-semibold">Dekadans AI account dashboard</h1>
+          <p className="label">Account Dashboard</p>
+          <h1 className="headline text-2xl font-semibold text-[#e1fdff]">Dekadans AI workspace</h1>
           <p className="mt-1 text-sm text-(--ink-muted)">{session?.user?.email || "-"}</p>
         </div>
         <button
@@ -353,24 +353,24 @@ export default function DashboardPage() {
           onClick={handleSignOut}
           className="rounded-xl border border-(--line) px-4 py-2 text-sm font-semibold transition hover:border-(--ink-muted)"
         >
-          Cikis yap
+          Sign out
         </button>
       </header>
 
-      <section className="panel mb-6 p-5 md:p-6">
+      <section className="panel mb-6 overflow-hidden p-5 md:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="label">Weekly Plan</p>
             <h2 className="headline text-xl font-semibold">
               {billingStatus === "active"
-                ? "Weekly plan aktif"
+                ? "Weekly plan active"
                 : billingStatus === "loading"
-                  ? "Plan durumu kontrol ediliyor"
-                  : "Weekly plan gerekli"}
+                  ? "Checking plan status"
+                  : "Weekly plan required"}
             </h2>
             <p className="mt-1 text-sm text-(--ink-muted)">
-              AI endpointlerini kullanmak icin aktif weekly plan aboneligi gerekir.
-              Limit hesap bazlidir: 5 saatte 500 request.
+              An active weekly plan is required to use AI endpoints. Limits apply at the account
+              level: 500 requests every 5 hours.
             </p>
             {billingError ? (
               <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
@@ -385,7 +385,7 @@ export default function DashboardPage() {
               disabled={isStartingCheckout}
               className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
             >
-              {isStartingCheckout ? "Yonlendiriliyor..." : "Weekly Plan'a gec"}
+              {isStartingCheckout ? "Redirecting..." : "Start weekly plan"}
             </button>
             <button
               type="button"
@@ -393,7 +393,7 @@ export default function DashboardPage() {
               disabled={isOpeningPortal}
               className="rounded-xl border border-(--line) px-4 py-2.5 text-sm font-semibold transition hover:border-(--ink-muted) disabled:cursor-not-allowed disabled:opacity-65"
             >
-              {isOpeningPortal ? "Aciliyor..." : "Aboneligi yonet"}
+              {isOpeningPortal ? "Opening..." : "Manage subscription"}
             </button>
           </div>
         </div>
@@ -401,41 +401,41 @@ export default function DashboardPage() {
 
       <section className="grid gap-4 md:grid-cols-3">
         <article className="panel p-5">
-          <p className="label">Toplam limit</p>
+          <p className="label">Total limit</p>
           <p className="headline mt-2 text-3xl font-semibold">{snapshot?.overview.totalMax ?? 0}</p>
         </article>
         <article className="panel p-5">
-          <p className="label">Kullanilan</p>
+          <p className="label">Used</p>
           <p className="headline mt-2 text-3xl font-semibold">{snapshot?.overview.totalUsed ?? 0}</p>
         </article>
         <article className="panel p-5">
-          <p className="label">Kalan</p>
+          <p className="label">Remaining</p>
           <p className="headline mt-2 text-3xl font-semibold">{snapshot?.overview.totalRemaining ?? 0}</p>
         </article>
       </section>
 
       <section className="panel mt-6 p-5 md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="headline text-xl font-semibold">Rate limit ozeti</h2>
+          <h2 className="headline text-xl font-semibold">Rate limit overview</h2>
           <button
             type="button"
             onClick={() => void loadSnapshot(false)}
             className="rounded-xl border border-(--line) px-3 py-1.5 text-sm font-medium transition hover:border-(--ink-muted)"
           >
-            Yenile
+            Refresh
           </button>
         </div>
 
         <div className="mt-4">
           <div className="mb-1 flex items-center justify-between text-sm">
-            <span className="label">Kullanim orani</span>
+            <span className="label">Usage rate</span>
             <span className="font-medium">{usagePercent}%</span>
           </div>
           <div className="progress-track">
             <div className="progress-bar" style={{ width: `${usagePercent}%` }} />
           </div>
           <p className="mt-2 text-sm text-(--ink-muted)">
-            5 saatlik hesap kotasi reset: {formatTime(snapshot?.overview.nextResetAt || null)}
+            Account quota resets every 5 hours. Next reset: {formatTime(snapshot?.overview.nextResetAt || null)}
           </p>
         </div>
 
@@ -446,17 +446,17 @@ export default function DashboardPage() {
         ) : null}
 
         {isLoadingSnapshot ? (
-          <p className="mt-4 text-sm text-(--ink-muted)">Veriler yukleniyor...</p>
+          <p className="mt-4 text-sm text-(--ink-muted)">Loading usage data...</p>
         ) : null}
       </section>
 
       <section className="panel mt-6 p-5 md:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="label">CLIProxy modelleri</p>
-            <h2 className="headline text-xl font-semibold">Model secimi</h2>
+            <p className="label">CLIProxy Models</p>
+            <h2 className="headline text-xl font-semibold">Model selection</h2>
             <p className="mt-1 text-sm text-(--ink-muted)">
-              CLIProxy&apos;de ekli modelleri buradan secip API isteginde model alanina yazabilirsin.
+              Choose one of your available CLIProxy models and use its identifier in API requests.
             </p>
           </div>
           <button
@@ -464,7 +464,7 @@ export default function DashboardPage() {
             onClick={() => void loadModels()}
             className="rounded-xl border border-(--line) px-3 py-1.5 text-sm font-medium transition hover:border-(--ink-muted)"
           >
-            Yenile
+            Refresh
           </button>
         </div>
 
@@ -477,7 +477,7 @@ export default function DashboardPage() {
         <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
           <div>
             <label className="label mb-2 block" htmlFor="model-select">
-              Kullanilacak model
+              Model to use
             </label>
             <select
               id="model-select"
@@ -494,7 +494,7 @@ export default function DashboardPage() {
                 ))
               ) : (
                 <option value="">
-                  {isLoadingModels ? "Modeller yukleniyor..." : "Model bulunamadi"}
+                  {isLoadingModels ? "Loading models..." : "No models found"}
                 </option>
               )}
             </select>
@@ -510,7 +510,7 @@ export default function DashboardPage() {
           </div>
 
           <div>
-            <p className="label mb-2">Secili model ile ornek istek</p>
+            <p className="label mb-2">Example request with the selected model</p>
             <pre className="overflow-x-auto rounded-xl border border-(--line) bg-black/30 p-4 text-xs leading-5 text-white/90">
               <code>{selectedModelCurl}</code>
             </pre>
@@ -519,9 +519,9 @@ export default function DashboardPage() {
       </section>
 
       <section className="panel mt-6 p-5 md:p-6">
-        <h2 className="headline text-xl font-semibold">Yeni API key olustur</h2>
+        <h2 className="headline text-xl font-semibold">Create a new API key</h2>
         <p className="mt-1 text-sm text-(--ink-muted)">
-          Key sadece olusturuldugu anda gorunur. Guvenli bir yerde saklayin.
+          Your key is shown only once after creation. Store it somewhere secure.
         </p>
 
         <form className="mt-4 flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateKey}>
@@ -529,7 +529,7 @@ export default function DashboardPage() {
             type="text"
             value={keyName}
             onChange={(event) => setKeyName(event.target.value)}
-            placeholder="ornek: frontend-key"
+            placeholder="example: production-key"
             className="w-full rounded-xl border border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
             disabled={isCreatingKey}
             maxLength={80}
@@ -539,7 +539,7 @@ export default function DashboardPage() {
             disabled={isCreatingKey}
             className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
           >
-            {isCreatingKey ? "Olusturuluyor..." : "Key olustur"}
+            {isCreatingKey ? "Creating..." : "Create key"}
           </button>
         </form>
 
@@ -551,7 +551,7 @@ export default function DashboardPage() {
 
         {createdKey ? (
           <div className="mt-4 rounded-xl border border-(--line) bg-white/5 p-4">
-            <p className="label mb-1">Olusan key</p>
+            <p className="label mb-1">Generated key</p>
             <code className="block overflow-x-auto rounded-lg bg-black/30 px-3 py-2 text-xs font-semibold text-white/90">
               {createdKey}
             </code>
@@ -560,16 +560,16 @@ export default function DashboardPage() {
               onClick={handleCopyKey}
               className="mt-3 rounded-lg border border-(--line) px-3 py-1.5 text-sm font-medium"
             >
-              {copyState === "copied" ? "Kopyalandi" : copyState === "failed" ? "Kopyalanamadi" : "Kopyala"}
+              {copyState === "copied" ? "Copied" : copyState === "failed" ? "Copy failed" : "Copy"}
             </button>
           </div>
         ) : null}
       </section>
 
       <section className="panel mt-6 p-5 md:p-6">
-        <h2 className="headline text-xl font-semibold">API keyler</h2>
+        <h2 className="headline text-xl font-semibold">API keys</h2>
         <p className="mt-1 text-sm text-(--ink-muted)">
-          Rate limit key bazli degil, hesaptaki tum keylerin toplam kullanimi uzerinden hesaplanir.
+          Rate limits are account-wide, not per key, and include usage from every key on this account.
         </p>
 
         {deleteError ? (
@@ -583,9 +583,9 @@ export default function DashboardPage() {
             <thead>
               <tr className="border-b border-(--line) text-left text-(--ink-muted)">
                 <th className="py-2 pr-3">Key</th>
-                <th className="py-2 pr-3">Durum</th>
-                <th className="py-2 pr-3">Son istek</th>
-                <th className="py-2 pr-3">Islem</th>
+                <th className="py-2 pr-3">Status</th>
+                <th className="py-2 pr-3">Last request</th>
+                <th className="py-2 pr-3">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -593,7 +593,7 @@ export default function DashboardPage() {
                 snapshot.keys.map((item) => (
                   <tr key={item.id} className="border-b border-(--line) last:border-0">
                     <td className="py-2 pr-3 font-medium">{item.name || maskKey(item.start)}</td>
-                    <td className="py-2 pr-3">{item.enabled ? "Aktif" : "Pasif"}</td>
+                    <td className="py-2 pr-3">{item.enabled ? "Active" : "Inactive"}</td>
                     <td className="py-2 pr-3">{formatTime(item.lastRequestAt)}</td>
                     <td className="py-2 pr-3">
                       <button
@@ -602,7 +602,7 @@ export default function DashboardPage() {
                         disabled={deletingKeyId === item.id}
                         className="rounded-md border border-red-400/35 px-2.5 py-1 text-xs font-semibold text-red-200 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {deletingKeyId === item.id ? "Siliniyor..." : "Sil"}
+                        {deletingKeyId === item.id ? "Deleting..." : "Delete"}
                       </button>
                     </td>
                   </tr>
@@ -610,7 +610,7 @@ export default function DashboardPage() {
               ) : (
                 <tr>
                   <td className="py-4 text-(--ink-muted)" colSpan={4}>
-                    Henuz API key bulunmuyor.
+                    No API keys yet.
                   </td>
                 </tr>
               )}

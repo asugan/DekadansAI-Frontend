@@ -46,7 +46,7 @@ export default function LoginPage() {
     setFormError(null);
 
     if (!email.trim() || !password.trim()) {
-      setFormError("Email ve sifre gerekli");
+      setFormError("Email and password are required.");
       return;
     }
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
       });
 
       if (error) {
-        setFormError(resolveErrorMessage(error, "Giris basarisiz"));
+        setFormError(resolveErrorMessage(error, "We could not sign you in. Please check your credentials."));
         return;
       }
 
@@ -70,12 +70,33 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 py-10">
-      <section className="panel w-full max-w-md p-8">
+    <main className="mx-auto grid min-h-screen w-full max-w-6xl items-center gap-8 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="hidden lg:block">
+        <div className="mb-6 inline-flex rounded border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 font-mono text-[13px] font-medium tracking-wider text-cyan-300">
+          Secure Gateway Access
+        </div>
+        <h1 className="headline max-w-xl text-5xl font-semibold leading-tight text-[#e1fdff]">
+          Sign in to manage your unified AI workspace.
+        </h1>
+        <p className="mt-5 max-w-lg leading-relaxed text-(--ink-muted)">
+          Monitor usage, create API keys, manage billing, and route requests to your available
+          Dekadans AI models from one clean dashboard.
+        </p>
+        <div className="mt-8 grid max-w-lg gap-3">
+          {["Real-time request limits", "Weekly access management", "One API key for every model"].map((item) => (
+            <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 font-mono text-sm text-[#e1fdff]" key={item}>
+              <span className="mr-2 text-(--brand)">⊙</span>
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel w-full p-8">
         <p className="label mb-3">Dekadans AI Account</p>
-        <h1 className="headline text-3xl font-semibold">Hesabina giris yap</h1>
-        <p className="mt-2 text-sm text-(--ink-muted)">
-          Better Auth uzerinden oturum acip API key ve rate limit paneline gecis yap.
+        <h2 className="headline text-3xl font-semibold text-white">Welcome back</h2>
+        <p className="mt-2 text-sm leading-6 text-(--ink-muted)">
+          Sign in to access your API keys, usage limits, model selection, and billing tools.
         </p>
 
         <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
@@ -90,7 +111,7 @@ export default function LoginPage() {
               className="w-full rounded-xl border border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="ornek@domain.com"
+              placeholder="you@example.com"
               disabled={isSubmitting || isSessionPending}
               required
             />
@@ -98,7 +119,7 @@ export default function LoginPage() {
 
           <div>
             <label className="label mb-1 block" htmlFor="password">
-              Sifre
+              Password
             </label>
             <input
               id="password"
@@ -124,14 +145,14 @@ export default function LoginPage() {
             disabled={isSubmitting || isSessionPending}
             className="headline w-full rounded-xl bg-(--brand) px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
           >
-            {isSubmitting ? "Giris yapiliyor..." : "Giris yap"}
+            {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
         <p className="mt-6 text-sm text-(--ink-muted)">
-          Hesabin yok mu?{" "}
+          New to Dekadans AI?{" "}
           <Link className="font-semibold text-(--brand)" href="/register">
-            Kayit ol
+            Create an account
           </Link>
         </p>
       </section>
