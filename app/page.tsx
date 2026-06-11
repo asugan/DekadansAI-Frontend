@@ -193,7 +193,7 @@ export default async function Home() {
               </h1>
               <p className="max-w-lg text-base leading-relaxed text-(--ink-muted)">
                 Get secure, request-limited access to multiple frontier AI models with a single
-                API key powered by CLIProxy.
+                API key.
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
                 <Link
@@ -431,24 +431,33 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className="flex w-full flex-col items-center justify-between gap-8 border-t border-white/5 bg-[#0c0e12] px-4 py-12 font-mono text-[13px] tracking-wider text-[#454747] md:flex-row md:px-6">
-        <div className="group flex items-center gap-3 font-sans text-xl font-bold tracking-tight text-white">
-          <Image
-            alt="Dekadans AI logo"
-            className="h-16 w-16 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
-            height={64}
-            src="/logo.png"
-            width={64}
-          />
-        </div>
-        <div className="flex flex-wrap justify-center gap-6">
-          {["Privacy Policy", "Terms of Service", "API Status", "GitHub", "Discord"].map((item) => (
-            <Link className="transition hover:text-(--brand)" href="#" key={item}>
-              {item}
+      <footer className="w-full border-t border-white/10 bg-[#0a0c10]/70 px-4 py-5 font-mono text-[13px] tracking-wider text-(--ink-muted) backdrop-blur-md md:px-6">
+        <div className="mx-auto grid max-w-360 items-center gap-4 md:grid-cols-3">
+          <div className="flex justify-center md:justify-start">
+            <Link
+              className="group flex items-center text-white transition hover:text-(--brand)"
+              href="/"
+            >
+              <Image
+                alt="Dekadans AI logo"
+                className="h-12 w-12 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
+                height={48}
+                src="/logo.png"
+                width={48}
+              />
             </Link>
-          ))}
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-5">
+            {["Privacy Policy", "Terms of Service", "API Status", "GitHub", "Discord"].map(
+              (item) => (
+                <Link className="transition hover:text-(--brand)" href="#" key={item}>
+                  {item}
+                </Link>
+              )
+            )}
+          </div>
+          <div className="text-center text-[#6d7677] md:text-right">© 2026 Dekadans AI</div>
         </div>
-        <div>© 2024 Dekadans AI. Powered by CLIProxy</div>
       </footer>
     </>
   );
