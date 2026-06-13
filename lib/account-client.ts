@@ -18,12 +18,20 @@ export interface RateLimitKey {
   lastRequestAt: string | null;
 }
 
+export interface PlanTierInfo {
+  slug: string;
+  label: string;
+  quotaMax: number;
+  weeklyQuotaMax: number;
+}
+
 export interface RateLimitSnapshot {
   generatedAt: string;
   defaults: {
     windowMs: number;
     max: number;
   };
+  tier?: PlanTierInfo;
   account: {
     quota: {
       windowMs: number;
@@ -33,6 +41,13 @@ export interface RateLimitSnapshot {
       resetAt: string;
     };
     burst: {
+      windowMs: number;
+      max: number;
+      used: number;
+      remaining: number;
+      resetAt: string;
+    };
+    weekly?: {
       windowMs: number;
       max: number;
       used: number;
@@ -54,8 +69,11 @@ export interface BillingSnapshot {
   generatedAt: string;
   weeklyPlan: {
     active: boolean;
+    tierSlug: string | null;
+    tier: PlanTierInfo | null;
     customerExists: boolean;
   };
+  planTiers: PlanTierInfo[];
 }
 
 export interface ModelInfo {
@@ -112,14 +130,28 @@ function asBoolean(value: unknown, fallback: boolean): boolean {
   return fallback;
 }
 
+function normalizePlanTierInfo(value: unknown): PlanTierInfo | null {
+  const obj = asObject(value);
+  const slug = typeof obj.slug === "string" ? obj.slug : "";
+  if (!slug) return null;
+  return {
+    slug,
+    label: typeof obj.label === "string" ? obj.label : slug,
+    quotaMax: Math.max(0, asNumber(obj.quotaMax, 500)),
+    weeklyQuotaMax: Math.max(0, asNumber(obj.weeklyQuotaMax, 8000))
+  };
+}
+
 function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
   const root = asObject(payload);
   const defaults = asObject(root.defaults);
   const account = asObject(root.account);
   const quota = asObject(account.quota);
   const burst = asObject(account.burst);
+  const weekly = asObject(account.weekly);
   const overview = asObject(root.overview);
   const keysRaw = Array.isArray(root.keys) ? root.keys : [];
+  const tier = normalizePlanTierInfo(root.tier);
 
   const keys = keysRaw
     .map((entry) => {
@@ -137,6 +169,20 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
     })
     .filter((entry): entry is RateLimitKey => entry !== null);
 
+  const weeklySection =
+    weekly && Object.keys(weekly).length > 0
+      ? {
+          windowMs: Math.max(1, asNumber(weekly.windowMs, 604800000)),
+          max: Math.max(0, asNumber(weekly.max, 8000)),
+          used: Math.max(0, asNumber(weekly.used, 0)),
+          remaining: Math.max(0, asNumber(weekly.remaining, 0)),
+          resetAt:
+            typeof weekly.resetAt === "string"
+              ? weekly.resetAt
+              : new Date(Date.now() + 604800000).toISOString()
+        }
+      : undefined;
+
   return {
     generatedAt:
       typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
@@ -144,6 +190,7 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
       windowMs: Math.max(1, asNumber(defaults.windowMs, 18000000)),
       max: Math.max(0, asNumber(defaults.max, 500))
     },
+    tier: tier ?? undefined,
     account: {
       quota: {
         windowMs: Math.max(1, asNumber(quota.windowMs, asNumber(defaults.windowMs, 18000000))),
@@ -164,7 +211,8 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
           typeof burst.resetAt === "string"
             ? burst.resetAt
             : new Date(Date.now() + Math.max(1, asNumber(burst.windowMs, 20000))).toISOString()
-      }
+      },
+      weekly: weeklySection
     },
     overview: {
       activeKeys: Math.max(0, asNumber(overview.activeKeys, keys.filter((item) => item.enabled).length)),
@@ -180,14 +228,21 @@ function normalizeSnapshot(payload: unknown): RateLimitSnapshot {
 function normalizeBillingSnapshot(payload: unknown): BillingSnapshot {
   const root = asObject(payload);
   const weeklyPlan = asObject(root.weeklyPlan);
+  const rawTiers = Array.isArray(root.planTiers) ? root.planTiers : [];
+  const planTiers: PlanTierInfo[] = rawTiers
+    .map(normalizePlanTierInfo)
+    .filter((t): t is PlanTierInfo => t !== null);
 
   return {
     generatedAt:
       typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
     weeklyPlan: {
       active: asBoolean(weeklyPlan.active, false),
+      tierSlug: typeof weeklyPlan.tierSlug === "string" ? weeklyPlan.tierSlug : null,
+      tier: normalizePlanTierInfo(weeklyPlan.tier),
       customerExists: asBoolean(weeklyPlan.customerExists, false)
-    }
+    },
+    planTiers
   };
 }
 

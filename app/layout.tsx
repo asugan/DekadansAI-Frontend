@@ -15,7 +15,7 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Dekadans AI | Multi-Model AI Gateway",
   description:
-    "Weekly request-limited access to MiniMax, GLM, Kimi, and ChatGPT through one secure API key.",
+    "Weekly request-limited access to MiniMax, GLM, Kimi, and ChatGPT through one secure API key. Plans from $5/week.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",

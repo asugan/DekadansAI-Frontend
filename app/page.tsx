@@ -120,12 +120,39 @@ function WhatsappIcon() {
 
 export default async function Home() {
   const models = await getHomepageModels();
-  const pricingItems = [
-    ["⚡", "500 requests included"],
-    ["◴", "Up to 5 hours of AI usage"],
-    ["▦", "Multiple model access"],
-    ["⌁", "API key included"],
-    ["▥", "Usage dashboard"]
+  const pricingPlans = [
+    {
+      slug: "weekly-250",
+      name: "250 Request",
+      price: "$5",
+      subtitle: "Best for testing & light usage",
+      description: "$5 per week — up to 250 quota points every 5 hours, with a safety limit of 4,000 requests per week.",
+      bestFor: ["Individual developers", "Quick prototypes & experiments", "Low-traffic integrations"],
+      specs: [
+        { label: "Quota per 5h", value: "250 points" },
+        { label: "Weekly limit", value: "4,000 points" },
+        { label: "Model access", value: "All models" },
+        { label: "API key", value: "Included" },
+        { label: "Dashboard", value: "Real-time usage" }
+      ],
+      popular: false
+    },
+    {
+      slug: "weekly-500",
+      name: "500 Request",
+      price: "$10",
+      subtitle: "Best for regular development",
+      description: "$10 per week — up to 500 quota points every 5 hours, with a safety limit of 8,000 requests per week.",
+      bestFor: ["Production workloads", "Team projects & CI/CD", "Heavy API integrations"],
+      specs: [
+        { label: "Quota per 5h", value: "500 points" },
+        { label: "Weekly limit", value: "8,000 points" },
+        { label: "Model access", value: "All models" },
+        { label: "API key", value: "Included" },
+        { label: "Dashboard", value: "Real-time usage" }
+      ],
+      popular: true
+    }
   ];
   const developerItems = [
     "Unified billing and invoicing",
@@ -367,40 +394,117 @@ export default async function Home() {
         </section>
 
         <section className="mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="pricing">
-          <div className="mb-16 text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-white md:text-5xl">
-              Simple Weekly Pricing
+          <div className="mb-12 text-center">
+            <h2 className="mb-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+              Choose the weekly access that fits your usage
             </h2>
+            <p className="mx-auto max-w-2xl text-(--ink-muted)">
+              Every plan includes a <strong className="text-white">5-hour rolling quota</strong> plus
+              a <strong className="text-white">weekly safety limit</strong>.
+              AI requests consume quota points based on the model used.
+            </p>
           </div>
-          <div className="group relative mx-auto max-w-md">
-            <div className="absolute -inset-1 rounded-xl bg-linear-to-r from-(--brand) to-(--accent) opacity-25 blur transition duration-1000 group-hover:opacity-40" />
-            <div className="relative flex h-full flex-col rounded-xl border border-white/10 bg-[#282a2e] p-8">
-              <div className="mb-8">
-                <h3 className="mb-2 text-2xl font-semibold text-[#e1fdff]">Weekly Access</h3>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-bold leading-none text-white">$10</span>
-                  <span className="font-mono text-[13px] tracking-wider text-(--ink-muted)">/ week</span>
+          <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
+            {pricingPlans.map((plan) => (
+              <div
+                key={plan.slug}
+                className={`group relative flex flex-col ${plan.popular ? 'md:-mt-2 md:mb-2' : ''}`}
+              >
+                {plan.popular ? (
+                  <div className="absolute -inset-1 rounded-xl bg-linear-to-r from-(--brand) to-(--accent) opacity-25 blur transition duration-1000 group-hover:opacity-40" />
+                ) : null}
+                <div
+                  className={`relative flex h-full flex-col rounded-xl border ${
+                    plan.popular ? 'border-(--brand)/40' : 'border-white/10'
+                  } bg-[#282a2e] p-8`}
+                >
+                  {plan.popular ? (
+                    <span className="mb-3 inline-block self-start rounded-full bg-(--brand)/20 px-3 py-1 font-mono text-[11px] font-semibold tracking-wider text-(--brand)">
+                      MOST POPULAR
+                    </span>
+                  ) : null}
+                  <div className="mb-6">
+                    <h3 className="mb-1 text-2xl font-semibold text-[#e1fdff]">{plan.name}</h3>
+                    <p className="mb-4 font-mono text-[13px] tracking-wider text-(--ink-muted)">
+                      {plan.subtitle}
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-bold leading-none text-white">{plan.price}</span>
+                      <span className="font-mono text-[13px] tracking-wider text-(--ink-muted)">/ week</span>
+                    </div>
+                  </div>
+                  <ul className="mb-6 flex-1 space-y-3">
+                    {plan.specs.map((spec) => (
+                      <li
+                        key={spec.label}
+                        className="flex items-center justify-between border-b border-white/5 pb-2 font-mono text-[13px] last:border-0 last:pb-0"
+                      >
+                        <span className="text-(--ink-muted)">{spec.label}</span>
+                        <span className="text-white">{spec.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    className="mb-3 w-full rounded-sm bg-(--brand) py-4 text-center font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+                    href="/register"
+                  >
+                    Start {plan.name} Plan
+                  </Link>
+                  <p className="text-center font-mono text-sm leading-6 text-[#849495]">
+                    {plan.description}
+                  </p>
                 </div>
               </div>
-              <ul className="mb-8 flex-1 space-y-4">
-                {pricingItems.map(([icon, item]) => (
-                  <li className="flex items-start gap-3" key={item}>
-                    <span className="mt-0.5 text-(--brand)">{icon}</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                className="mb-4 w-full rounded-sm bg-(--brand) py-4 text-center font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
-                href="/register"
-              >
-                Start Weekly Access
-              </Link>
-              <p className="text-center font-mono text-sm leading-6 text-[#849495]">
-                $10 per week includes up to 5 hours of AI access or 500 requests, whichever comes
-                first.
-              </p>
+            ))}
+          </div>
+
+          {/* Comparison strip */}
+          <div className="mx-auto mt-12 max-w-2xl">
+            <div className="grid grid-cols-2 gap-4 overflow-hidden rounded-xl border border-white/10 bg-[#1e2024]">
+              {pricingPlans.map((plan) => (
+                <div key={plan.slug} className="p-5">
+                  <p className="mb-2 font-mono text-[13px] font-semibold text-[#e1fdff]">
+                    {plan.name}
+                  </p>
+                  <div className="space-y-1.5 font-mono text-[12px] text-(--ink-muted)">
+                    <p>Quota: {plan.specs[0].value} per 5h</p>
+                    <p>Weekly: {plan.specs[1].value}</p>
+                    <p className="text-white">{plan.price}/week</p>
+                  </div>
+                </div>
+              ))}
             </div>
+          </div>
+
+          {/* Trust row */}
+          <div className="mx-auto mt-10 max-w-2xl text-center">
+            <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-[13px] text-(--ink-muted)">
+              <span className="flex items-center gap-2">
+                <span className="text-(--brand)">&#x25C9;</span> No provider setup
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="text-(--brand)">&#x25C9;</span> One API key for every model
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="text-(--brand)">&#x25C9;</span> Real-time usage dashboard
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="text-(--brand)">&#x25C9;</span> Cancel or switch anytime
+              </span>
+            </div>
+            <p className="mt-4 font-mono text-[12px] text-(--ink-muted)">
+              Request multipliers apply per model. See the{' '}
+              <Link className="text-(--brand) underline underline-offset-2" href="/docs#limits-model-costs">
+                docs
+              </Link>{' '}
+              for details. An active plan is only required for AI endpoints.
+            </p>
+            <p className="mt-4 font-mono text-[13px] text-(--ink-muted)">
+              Already have an account?{' '}
+              <Link className="text-(--brand) underline underline-offset-2" href="/login">
+                Login
+              </Link>
+            </p>
           </div>
         </section>
 

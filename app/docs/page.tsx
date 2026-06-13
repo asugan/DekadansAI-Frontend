@@ -457,33 +457,51 @@ export default async function DocsPage() {
             <section id="limits">
               <SectionHeading id="limits">Usage and Limits</SectionHeading>
 
-              <SubHeading id="limits-weekly-plan">Weekly Plan</SubHeading>
+              <SubHeading id="limits-weekly-plan">Weekly Plans</SubHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 All AI endpoints require an active weekly plan. Without one, requests return a
                 <InlineCode>402 Payment Required</InlineCode> error with the message
                 <InlineCode>weekly_plan_required</InlineCode>.
               </p>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                The weekly plan costs <strong className="text-white">$10 per week</strong> and includes
-                up to <strong className="text-white">500 request quota points</strong> or
-                <strong className="text-white">5 hours of usage</strong>, whichever comes first.
-                Manage or start your plan from the dashboard.
+                Two plans are available:
               </p>
+              <div className="mb-4 space-y-3">
+                <div className="rounded-lg border border-white/10 bg-[#101214] p-4">
+                  <p className="font-semibold text-white">500 Request Plan</p>
+                  <p className="text-sm text-(--ink-muted)">
+                    <strong className="text-white">$10 per week</strong> — up to <strong className="text-white">500 quota points</strong> per 5-hour window and <strong className="text-white">8,000 requests</strong> per week.
+                    Manage or start from the dashboard.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-white/10 bg-[#101214] p-4">
+                  <p className="font-semibold text-white">250 Request Plan</p>
+                  <p className="text-sm text-(--ink-muted)">
+                    <strong className="text-white">$5 per week</strong> — up to <strong className="text-white">250 quota points</strong> per 5-hour window and <strong className="text-white">4,000 requests</strong> per week.
+                    Manage or start from the dashboard.
+                  </p>
+                </div>
+              </div>
 
               <SubHeading id="limits-quota">Quota System</SubHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Each account has a <strong className="text-white">quota window</strong> of 5 hours with a
-                default maximum of <strong className="text-white">500 quota points</strong>. Every AI
+                plan-specific maximum of quota points. Every AI
                 request consumes a certain number of quota points based on the model used.
               </p>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                In addition to the 5-hour window, each plan has a <strong className="text-white">weekly quota limit</strong>
+                that resets every 7 days: 8,000 for the 500 Request plan and 4,000 for the 250 Request plan.
+              </p>
               <PropTable
-                columns={[{ header: "Setting", key: "setting" }, { header: "Default Value", key: "value" }]}
+                columns={[{ header: "Setting", key: "setting" }, { header: "500 Plan", key: "value" }, { header: "250 Plan", key: "value2" }]}
                 rows={[
-                  { setting: "Quota window", value: "5 hours (18,000,000 ms)" },
-                  { setting: "Quota max", value: "500 points per window" },
-                  { setting: "Burst window", value: "20 seconds" },
-                  { setting: "Burst max", value: "5 requests per burst window" },
-                  { setting: "Default request cost", value: "1 point per request" },
+                  { setting: "Quota window", value: "5 hours (18,000,000 ms)", value2: "5 hours (18,000,000 ms)" },
+                  { setting: "Quota max", value: "500 points per window", value2: "250 points per window" },
+                  { setting: "Weekly limit", value: "8,000 points", value2: "4,000 points" },
+                  { setting: "Burst window", value: "20 seconds", value2: "20 seconds" },
+                  { setting: "Burst max", value: "5 requests per burst window", value2: "5 requests per burst window" },
+                  { setting: "Default request cost", value: "1 point per request", value2: "1 point per request" },
                 ]}
               />
 

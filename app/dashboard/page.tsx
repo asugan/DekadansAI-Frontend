@@ -5,6 +5,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   ApiRequestError,
+  type BillingSnapshot,
   type ModelInfo,
   type RateLimitSnapshot,
   getBillingSnapshot,
@@ -94,7 +95,9 @@ export default function DashboardPage() {
   const [selectedModelId, setSelectedModelId] = useState("");
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [modelsError, setModelsError] = useState<string | null>(null);
+  const [billingSnapshotFull, setBillingSnapshotFull] = useState<BillingSnapshot | null>(null);
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
+  const [checkoutSlug, setCheckoutSlug] = useState<string | null>(null);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
   const [keyName, setKeyName] = useState("");
@@ -135,6 +138,7 @@ export default function DashboardPage() {
 
     try {
       const payload = await getBillingSnapshot();
+      setBillingSnapshotFull(payload);
       setBillingStatus(payload.weeklyPlan.active ? "active" : "inactive");
     } catch (error) {
       if (error instanceof ApiRequestError && error.status === 401) {
@@ -277,13 +281,14 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleStartCheckout() {
+  async function handleStartCheckout(slug: string) {
     setBillingError(null);
     setIsStartingCheckout(true);
+    setCheckoutSlug(slug);
 
     try {
       const { data, error } = await authClient.checkout({
-        slug: "weekly",
+        slug,
         redirect: false
       });
 
@@ -301,6 +306,7 @@ export default function DashboardPage() {
       window.location.assign(checkoutUrl);
     } finally {
       setIsStartingCheckout(false);
+      setCheckoutSlug(null);
     }
   }
 
@@ -358,20 +364,39 @@ export default function DashboardPage() {
       </header>
 
       <section className="panel mb-6 overflow-hidden p-5 md:p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
             <p className="label">Weekly Plan</p>
-            <h2 className="headline text-xl font-semibold">
-              {billingStatus === "active"
-                ? "Weekly plan active"
-                : billingStatus === "loading"
-                  ? "Checking plan status"
-                  : "Weekly plan required"}
-            </h2>
-            <p className="mt-1 text-sm text-(--ink-muted)">
-              An active weekly plan is required to use AI endpoints. Limits apply at the account
-              level: 500 requests every 5 hours.
-            </p>
+            {billingStatus === "active" && billingSnapshotFull?.weeklyPlan.tier ? (
+              <>
+                <h2 className="headline text-xl font-semibold">
+                  {billingSnapshotFull.weeklyPlan.tier.label}
+                </h2>
+                <p className="mt-1 text-sm text-(--ink-muted)">
+                  {billingSnapshotFull.weeklyPlan.tier.quotaMax} requests every 5 hours &middot;{' '}
+                  {billingSnapshotFull.weeklyPlan.tier.weeklyQuotaMax} weekly limit
+                </p>
+              </>
+            ) : billingStatus === "active" ? (
+              <>
+                <h2 className="headline text-xl font-semibold">Weekly plan active</h2>
+                <p className="mt-1 text-sm text-(--ink-muted)">
+                  An active weekly plan is required to use AI endpoints. Limits apply at the account
+                  level.
+                </p>
+              </>
+            ) : billingStatus === "loading" ? (
+              <>
+                <h2 className="headline text-xl font-semibold">Checking plan status</h2>
+              </>
+            ) : (
+              <>
+                <h2 className="headline text-xl font-semibold">Weekly plan required</h2>
+                <p className="mt-1 text-sm text-(--ink-muted)">
+                  Choose a plan to get started. All plans include 5 hours of AI access.
+                </p>
+              </>
+            )}
             {billingError ? (
               <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
                 {billingError}
@@ -379,22 +404,32 @@ export default function DashboardPage() {
             ) : null}
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => void handleStartCheckout()}
-              disabled={isStartingCheckout}
-              className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
-            >
-              {isStartingCheckout ? "Redirecting..." : "Start weekly plan"}
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleOpenPortal()}
-              disabled={isOpeningPortal}
-              className="rounded-xl border border-(--line) px-4 py-2.5 text-sm font-semibold transition hover:border-(--ink-muted) disabled:cursor-not-allowed disabled:opacity-65"
-            >
-              {isOpeningPortal ? "Opening..." : "Manage subscription"}
-            </button>
+            {billingStatus === "active" ? (
+              <button
+                type="button"
+                onClick={() => void handleOpenPortal()}
+                disabled={isOpeningPortal}
+                className="rounded-xl border border-(--line) px-4 py-2.5 text-sm font-semibold transition hover:border-(--ink-muted) disabled:cursor-not-allowed disabled:opacity-65"
+              >
+                {isOpeningPortal ? "Opening..." : "Manage subscription"}
+              </button>
+            ) : (
+              <>
+                {(billingSnapshotFull?.planTiers ?? []).map((tier) => (
+                  <button
+                    key={tier.slug}
+                    type="button"
+                    onClick={() => void handleStartCheckout(tier.slug)}
+                    disabled={isStartingCheckout}
+                    className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
+                  >
+                    {isStartingCheckout && checkoutSlug === tier.slug
+                      ? "Redirecting..."
+                      : `$${tier.weeklyQuotaMax >= 8000 ? '10' : '5'} / wk`}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         </div>
       </section>
