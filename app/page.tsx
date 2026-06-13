@@ -152,7 +152,7 @@ export default async function Home() {
               />
             </Link>
             <div className="hidden items-center gap-6 md:flex">
-              {["Models", "Pricing", "Docs"].map((item) => (
+              {["Models", "Pricing"].map((item) => (
                 <Link
                   key={item}
                   className="font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand)"
@@ -161,6 +161,12 @@ export default async function Home() {
                   {item}
                 </Link>
               ))}
+              <Link
+                className="font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand)"
+                href="/docs"
+              >
+                Docs
+              </Link>
             </div>
           </div>
           <div className="flex items-center gap-4">
