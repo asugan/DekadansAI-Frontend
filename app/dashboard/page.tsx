@@ -39,6 +39,29 @@ function formatTime(value: string | null): string {
   });
 }
 
+function formatResetIn(value: string | null): string {
+  if (!value) return "-";
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "-";
+
+  const diffMs = parsed.getTime() - Date.now();
+  if (diffMs <= 0) return "now";
+
+  const minutes = Math.ceil(diffMs / 60000);
+  if (minutes < 60) {
+    return `${minutes} minute${minutes === 1 ? "" : "s"}`;
+  }
+
+  const hours = Math.ceil(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"}`;
+  }
+
+  const days = Math.ceil(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"}`;
+}
+
 function resolveErrorMessage(error: unknown, fallback: string): string {
   if (!error || typeof error !== "object") {
     return fallback;
@@ -193,10 +216,17 @@ export default function DashboardPage() {
     };
   }, [isSessionPending, loadBillingStatus, loadModels, loadSnapshot, router, session?.user]);
 
-  const usagePercent = useMemo(() => {
-    if (!snapshot || snapshot.overview.totalMax <= 0) return 0;
-    return Math.min(100, Math.round((snapshot.overview.totalUsed / snapshot.overview.totalMax) * 100));
+  const sessionUsagePercent = useMemo(() => {
+    if (!snapshot || snapshot.account.quota.max <= 0) return 0;
+    return Math.min(100, Math.round((snapshot.account.quota.used / snapshot.account.quota.max) * 100));
   }, [snapshot]);
+
+  const weeklyUsagePercent = useMemo(() => {
+    if (!snapshot?.account.weekly || snapshot.account.weekly.max <= 0) return 0;
+    return Math.min(100, Math.round((snapshot.account.weekly.used / snapshot.account.weekly.max) * 100));
+  }, [snapshot]);
+
+  const usageTierLabel = billingSnapshotFull?.weeklyPlan.tier?.label || snapshot?.tier?.label || "Plan";
 
   const selectedModel = useMemo(
     () => models.find((model) => model.id === selectedModelId) || null,
@@ -451,7 +481,12 @@ export default function DashboardPage() {
 
       <section className="panel mt-6 p-5 md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="headline text-xl font-semibold">Rate limit overview</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="headline text-xl font-semibold">Usage Limits</h2>
+            <span className="rounded-full border border-(--line) px-2.5 py-0.5 text-xs font-medium text-(--ink-muted)">
+              {usageTierLabel}
+            </span>
+          </div>
           <button
             type="button"
             onClick={() => void loadSnapshot(false)}
@@ -461,17 +496,32 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <div className="mt-4">
-          <div className="mb-1 flex items-center justify-between text-sm">
-            <span className="label">Usage rate</span>
-            <span className="font-medium">{usagePercent}%</span>
+        <div className="mt-5 space-y-5">
+          <div>
+            <div className="mb-1 flex items-center justify-between text-sm">
+              <span className="label">5-hour limit</span>
+              <span className="font-medium">{sessionUsagePercent}% used</span>
+            </div>
+            <div className="progress-track">
+              <div className="progress-bar" style={{ width: `${sessionUsagePercent}%` }} />
+            </div>
+            <p className="mt-2 text-sm text-(--ink-muted)">
+              Resets in {formatResetIn(snapshot?.account.quota.resetAt || null)}.
+            </p>
           </div>
-          <div className="progress-track">
-            <div className="progress-bar" style={{ width: `${usagePercent}%` }} />
+
+          <div>
+            <div className="mb-1 flex items-center justify-between text-sm">
+              <span className="label">Weekly limit</span>
+              <span className="font-medium">{weeklyUsagePercent}% used</span>
+            </div>
+            <div className="progress-track">
+              <div className="progress-bar" style={{ width: `${weeklyUsagePercent}%` }} />
+            </div>
+            <p className="mt-2 text-sm text-(--ink-muted)">
+              Resets in {formatResetIn(snapshot?.account.weekly?.resetAt || null)}.
+            </p>
           </div>
-          <p className="mt-2 text-sm text-(--ink-muted)">
-            Account quota resets every 5 hours. Next reset: {formatTime(snapshot?.overview.nextResetAt || null)}
-          </p>
         </div>
 
         {snapshotError ? (
