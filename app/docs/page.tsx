@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { HomeNavActions } from "../home-nav";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
 type JsonObject = Record<string, unknown>;
@@ -172,20 +173,7 @@ export default async function DocsPage() {
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Link
-              className="hidden font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand) md:block"
-              href="/login"
-            >
-              Login
-            </Link>
-            <Link
-              className="rounded-sm bg-(--brand) px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
-              href="/register"
-            >
-              Get Started
-            </Link>
-          </div>
+          <HomeNavActions />
         </div>
       </nav>
 
