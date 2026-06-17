@@ -295,7 +295,7 @@ export async function getRateLimitSnapshot(): Promise<RateLimitSnapshot> {
 
   if (!response.ok) {
     throw new ApiRequestError(
-      parseErrorMessage(responsePayload, "Rate limit bilgisi alinamadi"),
+      parseErrorMessage(responsePayload, "Could not load rate limit information"),
       response.status
     );
   }
@@ -314,7 +314,7 @@ export async function getBillingSnapshot(): Promise<BillingSnapshot> {
 
   if (!response.ok) {
     throw new ApiRequestError(
-      parseErrorMessage(responsePayload, "Billing bilgisi alinamadi"),
+      parseErrorMessage(responsePayload, "Could not load billing information"),
       response.status
     );
   }
@@ -333,7 +333,7 @@ export async function getModelsSnapshot(): Promise<ModelsSnapshot> {
 
   if (!response.ok) {
     throw new ApiRequestError(
-      parseErrorMessage(responsePayload, "Model listesi alinamadi"),
+      parseErrorMessage(responsePayload, "Could not load model list"),
       response.status
     );
   }
