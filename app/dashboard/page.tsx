@@ -234,7 +234,7 @@ export default function DashboardPage() {
   );
 
   const selectedModelCurl = useMemo(
-    () => `curl -X POST https://api.dekadans.ai/ai/chat/completions \\
+    () => `curl -X POST https://api.dekadans.net/ai/chat/completions \\
   -H "Authorization: Bearer dk_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -378,51 +378,63 @@ export default function DashboardPage() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-5 py-8 md:px-8 md:py-10">
-      <header className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
-        <div>
-          <p className="label">Account Dashboard</p>
-          <h1 className="headline text-2xl font-semibold text-[#e1fdff]">Dekadans AI workspace</h1>
-          <p className="mt-1 text-sm text-(--ink-muted)">{session?.user?.email || "-"}</p>
+      <header className="panel relative mb-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_0%,rgba(0,242,255,0.12),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_42%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
+        <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
+          <div>
+            <p className="font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
+              Account Dashboard
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">
+              Dekadans AI workspace
+            </h1>
+            <p className="mt-1 font-mono text-[13px] text-(--ink-muted)">{session?.user?.email || "-"}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="rounded-sm border border-white/10 px-4 py-2.5 font-mono text-[13px] font-medium tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5 active:scale-95"
+          >
+            Sign out
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="rounded-xl border border-(--line) px-4 py-2 text-sm font-semibold transition hover:border-(--ink-muted)"
-        >
-          Sign out
-        </button>
       </header>
 
-      <section className="panel mb-6 overflow-hidden p-5 md:p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <section className="panel group relative mb-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_20%,rgba(0,242,255,0.16),transparent_26%),radial-gradient(circle_at_92%_22%,rgba(168,85,247,0.14),transparent_28%),linear-gradient(135deg,rgba(0,242,255,0.06),rgba(168,85,247,0.04))]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/50 to-transparent" />
+        <div className="relative flex flex-col gap-5 p-5 md:flex-row md:items-center md:justify-between md:p-6">
           <div className="min-w-0">
-            <p className="label">Weekly Plan</p>
+            <p className="font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
+              Weekly Plan
+            </p>
             {billingStatus === "active" && billingSnapshotFull?.weeklyPlan.tier ? (
               <>
-                <h2 className="headline text-xl font-semibold">
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">
                   {billingSnapshotFull.weeklyPlan.tier.label}
                 </h2>
-                <p className="mt-1 text-sm text-(--ink-muted)">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
                   {billingSnapshotFull.weeklyPlan.tier.quotaMax} requests every 5 hours &middot;{' '}
                   {billingSnapshotFull.weeklyPlan.tier.weeklyQuotaMax} weekly limit
                 </p>
               </>
             ) : billingStatus === "active" ? (
               <>
-                <h2 className="headline text-xl font-semibold">Weekly plan active</h2>
-                <p className="mt-1 text-sm text-(--ink-muted)">
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">Weekly plan active</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
                   An active weekly plan is required to use AI endpoints. Limits apply at the account
                   level.
                 </p>
               </>
             ) : billingStatus === "loading" ? (
               <>
-                <h2 className="headline text-xl font-semibold">Checking plan status</h2>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">Checking plan status</h2>
               </>
             ) : (
               <>
-                <h2 className="headline text-xl font-semibold">Weekly plan required</h2>
-                <p className="mt-1 text-sm text-(--ink-muted)">
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">Weekly plan required</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
                   Choose a plan to get started. All plans include 5 hours of AI access.
                 </p>
               </>
@@ -433,13 +445,13 @@ export default function DashboardPage() {
               </p>
             ) : null}
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex flex-col gap-3 sm:flex-row">
             {billingStatus === "active" ? (
               <button
                 type="button"
                 onClick={() => void handleOpenPortal()}
                 disabled={isOpeningPortal}
-                className="rounded-xl border border-(--line) px-4 py-2.5 text-sm font-semibold transition hover:border-(--ink-muted) disabled:cursor-not-allowed disabled:opacity-65"
+                className="rounded-sm bg-(--brand) px-5 py-3 font-mono text-[13px] font-semibold tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-65"
               >
                 {isOpeningPortal ? "Opening..." : "Manage subscription"}
               </button>
@@ -451,7 +463,7 @@ export default function DashboardPage() {
                     type="button"
                     onClick={() => void handleStartCheckout(tier.slug)}
                     disabled={isStartingCheckout}
-                    className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
+                    className="rounded-sm bg-(--brand) px-5 py-3 font-mono text-[13px] font-semibold tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-65"
                   >
                     {isStartingCheckout && checkoutSlug === tier.slug
                       ? "Redirecting..."
@@ -465,168 +477,216 @@ export default function DashboardPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <article className="panel p-5">
-          <p className="label">Total limit</p>
-          <p className="headline mt-2 text-3xl font-semibold">{snapshot?.overview.totalMax ?? 0}</p>
+        <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+          <div className="absolute inset-0 bg-linear-to-br from-cyan-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+          <div className="relative">
+            <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Total limit</p>
+            <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
+              {snapshot?.overview.totalMax ?? 0}
+            </p>
+          </div>
         </article>
-        <article className="panel p-5">
-          <p className="label">Used</p>
-          <p className="headline mt-2 text-3xl font-semibold">{snapshot?.overview.totalUsed ?? 0}</p>
+        <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+          <div className="absolute inset-0 bg-linear-to-br from-purple-400/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+          <div className="relative">
+            <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Used</p>
+            <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
+              {snapshot?.overview.totalUsed ?? 0}
+            </p>
+          </div>
         </article>
-        <article className="panel p-5">
-          <p className="label">Remaining</p>
-          <p className="headline mt-2 text-3xl font-semibold">{snapshot?.overview.totalRemaining ?? 0}</p>
+        <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+          <div className="absolute inset-0 bg-linear-to-br from-emerald-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+          <div className="relative">
+            <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Remaining</p>
+            <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
+              {snapshot?.overview.totalRemaining ?? 0}
+            </p>
+          </div>
         </article>
       </section>
 
-      <section className="panel mt-6 p-5 md:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <h2 className="headline text-xl font-semibold">Usage Limits</h2>
-            <span className="rounded-full border border-(--line) px-2.5 py-0.5 text-xs font-medium text-(--ink-muted)">
-              {usageTierLabel}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => void loadSnapshot(false)}
-            className="rounded-xl border border-(--line) px-3 py-1.5 text-sm font-medium transition hover:border-(--ink-muted)"
-          >
-            Refresh
-          </button>
-        </div>
-
-        <div className="mt-5 space-y-5">
-          <div>
-            <div className="mb-1 flex items-center justify-between text-sm">
-              <span className="label">5-hour limit</span>
-              <span className="font-medium">{sessionUsagePercent}% used</span>
+      <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_8%,rgba(168,85,247,0.12),transparent_26%),linear-gradient(135deg,rgba(0,242,255,0.04),transparent_42%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
+        <div className="relative p-5 md:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-2xl font-semibold tracking-tight text-[#e1fdff]">Usage Limits</h2>
+              <span className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1 font-mono text-[11px] font-medium tracking-[0.05em] text-(--brand)">
+                {usageTierLabel}
+              </span>
             </div>
-            <div className="progress-track">
-              <div className="progress-bar" style={{ width: `${sessionUsagePercent}%` }} />
-            </div>
-            <p className="mt-2 text-sm text-(--ink-muted)">
-              Resets in {formatResetIn(snapshot?.account.quota.resetAt || null)}.
-            </p>
-          </div>
-
-          <div>
-            <div className="mb-1 flex items-center justify-between text-sm">
-              <span className="label">Weekly limit</span>
-              <span className="font-medium">{weeklyUsagePercent}% used</span>
-            </div>
-            <div className="progress-track">
-              <div className="progress-bar" style={{ width: `${weeklyUsagePercent}%` }} />
-            </div>
-            <p className="mt-2 text-sm text-(--ink-muted)">
-              Resets in {formatResetIn(snapshot?.account.weekly?.resetAt || null)}.
-            </p>
-          </div>
-        </div>
-
-        {snapshotError ? (
-          <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-            {snapshotError}
-          </p>
-        ) : null}
-
-        {isLoadingSnapshot ? (
-          <p className="mt-4 text-sm text-(--ink-muted)">Loading usage data...</p>
-        ) : null}
-      </section>
-
-      <section className="panel mt-6 p-5 md:p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="label">CLIProxy Models</p>
-            <h2 className="headline text-xl font-semibold">Model selection</h2>
-            <p className="mt-1 text-sm text-(--ink-muted)">
-              Choose one of your available CLIProxy models and use its identifier in API requests.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => void loadModels()}
-            className="rounded-xl border border-(--line) px-3 py-1.5 text-sm font-medium transition hover:border-(--ink-muted)"
-          >
-            Refresh
-          </button>
-        </div>
-
-        {modelsError ? (
-          <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-            {modelsError}
-          </p>
-        ) : null}
-
-        <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
-          <div>
-            <label className="label mb-2 block" htmlFor="model-select">
-              Model to use
-            </label>
-            <select
-              id="model-select"
-              value={selectedModelId}
-              onChange={(event) => setSelectedModelId(event.target.value)}
-              disabled={isLoadingModels || models.length === 0}
-              className="w-full rounded-xl border border-(--line) bg-[#15171b] px-4 py-2.5 outline-none transition focus:border-(--brand) disabled:cursor-not-allowed disabled:opacity-65"
+            <button
+              type="button"
+              onClick={() => void loadSnapshot(false)}
+              className="rounded-sm border border-white/10 px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5 active:scale-95"
             >
-              {models.length ? (
-                models.map((model) => (
-                  <option key={model.id} value={model.id}>
-                    {model.name} ({model.id})
-                  </option>
-                ))
-              ) : (
-                <option value="">
-                  {isLoadingModels ? "Loading models..." : "No models found"}
-                </option>
-              )}
-            </select>
-            {selectedModel ? (
-              <div className="mt-3 rounded-xl border border-(--line) bg-white/5 p-4 text-sm">
-                <p className="font-semibold text-white">{selectedModel.name}</p>
-                <p className="mt-1 font-mono text-xs text-(--ink-muted)">{selectedModel.id}</p>
-                {selectedModel.provider ? (
-                  <p className="mt-2 text-(--ink-muted)">Provider: {selectedModel.provider}</p>
-                ) : null}
-              </div>
-            ) : null}
+              Refresh
+            </button>
           </div>
 
-          <div>
-            <p className="label mb-2">Example request with the selected model</p>
-            <pre className="overflow-x-auto rounded-xl border border-(--line) bg-black/30 p-4 text-xs leading-5 text-white/90">
-              <code>{selectedModelCurl}</code>
-            </pre>
+          <div className="mt-5 space-y-4">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">5-hour limit</span>
+                <span className="font-mono text-[12px] font-medium text-[#e1fdff]">{sessionUsagePercent}% used</span>
+              </div>
+              <div className="h-2.5 overflow-hidden rounded-full bg-[#25282d]">
+                <div
+                  className="h-full rounded-full bg-linear-to-r from-(--brand) to-(--accent) shadow-[0_0_15px_rgba(0,242,255,0.35)] transition-[width] duration-300"
+                  style={{ width: `${sessionUsagePercent}%` }}
+                />
+              </div>
+              <p className="mt-2 text-sm text-(--ink-muted)">
+                Resets in {formatResetIn(snapshot?.account.quota.resetAt || null)}.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Weekly limit</span>
+                <span className="font-mono text-[12px] font-medium text-[#e1fdff]">{weeklyUsagePercent}% used</span>
+              </div>
+              <div className="h-2.5 overflow-hidden rounded-full bg-[#25282d]">
+                <div
+                  className="h-full rounded-full bg-linear-to-r from-(--brand) to-(--accent) shadow-[0_0_15px_rgba(0,242,255,0.35)] transition-[width] duration-300"
+                  style={{ width: `${weeklyUsagePercent}%` }}
+                />
+              </div>
+              <p className="mt-2 text-sm text-(--ink-muted)">
+                Resets in {formatResetIn(snapshot?.account.weekly?.resetAt || null)}.
+              </p>
+            </div>
+          </div>
+
+          {snapshotError ? (
+            <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              {snapshotError}
+            </p>
+          ) : null}
+
+          {isLoadingSnapshot ? (
+            <p className="mt-4 font-mono text-[13px] text-(--ink-muted)">Loading usage data...</p>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_4%,rgba(0,242,255,0.1),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_42%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
+        <div className="relative p-5 md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
+                DekadansAI Models
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">Model selection</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
+                Choose one of your available DekadansAI models and use its identifier in API requests.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void loadModels()}
+              className="rounded-sm border border-white/10 px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5 active:scale-95"
+            >
+              Refresh
+            </button>
+          </div>
+
+          {modelsError ? (
+            <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              {modelsError}
+            </p>
+          ) : null}
+
+          <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <label className="mb-2 block font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)" htmlFor="model-select">
+                Model to use
+              </label>
+              <select
+                id="model-select"
+                value={selectedModelId}
+                onChange={(event) => setSelectedModelId(event.target.value)}
+                disabled={isLoadingModels || models.length === 0}
+                className="w-full rounded-lg border border-white/10 bg-[#1a1c20] px-4 py-3 font-mono text-sm outline-none transition focus:border-(--brand) focus:shadow-[0_0_0_3px_rgba(0,242,255,0.08)] disabled:cursor-not-allowed disabled:opacity-65"
+              >
+                {models.length ? (
+                  models.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name} ({model.id})
+                    </option>
+                  ))
+                ) : (
+                  <option value="">
+                    {isLoadingModels ? "Loading models..." : "No models found"}
+                  </option>
+                )}
+              </select>
+              {selectedModel ? (
+                <div className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-sm">
+                  <p className="font-mono text-[13px] font-semibold tracking-[0.05em] text-[#e1fdff]">
+                    {selectedModel.name}
+                  </p>
+                  <p className="mt-2 font-mono text-xs text-(--ink-muted)">{selectedModel.id}</p>
+                  {selectedModel.provider ? (
+                    <p className="mt-2 font-mono text-xs text-(--ink-muted)">Provider: {selectedModel.provider}</p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-black/30">
+              <div className="flex items-center gap-2 border-b border-white/10 bg-[#1a1c20] px-4 py-3">
+                <div className="h-2.5 w-2.5 rounded-full bg-[#ffb4ab]" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#00dbe7]" />
+                <div className="h-2.5 w-2.5 rounded-full bg-[#74f5ff]" />
+                <p className="ml-2 font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">
+                  example_request.sh
+                </p>
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-5 text-white/90">
+                <code>{selectedModelCurl}</code>
+              </pre>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="panel mt-6 p-5 md:p-6">
-        <h2 className="headline text-xl font-semibold">Create a new API key</h2>
-        <p className="mt-1 text-sm text-(--ink-muted)">
-          Your key is shown only once after creation. Store it somewhere secure.
-        </p>
+      <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(0,242,255,0.12),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_42%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
+        <div className="relative p-5 md:p-6">
+          <div className="mb-5 flex flex-col gap-2">
+            <p className="font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
+              API Access
+            </p>
+            <h2 className="text-2xl font-semibold tracking-tight text-[#e1fdff]">Create a new API key</h2>
+            <p className="max-w-2xl text-sm leading-6 text-(--ink-muted)">
+              Your key is shown only once after creation. Store it somewhere secure.
+            </p>
+          </div>
 
-        <form className="mt-4 flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateKey}>
-          <input
-            type="text"
-            value={keyName}
-            onChange={(event) => setKeyName(event.target.value)}
-            placeholder="example: production-key"
-            className="w-full rounded-xl border border-(--line) bg-white/5 px-4 py-2.5 outline-none transition placeholder:text-white/30 focus:border-(--brand)"
-            disabled={isCreatingKey}
-            maxLength={80}
-          />
-          <button
-            type="submit"
-            disabled={isCreatingKey}
-            className="headline rounded-xl bg-(--brand) px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-65"
-          >
-            {isCreatingKey ? "Creating..." : "Create key"}
-          </button>
-        </form>
+          <form className="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/20 p-3 sm:flex-row" onSubmit={handleCreateKey}>
+            <input
+              type="text"
+              value={keyName}
+              onChange={(event) => setKeyName(event.target.value)}
+              placeholder="example: production-key"
+              className="min-h-12 w-full rounded-lg border border-white/10 bg-[#1a1c20] px-4 font-mono text-sm outline-none transition placeholder:text-white/30 focus:border-(--brand) focus:shadow-[0_0_0_3px_rgba(0,242,255,0.08)]"
+              disabled={isCreatingKey}
+              maxLength={80}
+            />
+            <button
+              type="submit"
+              disabled={isCreatingKey}
+              className="min-h-12 shrink-0 rounded-sm bg-(--brand) px-6 font-mono text-[13px] font-semibold tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-65"
+            >
+              {isCreatingKey ? "Creating..." : "Create key"}
+            </button>
+          </form>
 
         {createError ? (
           <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
@@ -635,7 +695,7 @@ export default function DashboardPage() {
         ) : null}
 
         {createdKey ? (
-          <div className="mt-4 rounded-xl border border-(--line) bg-white/5 p-4">
+          <div className="mt-4 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4">
             <p className="label mb-1">Generated key</p>
             <code className="block overflow-x-auto rounded-lg bg-black/30 px-3 py-2 text-xs font-semibold text-white/90">
               {createdKey}
@@ -649,58 +709,74 @@ export default function DashboardPage() {
             </button>
           </div>
         ) : null}
+        </div>
       </section>
 
-      <section className="panel mt-6 p-5 md:p-6">
-        <h2 className="headline text-xl font-semibold">API keys</h2>
-        <p className="mt-1 text-sm text-(--ink-muted)">
-          Rate limits are account-wide, not per key, and include usage from every key on this account.
-        </p>
-
-        {deleteError ? (
-          <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-            {deleteError}
+      <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_0%,rgba(0,242,255,0.1),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_42%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
+        <div className="relative p-5 md:p-6">
+          <p className="font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
+            Key Management
           </p>
-        ) : null}
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">API keys</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
+            Rate limits are account-wide, not per key, and include usage from every key on this account.
+          </p>
 
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-155 border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-(--line) text-left text-(--ink-muted)">
-                <th className="py-2 pr-3">Key</th>
-                <th className="py-2 pr-3">Status</th>
-                <th className="py-2 pr-3">Last request</th>
-                <th className="py-2 pr-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {snapshot?.keys.length ? (
-                snapshot.keys.map((item) => (
-                  <tr key={item.id} className="border-b border-(--line) last:border-0">
-                    <td className="py-2 pr-3 font-medium">{item.name || maskKey(item.start)}</td>
-                    <td className="py-2 pr-3">{item.enabled ? "Active" : "Inactive"}</td>
-                    <td className="py-2 pr-3">{formatTime(item.lastRequestAt)}</td>
-                    <td className="py-2 pr-3">
-                      <button
-                        type="button"
-                        onClick={() => void handleDeleteKey(item.id)}
-                        disabled={deletingKeyId === item.id}
-                        className="rounded-md border border-red-400/35 px-2.5 py-1 text-xs font-semibold text-red-200 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {deletingKeyId === item.id ? "Deleting..." : "Delete"}
-                      </button>
+          {deleteError ? (
+            <p className="mt-3 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              {deleteError}
+            </p>
+          ) : null}
+
+          <div className="mt-5 overflow-x-auto rounded-xl border border-white/10 bg-black/20">
+            <table className="w-full min-w-155 border-collapse font-mono text-sm">
+              <thead>
+                <tr className="border-b border-white/10 bg-[#1a1c20] text-left text-[12px] tracking-[0.05em] text-(--ink-muted)">
+                  <th className="px-4 py-3 font-medium">Key</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Last request</th>
+                  <th className="px-4 py-3 font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {snapshot?.keys.length ? (
+                  snapshot.keys.map((item) => (
+                    <tr key={item.id} className="border-b border-white/10 transition last:border-0 hover:bg-cyan-300/5">
+                      <td className="px-4 py-3 font-medium text-[#e1fdff]">{item.name || maskKey(item.start)}</td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full border px-2.5 py-1 text-[11px] ${
+                          item.enabled
+                            ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
+                            : "border-white/10 bg-white/5 text-(--ink-muted)"
+                        }`}>
+                          {item.enabled ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-(--ink-muted)">{formatTime(item.lastRequestAt)}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteKey(item.id)}
+                          disabled={deletingKeyId === item.id}
+                          className="rounded-sm border border-red-300/30 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {deletingKeyId === item.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="px-4 py-5 text-(--ink-muted)" colSpan={4}>
+                      No API keys yet.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td className="py-4 text-(--ink-muted)" colSpan={4}>
-                    No API keys yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>

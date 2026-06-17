@@ -256,11 +256,11 @@ export default async function Home() {
                     <span className="ml-2 font-mono text-[13px] tracking-wider text-[#849495]">terminal</span>
                   </div>
                   <pre className="overflow-x-auto font-mono text-sm leading-6 text-[#e2e2e8]">
-                    <code>{`curl -X POST https://api.dekadans.ai/v1/chat/completions \\
+                    <code>{`curl -X POST https://api.dekadans.net/ai/chat/completions \\
   -H "Authorization: Bearer dk_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "minimax-abab6.5",
+    "model": "gpt-5.5",
     "messages": [{"role": "user", "content": "Hello"}]
   }'`}</code>
                   </pre>

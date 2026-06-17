@@ -257,7 +257,7 @@ export default async function DocsPage() {
                 them to the appropriate upstream provider.
               </p>
               <CodeBlock>
-                {`https://api.dekadans.ai`}
+                {`https://api.dekadans.net`}
               </CodeBlock>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 When using the frontend app, the backend is automatically proxied through <InlineCode>/api/*</InlineCode> routes.
@@ -300,7 +300,7 @@ export default async function DocsPage() {
                 Public endpoint. Returns the service status.
               </p>
               <CodeBlock>
-                {`curl https://api.dekadans.ai/health`}
+                {`curl https://api.dekadans.net/health`}
               </CodeBlock>
 
               <SubHeading id="endpoint-models-public">Public Model Catalog</SubHeading>
@@ -347,7 +347,7 @@ export default async function DocsPage() {
                 ]}
               />
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.ai/ai/chat/completions \\
+                {`curl -X POST https://api.dekadans.net/ai/chat/completions \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -368,7 +368,7 @@ export default async function DocsPage() {
                 required.
               </p>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.ai/ai/responses \\
+                {`curl -X POST https://api.dekadans.net/ai/responses \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -388,7 +388,7 @@ export default async function DocsPage() {
                 set, it defaults to <InlineCode>low</InlineCode>.
               </p>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.ai/ai/default/chat/completions \\
+                {`curl -X POST https://api.dekadans.net/ai/default/chat/completions \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -406,7 +406,7 @@ export default async function DocsPage() {
                 the default model and reasoning configuration.
               </p>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.ai/ai/default/responses \\
+                {`curl -X POST https://api.dekadans.net/ai/default/responses \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -595,7 +595,7 @@ export default async function DocsPage() {
 
               <SubHeading id="example-curl">cURL</SubHeading>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.ai/ai/chat/completions \\
+                {`curl -X POST https://api.dekadans.net/ai/chat/completions \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -606,7 +606,7 @@ export default async function DocsPage() {
 
               <SubHeading id="example-javascript">JavaScript (fetch)</SubHeading>
               <CodeBlock>
-                {`const response = await fetch("https://api.dekadans.ai/ai/chat/completions", {
+                {`const response = await fetch("https://api.dekadans.net/ai/chat/completions", {
   method: "POST",
   headers: {
     "Authorization": "Bearer <YOUR_API_KEY>",
@@ -624,7 +624,7 @@ console.log(data);`}
 
               <SubHeading id="example-model-list">List Available Models</SubHeading>
               <CodeBlock>
-                {`curl https://api.dekadans.ai/models`}
+                {`curl https://api.dekadans.net/models`}
               </CodeBlock>
 
               <SubHeading id="example-list-keys">List API Keys (Session Required)</SubHeading>
@@ -642,7 +642,7 @@ console.log(data);`}
                 <InlineCode>stream: true</InlineCode> in the request body to receive streaming responses.
               </p>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.ai/ai/chat/completions \\
+                {`curl -X POST https://api.dekadans.net/ai/chat/completions \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -658,7 +658,7 @@ console.log(data);`}
                 <InlineCode>data: [DONE]</InlineCode>.
               </p>
               <CodeBlock>
-                {`const response = await fetch("https://api.dekadans.ai/ai/chat/completions", {
+                {`const response = await fetch("https://api.dekadans.net/ai/chat/completions", {
   method: "POST",
   headers: {
     "Authorization": "Bearer <YOUR_API_KEY>",
