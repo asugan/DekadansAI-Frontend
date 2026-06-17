@@ -464,7 +464,7 @@ export default function DashboardPage() {
                 aria-expanded={isProfileMenuOpen}
                 aria-label="Open account menu"
                 onClick={toggleProfileMenu}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/10 active:scale-95"
+                className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/10 active:scale-95"
               >
                 <svg
                   aria-hidden="true"
@@ -478,6 +478,14 @@ export default function DashboardPage() {
                 >
                   <path d="M20 21a8 8 0 0 0-16 0" />
                   <circle cx="12" cy="7" r="4" />
+                </svg>
+                <svg
+                  aria-hidden="true"
+                  className="absolute bottom-0 right-0 h-3.5 w-3.5 translate-x-1/4 translate-y-1/4 rounded-full border border-[#0a0c10] bg-[#101214] text-(--brand)"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M5.25 7.5 10 12.25 14.75 7.5 16 8.75l-6 6-6-6 1.25-1.25Z" />
                 </svg>
               </button>
               {isProfileMenuOpen ? (
