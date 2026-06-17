@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   description:
     "Weekly request-limited access to MiniMax, GLM, Kimi, and ChatGPT through one secure API key. Plans from $5/week.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/favicon.png",
+    apple: "/apple-icon.png",
   },
 };
 
