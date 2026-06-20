@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { HomeNavActions } from "../home-nav";
+import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
 type JsonObject = Record<string, unknown>;
@@ -455,20 +456,15 @@ export default async function DocsPage() {
                 Two plans are available:
               </p>
               <div className="mb-4 space-y-3">
-                <div className="rounded-lg border border-white/10 bg-[#101214] p-4">
-                  <p className="font-semibold text-white">500 Request Plan</p>
-                  <p className="text-sm text-(--ink-muted)">
-                    <strong className="text-white">$10 per week</strong> — up to <strong className="text-white">500 quota points</strong> per 5-hour window and <strong className="text-white">8,000 requests</strong> per week.
-                    Manage or start from the dashboard.
-                  </p>
-                </div>
-                <div className="rounded-lg border border-white/10 bg-[#101214] p-4">
-                  <p className="font-semibold text-white">250 Request Plan</p>
-                  <p className="text-sm text-(--ink-muted)">
-                    <strong className="text-white">$5 per week</strong> — up to <strong className="text-white">250 quota points</strong> per 5-hour window and <strong className="text-white">4,000 requests</strong> per week.
-                    Manage or start from the dashboard.
-                  </p>
-                </div>
+                {MARKETING_PLANS.map((plan) => (
+                  <div className="rounded-lg border border-white/10 bg-[#101214] p-4" key={plan.slug}>
+                    <p className="font-semibold text-white">{plan.name} Plan</p>
+                    <p className="text-sm text-(--ink-muted)">
+                      <strong className="text-white">{plan.price} per week</strong> — {plan.description.replace(`${plan.price} per week — `, "")}
+                      Manage or start from the dashboard.
+                    </p>
+                  </div>
+                ))}
               </div>
 
               <SubHeading id="limits-quota">Quota System</SubHeading>
@@ -617,7 +613,7 @@ console.log(data);`}
 
               <SubHeading id="example-list-keys">List API Keys (Session Required)</SubHeading>
               <CodeBlock>
-                {`curl -X GET http://localhost:4000/account/rate-limit \\
+                {`curl -X GET https://api.dekadans.net/account/rate-limit \\
   -b cookie.txt`}
               </CodeBlock>
             </section>

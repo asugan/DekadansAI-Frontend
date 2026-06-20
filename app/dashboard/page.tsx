@@ -15,6 +15,7 @@ import {
   getRateLimitSnapshot
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
+import { getMarketingPlan } from "@/lib/plan-display";
 
 const POLL_INTERVAL_MS = 15000;
 
@@ -597,7 +598,7 @@ export default function DashboardPage() {
                   >
                     {isStartingCheckout && checkoutSlug === tier.slug
                       ? "Redirecting..."
-                      : `$${tier.weeklyQuotaMax >= 8000 ? '10' : '5'} / wk`}
+                      : `${getMarketingPlan(tier.slug)?.price || "$?"} / wk`}
                   </button>
                 ))}
               </>
@@ -606,101 +607,112 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
-          <div className="absolute inset-0 bg-linear-to-br from-cyan-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
-          <div className="relative">
-            <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Total limit</p>
-            <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
-              {snapshot?.overview.totalMax ?? 0}
-            </p>
-          </div>
-        </article>
-        <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
-          <div className="absolute inset-0 bg-linear-to-br from-purple-400/8 to-transparent opacity-0 transition group-hover:opacity-100" />
-          <div className="relative">
-            <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Used</p>
-            <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
-              {snapshot?.overview.totalUsed ?? 0}
-            </p>
-          </div>
-        </article>
-        <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
-          <div className="absolute inset-0 bg-linear-to-br from-emerald-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
-          <div className="relative">
-            <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Remaining</p>
-            <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
-              {snapshot?.overview.totalRemaining ?? 0}
-            </p>
-          </div>
-        </article>
-      </section>
+      {billingStatus === "active" ? (
+        <>
+          <section className="grid gap-4 md:grid-cols-3">
+            <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+              <div className="absolute inset-0 bg-linear-to-br from-cyan-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Total limit</p>
+                <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
+                  {snapshot?.overview.totalMax ?? 0}
+                </p>
+              </div>
+            </article>
+            <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+              <div className="absolute inset-0 bg-linear-to-br from-purple-400/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Used</p>
+                <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
+                  {snapshot?.overview.totalUsed ?? 0}
+                </p>
+              </div>
+            </article>
+            <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+              <div className="absolute inset-0 bg-linear-to-br from-emerald-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Remaining</p>
+                <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
+                  {snapshot?.overview.totalRemaining ?? 0}
+                </p>
+              </div>
+            </article>
+          </section>
 
-      <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_8%,rgba(168,85,247,0.12),transparent_26%),linear-gradient(135deg,rgba(0,242,255,0.04),transparent_42%)]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
-        <div className="relative p-5 md:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-2xl font-semibold tracking-tight text-[#e1fdff]">Usage Limits</h2>
-              <span className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1 font-mono text-[11px] font-medium tracking-[0.05em] text-(--brand)">
-                {usageTierLabel}
-              </span>
+          <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_8%,rgba(168,85,247,0.12),transparent_26%),linear-gradient(135deg,rgba(0,242,255,0.04),transparent_42%)]" />
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
+            <div className="relative p-5 md:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="text-2xl font-semibold tracking-tight text-[#e1fdff]">Usage Limits</h2>
+                  <span className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1 font-mono text-[11px] font-medium tracking-[0.05em] text-(--brand)">
+                    {usageTierLabel}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void loadSnapshot(false)}
+                  className="rounded-sm border border-white/10 px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5 active:scale-95"
+                >
+                  Refresh
+                </button>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">5-hour limit</span>
+                    <span className="font-mono text-[12px] font-medium text-[#e1fdff]">{sessionUsagePercent}% used</span>
+                  </div>
+                  <div className="h-2.5 overflow-hidden rounded-full bg-[#25282d]">
+                    <div
+                      className="h-full rounded-full bg-linear-to-r from-(--brand) to-(--accent) shadow-[0_0_15px_rgba(0,242,255,0.35)] transition-[width] duration-300"
+                      style={{ width: `${sessionUsagePercent}%` }}
+                    />
+                  </div>
+                  <p className="mt-2 text-sm text-(--ink-muted)">
+                    Resets in {formatResetIn(snapshot?.account.quota.resetAt || null)}.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Weekly limit</span>
+                    <span className="font-mono text-[12px] font-medium text-[#e1fdff]">{weeklyUsagePercent}% used</span>
+                  </div>
+                  <div className="h-2.5 overflow-hidden rounded-full bg-[#25282d]">
+                    <div
+                      className="h-full rounded-full bg-linear-to-r from-(--brand) to-(--accent) shadow-[0_0_15px_rgba(0,242,255,0.35)] transition-[width] duration-300"
+                      style={{ width: `${weeklyUsagePercent}%` }}
+                    />
+                  </div>
+                  <p className="mt-2 text-sm text-(--ink-muted)">
+                    Resets in {formatResetIn(snapshot?.account.weekly?.resetAt || null)}.
+                  </p>
+                </div>
+              </div>
+
+              {snapshotError ? (
+                <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                  {snapshotError}
+                </p>
+              ) : null}
+
+              {isLoadingSnapshot ? (
+                <p className="mt-4 font-mono text-[13px] text-(--ink-muted)">Loading usage data...</p>
+              ) : null}
             </div>
-            <button
-              type="button"
-              onClick={() => void loadSnapshot(false)}
-              className="rounded-sm border border-white/10 px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5 active:scale-95"
-            >
-              Refresh
-            </button>
-          </div>
-
-          <div className="mt-5 space-y-4">
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-              <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">5-hour limit</span>
-                <span className="font-mono text-[12px] font-medium text-[#e1fdff]">{sessionUsagePercent}% used</span>
-              </div>
-              <div className="h-2.5 overflow-hidden rounded-full bg-[#25282d]">
-                <div
-                  className="h-full rounded-full bg-linear-to-r from-(--brand) to-(--accent) shadow-[0_0_15px_rgba(0,242,255,0.35)] transition-[width] duration-300"
-                  style={{ width: `${sessionUsagePercent}%` }}
-                />
-              </div>
-              <p className="mt-2 text-sm text-(--ink-muted)">
-                Resets in {formatResetIn(snapshot?.account.quota.resetAt || null)}.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-              <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Weekly limit</span>
-                <span className="font-mono text-[12px] font-medium text-[#e1fdff]">{weeklyUsagePercent}% used</span>
-              </div>
-              <div className="h-2.5 overflow-hidden rounded-full bg-[#25282d]">
-                <div
-                  className="h-full rounded-full bg-linear-to-r from-(--brand) to-(--accent) shadow-[0_0_15px_rgba(0,242,255,0.35)] transition-[width] duration-300"
-                  style={{ width: `${weeklyUsagePercent}%` }}
-                />
-              </div>
-              <p className="mt-2 text-sm text-(--ink-muted)">
-                Resets in {formatResetIn(snapshot?.account.weekly?.resetAt || null)}.
-              </p>
-            </div>
-          </div>
-
-          {snapshotError ? (
-            <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-              {snapshotError}
-            </p>
-          ) : null}
-
-          {isLoadingSnapshot ? (
-            <p className="mt-4 font-mono text-[13px] text-(--ink-muted)">Loading usage data...</p>
-          ) : null}
-        </div>
-      </section>
+          </section>
+        </>
+      ) : (
+        <section className="panel mt-6 border-cyan-300/15 bg-[#101214]/80 p-6">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#e1fdff]">Usage Limits</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
+            AI usage indicators are disabled until you activate a weekly plan. After subscribing, quota and weekly usage will appear here.
+          </p>
+        </section>
+      )}
 
       <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_4%,rgba(0,242,255,0.1),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.04),transparent_42%)]" />

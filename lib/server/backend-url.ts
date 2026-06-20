@@ -1,7 +1,10 @@
+import { assertSafeProductionUrl } from "@/lib/url-guard";
+
 const DEFAULT_BACKEND_BASE_URL = "http://localhost:4000";
 
 export function getBackendBaseUrl(): string {
   const rawValue = process.env.BACKEND_BASE_URL || DEFAULT_BACKEND_BASE_URL;
+  assertSafeProductionUrl("BACKEND_BASE_URL", rawValue);
 
   try {
     const parsed = new URL(rawValue);
