@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { HomeNavActions } from "./home-nav";
 import { LogoHeroScene } from "./logo-hero-scene";
+import { getModelPresentation } from "@/lib/model-presentation";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
@@ -21,39 +21,6 @@ const FALLBACK_MODELS: HomepageModel[] = [
   { id: "kimi-k2.6", name: "Kimi K2.6", provider: "kimi", requestCost: 1 },
   { id: "gpt-5.5", name: "ChatGPT 5.5", provider: "openai", requestCost: 3 }
 ];
-
-const MODEL_PRESENTATION: Record<string, { description: string; logo: string; accent: string }> = {
-  "minimax-m3": {
-    description: "Fast, efficient reasoning for agents, workflow automation, and everyday API workloads.",
-    logo: "/minimax.png",
-    accent: "from-amber-300/20 to-cyan-300/10"
-  },
-  "glm-5.1": {
-    description: "Strong coding and reasoning model for technical tasks, long-form answers, and assistants.",
-    logo: "/zai.jpg",
-    accent: "from-cyan-300/20 to-blue-500/10"
-  },
-  "kimi-k2.6": {
-    description: "Long-context model for research, document-heavy flows, and multi-step reasoning.",
-    logo: "/kimilogo.webp",
-    accent: "from-violet-400/20 to-cyan-300/10"
-  },
-  "gpt-5.5": {
-    description: "Premium general intelligence for harder prompts, agents, writing, and production copilots.",
-    logo: "/chatgptlogo.png",
-    accent: "from-emerald-300/20 to-cyan-300/10"
-  }
-};
-
-function getModelPresentation(model: HomepageModel) {
-  return (
-    MODEL_PRESENTATION[model.id] || {
-      description: "Production-ready AI model available through the Dekadans unified gateway.",
-      logo: "/logo.png",
-      accent: "from-cyan-300/20 to-fuchsia-400/10"
-    }
-  );
-}
 
 function asObject(value: unknown): JsonObject {
   if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -158,37 +125,6 @@ export default async function Home() {
 
   return (
     <>
-      <nav className="fixed left-0 top-0 z-50 w-full px-4 py-4 md:px-6">
-        <div className="mx-auto grid max-w-360 grid-cols-3 items-center rounded-full border border-white/10 bg-black/45 px-4 py-2 backdrop-blur-xl">
-          <div className="hidden items-center gap-5 md:flex">
-            {["Models", "Pricing"].map((item) => (
-              <Link
-                key={item}
-                className="font-mono text-[12px] tracking-wider text-white/70 transition hover:text-(--brand)"
-                href={`#${item.toLowerCase()}`}
-              >
-                {item}
-              </Link>
-            ))}
-            <Link
-              className="font-mono text-[12px] tracking-wider text-white/70 transition hover:text-(--brand)"
-              href="/docs"
-            >
-              Docs
-            </Link>
-          </div>
-          <Link
-            className="col-start-1 justify-self-start font-mono text-sm font-semibold tracking-[0.18em] text-white transition hover:text-(--brand) md:col-start-2 md:justify-self-center"
-            href="/"
-          >
-            Dekadans AI
-          </Link>
-          <div className="col-span-2 justify-self-end md:col-span-1">
-            <HomeNavActions />
-          </div>
-        </div>
-      </nav>
-
       <main className="overflow-hidden pb-24">
         <section className="relative mb-32 min-h-screen px-4 pt-24 md:mb-48 md:px-6">
           <div className="absolute inset-0 -z-20 bg-black" />

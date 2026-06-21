@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
@@ -15,6 +14,7 @@ import {
   getRateLimitSnapshot
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
+import { getModelPresentation } from "@/lib/model-presentation";
 import { getMarketingPlan } from "@/lib/plan-display";
 
 const POLL_INTERVAL_MS = 15000;
@@ -133,9 +133,6 @@ export default function DashboardPage() {
   const [isCreatingKey, setIsCreatingKey] = useState(false);
   const [deletingKeyId, setDeletingKeyId] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-
   const loadSnapshot = useCallback(
     async (silent: boolean) => {
       if (!silent) {
@@ -366,172 +363,18 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleSignOut() {
-    await authClient.signOut();
-    router.replace("/login");
-  }
-
-  function toggleMobileMenu() {
-    setIsMobileMenuOpen((current) => !current);
-    setIsProfileMenuOpen(false);
-  }
-
-  function toggleProfileMenu() {
-    setIsProfileMenuOpen((current) => !current);
-    setIsMobileMenuOpen(false);
-  }
-
   if (isSessionPending || (!session?.user && !snapshotError)) {
     return (
-      <>
-        <nav className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#0a0c10]/70 px-4 py-4 backdrop-blur-md md:px-6">
-          <div className="mx-auto flex max-w-360 items-center justify-between">
-            <Link
-              className="group flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-(--brand)"
-              href="/"
-            >
-              <Image
-                alt="Dekadans AI logo"
-                className="h-16 w-16 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
-                height={64}
-                priority
-                src="/logo.png"
-                width={64}
-              />
-            </Link>
-          </div>
-        </nav>
-        <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 pb-10 pt-32">
-          <div className="panel w-full max-w-md p-8 text-center">
-            <p className="headline text-xl font-semibold">Checking your session...</p>
-          </div>
-        </main>
-      </>
+      <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 pb-10 pt-32">
+        <div className="panel w-full max-w-md p-8 text-center">
+          <p className="headline text-xl font-semibold">Checking your session...</p>
+        </div>
+      </main>
     );
   }
 
   return (
-    <>
-      <nav className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#0a0c10]/70 px-4 py-4 backdrop-blur-md md:px-6">
-        <div className="relative mx-auto flex max-w-360 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link
-              className="group flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-(--brand)"
-              href="/"
-            >
-              <Image
-                alt="Dekadans AI logo"
-                className="h-16 w-16 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
-                height={64}
-                priority
-                src="/logo.png"
-                width={64}
-              />
-            </Link>
-            <div className="hidden items-center gap-6 md:flex">
-              <Link
-                className="font-mono text-[13px] tracking-wider text-(--brand)"
-                href="/dashboard"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                className="font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand)"
-                href="/docs"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Docs
-              </Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-expanded={isMobileMenuOpen}
-              aria-label="Toggle navigation menu"
-              onClick={toggleMobileMenu}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5 md:hidden"
-            >
-              <span className="relative h-3.5 w-5">
-                <span className="absolute left-0 top-0 h-px w-5 bg-current" />
-                <span className="absolute left-0 top-1.5 h-px w-5 bg-current" />
-                <span className="absolute bottom-0 left-0 h-px w-5 bg-current" />
-              </span>
-            </button>
-            <div className="relative">
-              <button
-                type="button"
-                aria-expanded={isProfileMenuOpen}
-                aria-label="Open account menu"
-                onClick={toggleProfileMenu}
-                className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/10 active:scale-95"
-              >
-                <svg
-                  aria-hidden="true"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.8"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M20 21a8 8 0 0 0-16 0" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <svg
-                  aria-hidden="true"
-                  className="absolute bottom-0 right-0 h-3.5 w-3.5 translate-x-1/4 translate-y-1/4 rounded-full border border-[#0a0c10] bg-[#101214] text-(--brand)"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M5.25 7.5 10 12.25 14.75 7.5 16 8.75l-6 6-6-6 1.25-1.25Z" />
-                </svg>
-              </button>
-              {isProfileMenuOpen ? (
-                <div className="absolute right-0 top-12 w-64 overflow-hidden rounded-2xl border border-white/10 bg-[#101214] shadow-[0_18px_55px_rgba(0,0,0,0.45)]">
-                  <div className="border-b border-white/10 px-4 py-3">
-                    <p className="font-mono text-[12px] font-medium tracking-[0.05em] text-(--brand)">
-                      Account
-                    </p>
-                    <p className="mt-1 truncate text-sm text-(--ink-muted)">
-                      {session?.user?.email || "-"}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void handleSignOut()}
-                    className="block w-full px-4 py-3 text-left font-mono text-[13px] tracking-[0.05em] text-[#e1fdff] transition hover:bg-cyan-300/10 hover:text-(--brand)"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              ) : null}
-            </div>
-          </div>
-          {isMobileMenuOpen ? (
-            <div className="absolute left-0 right-0 top-20 rounded-2xl border border-white/10 bg-[#101214] p-2 shadow-[0_18px_55px_rgba(0,0,0,0.45)] md:hidden">
-              <Link
-                className="block rounded-xl px-4 py-3 font-mono text-[13px] tracking-wider text-(--brand)"
-                href="/dashboard"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                className="block rounded-xl px-4 py-3 font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:bg-cyan-300/10 hover:text-(--brand)"
-                href="/docs"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Docs
-              </Link>
-            </div>
-          ) : null}
-        </div>
-      </nav>
-
-      <main className="mx-auto min-h-screen w-full max-w-6xl px-5 pb-8 pt-32 md:px-8 md:pb-10">
+    <main className="mx-auto min-h-screen w-full max-w-6xl px-5 pb-8 pt-32 md:px-8 md:pb-10">
       <section className="panel group relative mb-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_20%,rgba(0,242,255,0.16),transparent_26%),radial-gradient(circle_at_92%_22%,rgba(168,85,247,0.14),transparent_28%),linear-gradient(135deg,rgba(0,242,255,0.06),rgba(168,85,247,0.04))]" />
         <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/50 to-transparent" />
@@ -769,13 +612,26 @@ export default function DashboardPage() {
               </select>
               {selectedModel ? (
                 <div className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-sm">
-                  <p className="font-mono text-[13px] font-semibold tracking-[0.05em] text-[#e1fdff]">
-                    {selectedModel.name}
-                  </p>
-                  <p className="mt-2 font-mono text-xs text-(--ink-muted)">{selectedModel.id}</p>
-                  {selectedModel.provider ? (
-                    <p className="mt-2 font-mono text-xs text-(--ink-muted)">Provider: {selectedModel.provider}</p>
-                  ) : null}
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white p-1.5">
+                      <Image
+                        alt={`${selectedModel.name} logo`}
+                        className="h-full w-full object-contain"
+                        height={36}
+                        src={getModelPresentation(selectedModel).logo}
+                        width={36}
+                      />
+                    </span>
+                    <div>
+                      <p className="font-mono text-[13px] font-semibold tracking-[0.05em] text-[#e1fdff]">
+                        {selectedModel.name}
+                      </p>
+                      <p className="mt-1 font-mono text-xs text-(--ink-muted)">{selectedModel.id}</p>
+                      {selectedModel.provider ? (
+                        <p className="mt-1 font-mono text-xs text-(--ink-muted)">Provider: {selectedModel.provider}</p>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -921,7 +777,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </section>
-      </main>
-    </>
+    </main>
   );
 }

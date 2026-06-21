@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { HomeNavActions } from "../home-nav";
+import { getModelPresentation } from "@/lib/model-presentation";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
@@ -140,44 +140,6 @@ export default async function DocsPage() {
 
   return (
     <>
-      <nav className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#0a0c10]/70 px-4 py-4 backdrop-blur-md md:px-6">
-        <div className="mx-auto flex max-w-360 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link
-              className="group flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-(--brand)"
-              href="/"
-            >
-              <Image
-                alt="Dekadans AI logo"
-                className="h-16 w-16 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
-                height={64}
-                priority
-                src="/logo.png"
-                width={64}
-              />
-            </Link>
-            <div className="hidden items-center gap-6 md:flex">
-              {[
-                { label: "Getting Started", href: "#getting-started" },
-                { label: "API Reference", href: "#api-reference" },
-                { label: "Limits", href: "#limits" },
-                { label: "Errors", href: "#errors" },
-                { label: "FAQ", href: "#faq" },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  className="font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand)"
-                  href={item.href}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-          <HomeNavActions />
-        </div>
-      </nav>
-
       <main className="mx-auto max-w-360 px-4 pt-32 pb-24 md:px-6">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)]">
           {/* Sidebar */}
@@ -499,6 +461,15 @@ export default async function DocsPage() {
                 {models.map((m) => (
                   <div key={m.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-[#101214] px-4 py-2.5">
                     <div className="flex items-center gap-3">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white p-1.5">
+                        <Image
+                          alt={`${m.name} logo`}
+                          className="h-full w-full object-contain"
+                          height={28}
+                          src={getModelPresentation(m).logo}
+                          width={28}
+                        />
+                      </span>
                       <span className="font-mono text-[14px] font-bold text-white">{m.name}</span>
                       <span className="font-mono text-[12px] text-(--ink-muted)">{m.id}</span>
                     </div>
@@ -556,6 +527,15 @@ export default async function DocsPage() {
                   {models.map((m) => (
                     <div key={m.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-[#101214] px-4 py-3 transition hover:border-cyan-300/40">
                       <div className="flex items-center gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white p-1.5">
+                          <Image
+                            alt={`${m.name} logo`}
+                            className="h-full w-full object-contain"
+                            height={28}
+                            src={getModelPresentation(m).logo}
+                            width={28}
+                          />
+                        </span>
                         <span className="font-mono text-[14px] font-bold text-white">{m.name}</span>
                         <span className="font-mono text-[12px] text-(--ink-muted)">{m.id}</span>
                       </div>

@@ -70,7 +70,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto grid min-h-screen w-full max-w-6xl items-center gap-8 px-6 py-10 lg:grid-cols-[1.05fr_0.95fr]">
+    <main className="mx-auto grid min-h-screen w-full max-w-6xl items-center gap-8 px-6 pb-10 pt-32 lg:grid-cols-[1.05fr_0.95fr]">
       <section className="hidden lg:block">
         <div className="mb-6 inline-flex rounded border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 font-mono text-[13px] font-medium tracking-wider text-cyan-300">
           Secure Gateway Access

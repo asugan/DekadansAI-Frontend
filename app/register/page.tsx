@@ -78,7 +78,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 py-10">
+    <main className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-6 pb-10 pt-32">
       <section className="panel w-full max-w-md p-8">
         <p className="label mb-3">Dekadans AI Account</p>
         <h1 className="headline text-3xl font-semibold">Yeni hesap olustur</h1>
