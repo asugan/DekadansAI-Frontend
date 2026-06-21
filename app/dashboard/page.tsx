@@ -651,6 +651,57 @@ export default function DashboardPage() {
               ) : null}
             </div>
           </section>
+
+          <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(168,85,247,0.12),transparent_24%),linear-gradient(135deg,rgba(0,242,255,0.04),transparent_42%)]" />
+            <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/45 to-transparent" />
+            <div className="relative p-5 md:p-6">
+              <p className="font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
+                Model Analytics
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">Model usage</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
+                Token and request totals grouped by the model selected for each API request.
+              </p>
+
+              <div className="mt-5 overflow-x-auto rounded-xl border border-white/10 bg-black/20">
+                <table className="w-full min-w-220 border-collapse font-mono text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-[#1a1c20] text-left text-[12px] tracking-[0.05em] text-(--ink-muted)">
+                      <th className="px-4 py-3 font-medium">Model</th>
+                      <th className="px-4 py-3 font-medium">Requests</th>
+                      <th className="px-4 py-3 font-medium">Input</th>
+                      <th className="px-4 py-3 font-medium">Output</th>
+                      <th className="px-4 py-3 font-medium">Total</th>
+                      <th className="px-4 py-3 font-medium">Token units</th>
+                      <th className="px-4 py-3 font-medium">Last request</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usageSnapshot?.byModel.length ? (
+                      usageSnapshot.byModel.map((item) => (
+                        <tr key={item.model} className="border-b border-white/10 transition last:border-0 hover:bg-cyan-300/5">
+                          <td className="px-4 py-3 font-medium text-[#e1fdff]">{item.model}</td>
+                          <td className="px-4 py-3 text-(--ink-muted)">{formatCount(item.requests)}</td>
+                          <td className="px-4 py-3 text-(--ink-muted)">{formatCount(item.inputTokens)}</td>
+                          <td className="px-4 py-3 text-(--ink-muted)">{formatCount(item.outputTokens)}</td>
+                          <td className="px-4 py-3 text-(--ink-muted)">{formatCount(item.totalTokens)}</td>
+                          <td className="px-4 py-3 text-(--ink-muted)">{formatTokenValue(item.tokenValue)}</td>
+                          <td className="px-4 py-3 text-(--ink-muted)">{formatTime(item.lastRequestAt)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="px-4 py-5 text-(--ink-muted)" colSpan={7}>
+                          No model usage yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
         </>
       ) : (
         <section className="panel mt-6 border-cyan-300/15 bg-[#101214]/80 p-6">
