@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #111318;
-  --bg-soft: #0d1117;
+  --bg: #000000;
+  --bg-soft: #050505;
   --ink: #e2e2e8;
   --ink-muted: #b9cacb;
   --line: rgba(255, 255, 255, 0.1);
   --brand: #00f2ff;
   --brand-soft: rgba(0, 242, 255, 0.1);
   --accent: #a855f7;
-  --card: rgba(13, 17, 23, 0.72);
+  --card: rgba(0, 0, 0, 0.72);
 }
 
 @theme inline {
@@ -22,10 +22,7 @@
 body {
   min-height: 100vh;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 12% 16%, rgba(0, 242, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 82% 0%, rgba(168, 85, 247, 0.14), transparent 30%),
-    linear-gradient(180deg, #0a0c10 0%, var(--bg) 48%, #0b0d12 100%);
+  background: #000;
   font-family: var(--font-inter), sans-serif;
 }
 

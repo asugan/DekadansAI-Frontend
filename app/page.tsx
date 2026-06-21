@@ -22,12 +22,38 @@ const FALLBACK_MODELS: HomepageModel[] = [
   { id: "gpt-5.5", name: "ChatGPT 5.5", provider: "openai", requestCost: 3 }
 ];
 
-const FEATURED_MODELS = [
-  { name: "Minimax M3", version: "minimax-m3", logo: "/minimax.png" },
-  { name: "GLM 5.1", version: "glm-5.1", logo: "/zai.jpg" },
-  { name: "Kimi K2.6", version: "kimi-k2.6", logo: "/kimilogo.webp" },
-  { name: "ChatGPT 5.5", version: "gpt-5.5", logo: "/chatgptlogo.png" }
-];
+const MODEL_PRESENTATION: Record<string, { description: string; logo: string; accent: string }> = {
+  "minimax-m3": {
+    description: "Fast, efficient reasoning for agents, workflow automation, and everyday API workloads.",
+    logo: "/minimax.png",
+    accent: "from-amber-300/20 to-cyan-300/10"
+  },
+  "glm-5.1": {
+    description: "Strong coding and reasoning model for technical tasks, long-form answers, and assistants.",
+    logo: "/zai.jpg",
+    accent: "from-cyan-300/20 to-blue-500/10"
+  },
+  "kimi-k2.6": {
+    description: "Long-context model for research, document-heavy flows, and multi-step reasoning.",
+    logo: "/kimilogo.webp",
+    accent: "from-violet-400/20 to-cyan-300/10"
+  },
+  "gpt-5.5": {
+    description: "Premium general intelligence for harder prompts, agents, writing, and production copilots.",
+    logo: "/chatgptlogo.png",
+    accent: "from-emerald-300/20 to-cyan-300/10"
+  }
+};
+
+function getModelPresentation(model: HomepageModel) {
+  return (
+    MODEL_PRESENTATION[model.id] || {
+      description: "Production-ready AI model available through the Dekadans unified gateway.",
+      logo: "/logo.png",
+      accent: "from-cyan-300/20 to-fuchsia-400/10"
+    }
+  );
+}
 
 function asObject(value: unknown): JsonObject {
   if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -166,7 +192,7 @@ export default async function Home() {
       <main className="overflow-hidden pb-24">
         <section className="relative mb-32 min-h-screen px-4 pt-24 md:mb-48 md:px-6">
           <div className="absolute inset-0 -z-20 bg-black" />
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_28%,rgba(0,242,255,0.18),transparent_30%),radial-gradient(circle_at_38%_32%,rgba(168,85,247,0.2),transparent_28%),linear-gradient(180deg,rgba(0,0,0,0)_0%,#0a0c10_92%)]" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_28%,rgba(0,242,255,0.18),transparent_30%),radial-gradient(circle_at_38%_32%,rgba(168,85,247,0.2),transparent_28%),linear-gradient(180deg,rgba(0,0,0,0)_0%,#000_92%)]" />
           <div className="absolute inset-x-0 top-0 -z-10 h-96 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[56px_56px] opacity-25 mask-[linear-gradient(to_bottom,black,transparent)]" />
 
           <div className="mx-auto flex max-w-360 flex-col items-center">
@@ -201,86 +227,101 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="models">
-          <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-              Unified Model Access
+        <section className="relative mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="models">
+          <div className="mb-14 text-center">
+            <div className="mb-5 inline-flex rounded-full border border-white/10 bg-black/70 px-4 py-2 font-mono text-[12px] tracking-[0.16em] text-white/80">
+              DEKADANS SERVERLESS
+            </div>
+            <h2 className="mx-auto max-w-3xl text-balance text-4xl font-semibold leading-[1.02] tracking-[-0.05em] text-white md:text-6xl">
+              Access frontier models easily with one API
             </h2>
-            <p className="mx-auto max-w-2xl text-(--ink-muted)">
-              Route your AI requests through a unified gateway instead of managing multiple
-              providers separately.
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-white/55 md:text-base">
+              No provider setup, no separate keys. Every successful AI request consumes quota
+              points based on the model multiplier below.
             </p>
-          </div>
-          <div className="mb-16 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
-            {FEATURED_MODELS.map((model) => (
-              <article
-                className="group relative rounded-lg border border-white/10 bg-[#1e2024] p-6 transition hover:border-cyan-300/40"
-                key={model.name}
-              >
-                <div className="absolute inset-0 rounded-lg bg-linear-to-br from-cyan-300/5 to-transparent opacity-0 transition group-hover:opacity-100" />
-                <div className="relative flex flex-col items-center justify-center space-y-4 text-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-lg border border-white/10 bg-white p-2 shadow-[0_0_18px_rgba(0,242,255,0.12)]">
-                    <Image
-                      alt={`${model.name} logo`}
-                      className="h-full w-full object-contain"
-                      height={48}
-                      src={model.logo}
-                      width={48}
-                    />
-                  </div>
-                  <h3 className="font-mono text-[13px] font-bold tracking-wider text-white">{model.name}</h3>
-                  <p className="font-mono text-sm text-[#849495]">{model.version}</p>
-                </div>
-              </article>
-            ))}
+            <Link
+              className="mt-8 inline-flex rounded-full bg-white px-6 py-3 font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
+              href="/register"
+            >
+              Start building
+            </Link>
           </div>
 
-          <div className="mb-8 text-center">
-            <h3 className="mb-3 text-2xl font-semibold tracking-tight text-white md:text-3xl">
-              Live model catalog
-            </h3>
-            <p className="mx-auto max-w-2xl text-(--ink-muted)">
-              Model names and request multipliers are loaded directly from the backend.
-            </p>
-          </div>
-          <div className="space-y-3">
-            {models.map((model) => (
-              <article
-                className="group relative rounded-xl border border-white/10 bg-[#101214] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-[#15171b]"
-                key={model.id}
-              >
-                <div className="absolute inset-0 rounded-xl bg-linear-to-r from-cyan-300/5 to-transparent opacity-0 transition group-hover:opacity-100" />
-                <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div className="min-w-0 space-y-2">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="truncate font-mono text-[14px] font-bold tracking-wider text-white">
-                        {model.name}
-                      </h3>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] tracking-wider text-[#94a3b8]">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {models.map((model) => {
+              const presentation = getModelPresentation(model);
+
+              return (
+                <article
+                  className="group relative min-h-64 overflow-hidden rounded-3xl border border-white/10 bg-black/80 p-6 transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-black"
+                  key={model.id}
+                >
+                  <div className={`absolute inset-0 bg-linear-to-br ${presentation.accent} opacity-0 transition group-hover:opacity-100`} />
+                  <div className="absolute inset-x-6 bottom-16 h-px bg-white/10" />
+                  <div className="relative flex h-full flex-col">
+                    <div className="mb-7 flex items-center justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white p-1.5 shadow-[0_0_24px_rgba(0,242,255,0.16)]">
+                          <Image
+                            alt={`${model.name} logo`}
+                            className="h-full w-full object-contain"
+                            height={36}
+                            src={presentation.logo}
+                            width={36}
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="truncate text-xl font-semibold tracking-[-0.03em] text-white">
+                            {model.name}
+                          </h3>
+                          <p className="mt-1 truncate font-mono text-[11px] tracking-[0.1em] text-white/35">
+                            {model.provider || model.id}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="rounded-full border border-cyan-200/20 bg-cyan-200/10 px-3 py-1 font-mono text-[12px] font-semibold text-cyan-100">
                         {model.requestCost}x
                       </span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 font-mono text-[12px] text-[#849495]">
-                      <span className="rounded border border-white/10 px-2 py-1">{model.id}</span>
-                      {model.provider ? (
-                        <span className="rounded border border-white/10 px-2 py-1">{model.provider}</span>
-                      ) : null}
+
+                    <p className="mb-10 min-h-16 text-sm leading-5 text-white/50">
+                      {presentation.description}
+                    </p>
+
+                    <div className="mt-auto grid grid-cols-3 gap-4 font-mono">
+                      <div>
+                        <p className="text-[12px] text-white/38">Multiplier</p>
+                        <p className="mt-2 text-lg text-white">{model.requestCost}x</p>
+                      </div>
+                      <div>
+                        <p className="text-[12px] text-white/38">Quota cost</p>
+                        <p className="mt-2 text-lg text-white">{model.requestCost} pt</p>
+                      </div>
+                      <div>
+                        <p className="text-[12px] text-white/38">Access</p>
+                        <p className="mt-2 text-lg text-white">All</p>
+                      </div>
                     </div>
+
+                    <p className="mt-7 font-mono text-[12px] italic text-white/38">
+                      per successful AI request
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 font-mono text-[12px]">
-                    <span className="text-[#22c55e]">available</span>
-                    <span className="text-[#fbbf24]">live</span>
-                  </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="mt-5 rounded-3xl border border-white/10 bg-black/80 p-5 text-center font-mono text-[12px] leading-6 text-white/45">
+            Model names and multipliers are loaded from the backend. Higher-capability models use
+            more quota points per request.
           </div>
         </section>
 
         <section className="relative mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="docs">
           <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-2">
-            <div className="order-2 overflow-hidden rounded-lg border border-white/10 bg-[#1a1c20] md:order-1">
-              <div className="border-b border-white/10 bg-[#1e2024] px-4 py-3">
+            <div className="order-2 overflow-hidden rounded-3xl border border-white/10 bg-black/80 md:order-1">
+              <div className="border-b border-white/10 bg-black px-4 py-3">
                 <span className="font-mono text-[13px] tracking-wider text-(--ink-muted)">
                   usage_dashboard.js
                 </span>
@@ -291,7 +332,7 @@ export default async function Home() {
                     <span>Remaining Requests</span>
                     <span className="text-[#e1fdff]">184 / 500</span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-[#333539]">
+                  <div className="h-2 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full w-[61%] bg-(--brand) shadow-[0_0_15px_rgba(0,242,255,0.3)]" />
                   </div>
                 </div>
@@ -300,7 +341,7 @@ export default async function Home() {
                     <span>Time Remaining</span>
                     <span className="text-[#ddb7ff]">3h 45m / 5h</span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-[#333539]">
+                  <div className="h-2 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full w-[75%] bg-[#6f00be]" />
                   </div>
                 </div>
@@ -324,123 +365,105 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="pricing">
+        <section className="relative mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="pricing">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-              Choose the weekly access that fits your usage
+            <div className="mb-5 inline-flex rounded-full border border-white/10 bg-black/70 px-4 py-2 font-mono text-[12px] tracking-[0.16em] text-white/80">
+              WEEKLY ACCESS
+            </div>
+            <h2 className="mx-auto max-w-3xl text-balance text-4xl font-semibold leading-[1.02] tracking-[-0.05em] text-white md:text-6xl">
+              Pick a weekly quota plan for every model
             </h2>
-            <p className="mx-auto max-w-2xl text-(--ink-muted)">
-              Every plan includes a <strong className="text-white">5-hour rolling quota</strong> plus
-              a <strong className="text-white">weekly safety limit</strong>.
-              AI requests consume quota points based on the model used.
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-white/55 md:text-base">
+              Plans include a rolling 5-hour quota plus a weekly safety limit. Model multipliers
+              decide how many quota points each successful request consumes.
             </p>
           </div>
-          <div className="mx-auto grid max-w-2xl gap-6 md:grid-cols-2">
+
+          <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-2">
             {pricingPlans.map((plan) => (
-              <div
+              <article
                 key={plan.slug}
-                className={`group relative flex flex-col ${plan.popular ? 'md:-mt-2 md:mb-2' : ''}`}
+                className={`group relative overflow-hidden rounded-3xl border bg-black/80 p-7 transition duration-300 hover:-translate-y-1 hover:bg-black ${
+                  plan.popular ? "border-cyan-200/30" : "border-white/10"
+                }`}
               >
                 {plan.popular ? (
-                  <div className="absolute -inset-1 rounded-xl bg-linear-to-r from-(--brand) to-(--accent) opacity-25 blur transition duration-1000 group-hover:opacity-40" />
-                ) : null}
-                <div
-                  className={`relative flex h-full flex-col rounded-xl border ${
-                    plan.popular ? 'border-(--brand)/40' : 'border-white/10'
-                  } bg-[#282a2e] p-8`}
-                >
-                  {plan.popular ? (
-                    <span className="mb-3 inline-block self-start rounded-full bg-(--brand)/20 px-3 py-1 font-mono text-[11px] font-semibold tracking-wider text-(--brand)">
-                      MOST POPULAR
-                    </span>
-                  ) : null}
-                  <div className="mb-6">
-                    <h3 className="mb-1 text-2xl font-semibold text-[#e1fdff]">{plan.name}</h3>
-                    <p className="mb-4 font-mono text-[13px] tracking-wider text-(--ink-muted)">
-                      {plan.subtitle}
-                    </p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-bold leading-none text-white">{plan.price}</span>
-                      <span className="font-mono text-[13px] tracking-wider text-(--ink-muted)">/ week</span>
+                  <div className="absolute inset-0 bg-linear-to-br from-cyan-300/15 via-transparent to-fuchsia-400/10" />
+                ) : (
+                  <div className="absolute inset-0 bg-linear-to-br from-white/[0.03] to-transparent" />
+                )}
+                <div className="relative flex h-full flex-col">
+                  <div className="mb-8 flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-2xl font-semibold tracking-[-0.04em] text-white">
+                        {plan.name}
+                      </h3>
+                      <p className="mt-2 font-mono text-[12px] tracking-[0.06em] text-white/45">
+                        {plan.subtitle}
+                      </p>
                     </div>
+                    {plan.popular ? (
+                      <span className="rounded-full border border-cyan-200/20 bg-cyan-200/10 px-3 py-1 font-mono text-[11px] font-semibold tracking-[0.08em] text-cyan-100">
+                        POPULAR
+                      </span>
+                    ) : null}
                   </div>
-                  <ul className="mb-6 flex-1 space-y-3">
-                    {plan.specs.map((spec) => (
-                      <li
-                        key={spec.label}
-                        className="flex items-center justify-between border-b border-white/5 pb-2 font-mono text-[13px] last:border-0 last:pb-0"
-                      >
-                        <span className="text-(--ink-muted)">{spec.label}</span>
-                        <span className="text-white">{spec.value}</span>
-                      </li>
+
+                  <div className="mb-8 flex items-end gap-2">
+                    <span className="text-6xl font-semibold leading-none tracking-[-0.06em] text-white">
+                      {plan.price}
+                    </span>
+                    <span className="pb-2 font-mono text-[13px] text-white/42">per week</span>
+                  </div>
+
+                  <div className="mb-8 grid grid-cols-2 gap-3">
+                    {plan.specs.slice(0, 4).map((spec) => (
+                      <div className="rounded-2xl border border-white/10 bg-black/80 p-4" key={spec.label}>
+                        <p className="font-mono text-[11px] text-white/38">{spec.label}</p>
+                        <p className="mt-2 font-mono text-sm text-white">{spec.value}</p>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+
+                  <p className="mb-7 min-h-12 text-sm leading-6 text-white/50">{plan.description}</p>
+
                   <Link
-                    className="mb-3 w-full rounded-sm bg-(--brand) py-4 text-center font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+                    className="mt-auto rounded-full bg-white px-6 py-3 text-center font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
                     href="/register"
                   >
                     Start {plan.name} Plan
                   </Link>
-                  <p className="text-center font-mono text-sm leading-6 text-[#849495]">
-                    {plan.description}
-                  </p>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
 
-          {/* Comparison strip */}
-          <div className="mx-auto mt-12 max-w-2xl">
-            <div className="grid grid-cols-2 gap-4 overflow-hidden rounded-xl border border-white/10 bg-[#1e2024]">
-              {pricingPlans.map((plan) => (
-                <div key={plan.slug} className="p-5">
-                  <p className="mb-2 font-mono text-[13px] font-semibold text-[#e1fdff]">
-                    {plan.name}
-                  </p>
-                  <div className="space-y-1.5 font-mono text-[12px] text-(--ink-muted)">
-                    <p>Quota: {plan.specs[0].value} per 5h</p>
-                    <p>Weekly: {plan.specs[1].value}</p>
-                    <p className="text-white">{plan.price}/week</p>
-                  </div>
-                </div>
-              ))}
+          <div className="mx-auto mt-5 grid max-w-5xl gap-4 md:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-3xl border border-white/10 bg-black/80 p-6">
+              <p className="mb-3 font-mono text-[12px] tracking-[0.14em] text-cyan-100">
+                HOW MULTIPLIERS WORK
+              </p>
+              <p className="text-sm leading-6 text-white/55">
+                A 500 point plan can run up to 500 requests on a 1x model in each 5-hour window.
+                With a 3x model, that same window supports about 166 successful requests.
+              </p>
             </div>
-          </div>
-
-          {/* Trust row */}
-          <div className="mx-auto mt-10 max-w-2xl text-center">
-            <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-[13px] text-(--ink-muted)">
-              <span className="flex items-center gap-2">
-                <span className="text-(--brand)">&#x25C9;</span> No provider setup
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="text-(--brand)">&#x25C9;</span> One API key for every model
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="text-(--brand)">&#x25C9;</span> Real-time usage dashboard
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="text-(--brand)">&#x25C9;</span> Cancel or switch anytime
-              </span>
+            <div className="rounded-3xl border border-white/10 bg-black/80 p-6 font-mono text-[12px] leading-6 text-white/45">
+              <p className="text-white/70">Included with every plan</p>
+              <p className="mt-2">One API key, all models, real-time dashboard, provider setup included.</p>
+              <p className="mt-3">
+                See the{" "}
+                <Link className="text-cyan-100 underline underline-offset-4" href="/docs#limits-model-costs">
+                  docs
+                </Link>{" "}
+                for quota details.
+              </p>
             </div>
-            <p className="mt-4 font-mono text-[12px] text-(--ink-muted)">
-              Request multipliers apply per model. See the{' '}
-              <Link className="text-(--brand) underline underline-offset-2" href="/docs#limits-model-costs">
-                docs
-              </Link>{' '}
-              for details. An active plan is only required for AI endpoints.
-            </p>
-            <p className="mt-4 font-mono text-[13px] text-(--ink-muted)">
-              Already have an account?{' '}
-              <Link className="text-(--brand) underline underline-offset-2" href="/login">
-                Login
-              </Link>
-            </p>
           </div>
         </section>
 
         <section className="mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="contact">
-          <div className="mx-auto max-w-3xl rounded-xl border border-white/10 bg-[#1e2024] p-8 text-center md:p-10">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-black/80 p-8 text-center md:p-10">
             <p className="mb-3 font-mono text-[13px] font-medium tracking-[0.05em] text-(--brand)">
               Contact
             </p>
@@ -452,14 +475,14 @@ export default async function Home() {
             </p>
             <div className="mt-8 grid gap-4 md:grid-cols-2">
               <a
-                className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/20 p-5 font-mono text-sm tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5"
+                className="flex items-center gap-3 rounded-lg border border-white/10 bg-black p-5 font-mono text-sm tracking-[0.05em] text-[#e1fdff] transition hover:border-white/25"
                 href="mailto:contact@dekadans.net"
               >
                 <MailIcon />
                 contact@dekadans.net
               </a>
               <a
-                className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/20 p-5 font-mono text-sm tracking-[0.05em] text-[#e1fdff] transition hover:border-cyan-300/40 hover:bg-cyan-300/5"
+                className="flex items-center gap-3 rounded-lg border border-white/10 bg-black p-5 font-mono text-sm tracking-[0.05em] text-[#e1fdff] transition hover:border-white/25"
                 href="https://wa.me/905016401800"
                 rel="noreferrer"
                 target="_blank"
@@ -472,7 +495,7 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className="w-full border-t border-white/10 bg-[#0a0c10]/70 px-4 py-5 font-mono text-[13px] tracking-wider text-(--ink-muted) backdrop-blur-md md:px-6">
+      <footer className="w-full border-t border-white/10 bg-black/70 px-4 py-5 font-mono text-[13px] tracking-wider text-(--ink-muted) backdrop-blur-md md:px-6">
         <div className="mx-auto grid max-w-360 items-center gap-4 md:grid-cols-3">
           <div className="flex justify-center md:justify-start">
             <Link
