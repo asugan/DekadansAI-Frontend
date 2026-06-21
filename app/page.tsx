@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { LogoHeroScene } from "./logo-hero-scene";
+import { ModelLogoMarquee } from "./model-logo-marquee";
 import { getModelPresentation } from "@/lib/model-presentation";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
@@ -164,6 +165,8 @@ export default async function Home() {
         </section>
 
         <section className="relative mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6" id="models">
+          <ModelLogoMarquee models={models} />
+
           <div className="mb-14 text-center">
             <div className="mb-5 inline-flex rounded-full border border-white/10 bg-black/70 px-4 py-2 font-mono text-[12px] tracking-[0.16em] text-white/80">
               DEKADANS SERVERLESS
