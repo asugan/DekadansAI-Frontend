@@ -89,6 +89,34 @@ export interface ModelsSnapshot {
   data: ModelInfo[];
 }
 
+export interface UsageStats {
+  requests: number;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  tokenValue: number;
+  lastRequestAt: string | null;
+}
+
+export interface UsageByKey extends UsageStats {
+  id: string;
+  name: string | null;
+  start: string | null;
+  enabled: boolean;
+}
+
+export interface UsageByModel extends UsageStats {
+  model: string;
+}
+
+export interface UsageSnapshot {
+  generatedAt: string;
+  overall: UsageStats;
+  byKey: UsageByKey[];
+  unknownKey: UsageStats | null;
+  byModel: UsageByModel[];
+}
+
 function asObject(value: unknown): JsonObject {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return value as JsonObject;
@@ -104,6 +132,21 @@ function asNumber(value: unknown, fallback: number): number {
 
   if (typeof value === "string") {
     const parsed = Number.parseInt(value, 10);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  return fallback;
+}
+
+function asFloat(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number.parseFloat(value);
     if (!Number.isNaN(parsed)) {
       return parsed;
     }
@@ -274,6 +317,61 @@ function normalizeModelsSnapshot(payload: unknown): ModelsSnapshot {
   };
 }
 
+function normalizeUsageStats(value: unknown): UsageStats {
+  const stats = asObject(value);
+
+  return {
+    requests: Math.max(0, asNumber(stats.requests, 0)),
+    inputTokens: Math.max(0, asNumber(stats.inputTokens, 0)),
+    outputTokens: Math.max(0, asNumber(stats.outputTokens, 0)),
+    totalTokens: Math.max(0, asNumber(stats.totalTokens, 0)),
+    tokenValue: Math.max(0, asFloat(stats.tokenValue, 0)),
+    lastRequestAt: typeof stats.lastRequestAt === "string" ? stats.lastRequestAt : null
+  };
+}
+
+function normalizeUsageSnapshot(payload: unknown): UsageSnapshot {
+  const root = asObject(payload);
+  const byKeyRaw = Array.isArray(root.byKey) ? root.byKey : [];
+  const byModelRaw = Array.isArray(root.byModel) ? root.byModel : [];
+  const unknownKey =
+    root.unknownKey && typeof root.unknownKey === "object" ? normalizeUsageStats(root.unknownKey) : null;
+
+  return {
+    generatedAt:
+      typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
+    overall: normalizeUsageStats(root.overall),
+    byKey: byKeyRaw
+      .map((entry) => {
+        const key = asObject(entry);
+        const id = typeof key.id === "string" ? key.id : "";
+        if (!id) return null;
+
+        return {
+          id,
+          name: typeof key.name === "string" ? key.name : null,
+          start: typeof key.start === "string" ? key.start : null,
+          enabled: asBoolean(key.enabled, true),
+          ...normalizeUsageStats(key)
+        } satisfies UsageByKey;
+      })
+      .filter((entry): entry is UsageByKey => entry !== null),
+    unknownKey,
+    byModel: byModelRaw
+      .map((entry) => {
+        const model = asObject(entry);
+        const id = typeof model.model === "string" && model.model.trim() ? model.model : "";
+        if (!id) return null;
+
+        return {
+          model: id,
+          ...normalizeUsageStats(model)
+        } satisfies UsageByModel;
+      })
+      .filter((entry): entry is UsageByModel => entry !== null)
+  };
+}
+
 function parseErrorMessage(payload: unknown, fallback: string): string {
   const parsed = asObject(payload);
   const error = parsed.error;
@@ -339,4 +437,23 @@ export async function getModelsSnapshot(): Promise<ModelsSnapshot> {
   }
 
   return normalizeModelsSnapshot(responsePayload);
+}
+
+export async function getUsageSnapshot(): Promise<UsageSnapshot> {
+  const response = await fetch("/api/account/usage", {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store"
+  });
+
+  const responsePayload: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new ApiRequestError(
+      parseErrorMessage(responsePayload, "Could not load usage statistics"),
+      response.status
+    );
+  }
+
+  return normalizeUsageSnapshot(responsePayload);
 }

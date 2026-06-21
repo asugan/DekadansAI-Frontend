@@ -9,9 +9,11 @@ import {
   type BillingSnapshot,
   type ModelInfo,
   type RateLimitSnapshot,
+  type UsageSnapshot,
   getBillingSnapshot,
   getModelsSnapshot,
-  getRateLimitSnapshot
+  getRateLimitSnapshot,
+  getUsageSnapshot
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
 import { getModelPresentation } from "@/lib/model-presentation";
@@ -103,6 +105,16 @@ function maskKey(start: string | null): string {
   return `${start}...`;
 }
 
+function formatCount(value: number | undefined): string {
+  return new Intl.NumberFormat("en-US").format(value ?? 0);
+}
+
+function formatTokenValue(value: number | undefined): string {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2
+  }).format(value ?? 0);
+}
+
 function extractRedirectUrl(payload: unknown): string | null {
   const parsed = asObject(payload);
   return typeof parsed.url === "string" && parsed.url.trim() ? parsed.url : null;
@@ -115,6 +127,9 @@ export default function DashboardPage() {
   const [snapshot, setSnapshot] = useState<RateLimitSnapshot | null>(null);
   const [isLoadingSnapshot, setIsLoadingSnapshot] = useState(true);
   const [snapshotError, setSnapshotError] = useState<string | null>(null);
+  const [usageSnapshot, setUsageSnapshot] = useState<UsageSnapshot | null>(null);
+  const [isLoadingUsage, setIsLoadingUsage] = useState(true);
+  const [usageError, setUsageError] = useState<string | null>(null);
   const [billingStatus, setBillingStatus] = useState<BillingStatus>("loading");
   const [billingError, setBillingError] = useState<string | null>(null);
   const [models, setModels] = useState<ModelInfo[]>([]);
@@ -153,6 +168,31 @@ export default function DashboardPage() {
         setSnapshotError(resolveErrorMessage(error, "Unable to load rate limit data."));
       } finally {
         setIsLoadingSnapshot(false);
+      }
+    },
+    [router]
+  );
+
+  const loadUsage = useCallback(
+    async (silent: boolean) => {
+      if (!silent) {
+        setIsLoadingUsage(true);
+      }
+
+      setUsageError(null);
+
+      try {
+        const payload = await getUsageSnapshot();
+        setUsageSnapshot(payload);
+      } catch (error) {
+        if (error instanceof ApiRequestError && error.status === 401) {
+          router.replace("/login");
+          return;
+        }
+
+        setUsageError(resolveErrorMessage(error, "Unable to load usage statistics."));
+      } finally {
+        setIsLoadingUsage(false);
       }
     },
     [router]
@@ -207,16 +247,18 @@ export default function DashboardPage() {
     }
 
     void loadSnapshot(false);
+    void loadUsage(false);
     void loadBillingStatus();
     void loadModels();
     const timer = window.setInterval(() => {
       void loadSnapshot(true);
+      void loadUsage(true);
     }, POLL_INTERVAL_MS);
 
     return () => {
       window.clearInterval(timer);
     };
-  }, [isSessionPending, loadBillingStatus, loadModels, loadSnapshot, router, session?.user]);
+  }, [isSessionPending, loadBillingStatus, loadModels, loadSnapshot, loadUsage, router, session?.user]);
 
   const sessionUsagePercent = useMemo(() => {
     if (!snapshot || snapshot.account.quota.max <= 0) return 0;
@@ -234,6 +276,15 @@ export default function DashboardPage() {
     () => models.find((model) => model.id === selectedModelId) || null,
     [models, selectedModelId]
   );
+
+  const usageByKeyId = useMemo(() => {
+    const entries = new Map<string, UsageSnapshot["byKey"][number]>();
+    for (const item of usageSnapshot?.byKey ?? []) {
+      entries.set(item.id, item);
+    }
+
+    return entries;
+  }, [usageSnapshot]);
 
   const selectedModelCurl = useMemo(
     () => `curl -X POST https://api.dekadans.net/ai/chat/completions \\
@@ -456,7 +507,7 @@ export default function DashboardPage() {
             <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
               <div className="absolute inset-0 bg-linear-to-br from-cyan-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
               <div className="relative">
-                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Total limit</p>
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Quota limit</p>
                 <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
                   {snapshot?.overview.totalMax ?? 0}
                 </p>
@@ -465,7 +516,7 @@ export default function DashboardPage() {
             <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
               <div className="absolute inset-0 bg-linear-to-br from-purple-400/8 to-transparent opacity-0 transition group-hover:opacity-100" />
               <div className="relative">
-                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Used</p>
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Quota used</p>
                 <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
                   {snapshot?.overview.totalUsed ?? 0}
                 </p>
@@ -474,13 +525,62 @@ export default function DashboardPage() {
             <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
               <div className="absolute inset-0 bg-linear-to-br from-emerald-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
               <div className="relative">
-                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Remaining</p>
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Quota remaining</p>
                 <p className="mt-3 text-4xl font-semibold tracking-tight text-[#e1fdff]">
                   {snapshot?.overview.totalRemaining ?? 0}
                 </p>
               </div>
             </article>
           </section>
+
+          <section className="mt-4 grid gap-4 md:grid-cols-4">
+            <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+              <div className="absolute inset-0 bg-linear-to-br from-cyan-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Total tokens</p>
+                <p className="mt-3 text-3xl font-semibold tracking-tight text-[#e1fdff]">
+                  {formatCount(usageSnapshot?.overall.totalTokens)}
+                </p>
+              </div>
+            </article>
+            <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+              <div className="absolute inset-0 bg-linear-to-br from-purple-400/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Input tokens</p>
+                <p className="mt-3 text-3xl font-semibold tracking-tight text-[#e1fdff]">
+                  {formatCount(usageSnapshot?.overall.inputTokens)}
+                </p>
+              </div>
+            </article>
+            <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+              <div className="absolute inset-0 bg-linear-to-br from-emerald-300/8 to-transparent opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Output tokens</p>
+                <p className="mt-3 text-3xl font-semibold tracking-tight text-[#e1fdff]">
+                  {formatCount(usageSnapshot?.overall.outputTokens)}
+                </p>
+              </div>
+            </article>
+            <article className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#101214] p-5 transition hover:border-cyan-300/40">
+              <div className="absolute inset-0 bg-linear-to-br from-cyan-300/8 to-purple-400/8 opacity-0 transition group-hover:opacity-100" />
+              <div className="relative">
+                <p className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">Token units</p>
+                <p className="mt-3 text-3xl font-semibold tracking-tight text-[#e1fdff]">
+                  {formatTokenValue(usageSnapshot?.overall.tokenValue)}
+                </p>
+              </div>
+            </article>
+          </section>
+
+          {usageError ? (
+            <p className="mt-4 rounded-lg border border-red-400/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              {usageError}
+            </p>
+          ) : null}
+
+          {isLoadingUsage ? (
+            <p className="mt-4 font-mono text-[13px] text-(--ink-muted)">Loading token statistics...</p>
+          ) : null}
 
           <section className="panel relative mt-6 overflow-hidden border-cyan-300/15 bg-[#101214]/80 p-0">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_88%_8%,rgba(168,85,247,0.12),transparent_26%),linear-gradient(135deg,rgba(0,242,255,0.04),transparent_42%)]" />
@@ -501,6 +601,10 @@ export default function DashboardPage() {
                   Refresh
                 </button>
               </div>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
+                Quota usage is charged by model cost. Token statistics show provider-reported input
+                and output tokens.
+              </p>
 
               <div className="mt-5 space-y-4">
                 <div className="rounded-xl border border-white/10 bg-black/20 p-4">
@@ -729,45 +833,61 @@ export default function DashboardPage() {
           ) : null}
 
           <div className="mt-5 overflow-x-auto rounded-xl border border-white/10 bg-black/20">
-            <table className="w-full min-w-155 border-collapse font-mono text-sm">
+            <table className="w-full min-w-240 border-collapse font-mono text-sm">
               <thead>
                 <tr className="border-b border-white/10 bg-[#1a1c20] text-left text-[12px] tracking-[0.05em] text-(--ink-muted)">
                   <th className="px-4 py-3 font-medium">Key</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Requests</th>
+                  <th className="px-4 py-3 font-medium">Input</th>
+                  <th className="px-4 py-3 font-medium">Output</th>
+                  <th className="px-4 py-3 font-medium">Total</th>
+                  <th className="px-4 py-3 font-medium">Token units</th>
                   <th className="px-4 py-3 font-medium">Last request</th>
                   <th className="px-4 py-3 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {snapshot?.keys.length ? (
-                  snapshot.keys.map((item) => (
-                    <tr key={item.id} className="border-b border-white/10 transition last:border-0 hover:bg-cyan-300/5">
-                      <td className="px-4 py-3 font-medium text-[#e1fdff]">{item.name || maskKey(item.start)}</td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full border px-2.5 py-1 text-[11px] ${
-                          item.enabled
-                            ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
-                            : "border-white/10 bg-white/5 text-(--ink-muted)"
-                        }`}>
-                          {item.enabled ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-(--ink-muted)">{formatTime(item.lastRequestAt)}</td>
-                      <td className="px-4 py-3">
-                        <button
-                          type="button"
-                          onClick={() => void handleDeleteKey(item.id)}
-                          disabled={deletingKeyId === item.id}
-                          className="rounded-sm border border-red-300/30 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {deletingKeyId === item.id ? "Deleting..." : "Delete"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  snapshot.keys.map((item) => {
+                    const usage = usageByKeyId.get(item.id);
+
+                    return (
+                      <tr key={item.id} className="border-b border-white/10 transition last:border-0 hover:bg-cyan-300/5">
+                        <td className="px-4 py-3 font-medium text-[#e1fdff]">{item.name || maskKey(item.start)}</td>
+                        <td className="px-4 py-3">
+                          <span className={`rounded-full border px-2.5 py-1 text-[11px] ${
+                            item.enabled
+                              ? "border-emerald-300/30 bg-emerald-300/10 text-emerald-200"
+                              : "border-white/10 bg-white/5 text-(--ink-muted)"
+                          }`}>
+                            {item.enabled ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-(--ink-muted)">{formatCount(usage?.requests)}</td>
+                        <td className="px-4 py-3 text-(--ink-muted)">{formatCount(usage?.inputTokens)}</td>
+                        <td className="px-4 py-3 text-(--ink-muted)">{formatCount(usage?.outputTokens)}</td>
+                        <td className="px-4 py-3 text-(--ink-muted)">{formatCount(usage?.totalTokens)}</td>
+                        <td className="px-4 py-3 text-(--ink-muted)">{formatTokenValue(usage?.tokenValue)}</td>
+                        <td className="px-4 py-3 text-(--ink-muted)">
+                          {formatTime(usage?.lastRequestAt || item.lastRequestAt)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            type="button"
+                            onClick={() => void handleDeleteKey(item.id)}
+                            disabled={deletingKeyId === item.id}
+                            className="rounded-sm border border-red-300/30 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {deletingKeyId === item.id ? "Deleting..." : "Delete"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td className="px-4 py-5 text-(--ink-muted)" colSpan={4}>
+                    <td className="px-4 py-5 text-(--ink-muted)" colSpan={9}>
                       No API keys yet.
                     </td>
                   </tr>
