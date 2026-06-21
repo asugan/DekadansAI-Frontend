@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:?Set NEXT_PUBLIC_APP_URL to the public frontend URL}
+        BACKEND_BASE_URL: ${BACKEND_BASE_URL:?Set BACKEND_BASE_URL to the public backend URL}
     image: dekadansai-frontend:latest
     container_name: dekadansai-frontend
     env_file:
