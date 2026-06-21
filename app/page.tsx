@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { HomeNavActions } from "./home-nav";
+import { LogoHeroScene } from "./logo-hero-scene";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
@@ -131,96 +132,70 @@ export default async function Home() {
 
   return (
     <>
-      <nav className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-[#0a0c10]/70 px-4 py-4 backdrop-blur-md md:px-6">
-        <div className="mx-auto flex max-w-360 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link
-              className="group flex items-center gap-3 text-xl font-bold tracking-tighter text-white transition hover:text-(--brand)"
-              href="/"
-            >
-              <Image
-                alt="Dekadans AI logo"
-                className="h-16 w-16 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
-                height={64}
-                priority
-                src="/logo.png"
-                width={64}
-              />
-            </Link>
-            <div className="hidden items-center gap-6 md:flex">
-              {["Models", "Pricing"].map((item) => (
-                <Link
-                  key={item}
-                  className="font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand)"
-                  href={`#${item.toLowerCase()}`}
-                >
-                  {item}
-                </Link>
-              ))}
+      <nav className="fixed left-0 top-0 z-50 w-full px-4 py-4 md:px-6">
+        <div className="mx-auto grid max-w-360 grid-cols-3 items-center rounded-full border border-white/10 bg-black/45 px-4 py-2 backdrop-blur-xl">
+          <div className="hidden items-center gap-5 md:flex">
+            {["Models", "Pricing"].map((item) => (
               <Link
-                className="font-mono text-[13px] tracking-wider text-(--ink-muted) transition hover:text-(--brand)"
-                href="/docs"
+                key={item}
+                className="font-mono text-[12px] tracking-wider text-white/70 transition hover:text-(--brand)"
+                href={`#${item.toLowerCase()}`}
               >
-                Docs
+                {item}
               </Link>
-            </div>
+            ))}
+            <Link
+              className="font-mono text-[12px] tracking-wider text-white/70 transition hover:text-(--brand)"
+              href="/docs"
+            >
+              Docs
+            </Link>
           </div>
-          <HomeNavActions />
+          <Link
+            className="col-start-1 justify-self-start font-mono text-sm font-semibold tracking-[0.18em] text-white transition hover:text-(--brand) md:col-start-2 md:justify-self-center"
+            href="/"
+          >
+            Dekadans AI
+          </Link>
+          <div className="col-span-2 justify-self-end md:col-span-1">
+            <HomeNavActions />
+          </div>
         </div>
       </nav>
 
-      <main className="overflow-hidden pb-24 pt-32">
-        <section className="relative mx-auto mb-32 max-w-360 px-4 md:mb-48 md:px-6">
-          <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-size-[40px_40px] opacity-20 mask-[linear-gradient(to_bottom,white,transparent)]" />
-          <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12">
-            <div className="space-y-8 md:col-span-6">
-              <div className="inline-block rounded border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 font-mono text-[13px] font-medium tracking-wider text-cyan-300">
-                v2.0 Unified API Gateway
-              </div>
-              <h1 className="max-w-3xl text-4xl font-bold leading-[1.1] tracking-[-0.02em] text-[#e1fdff] md:text-5xl">
-                One API for MiniMax, GLM, Kimi, and ChatGPT
-              </h1>
-              <p className="max-w-lg text-base leading-relaxed text-(--ink-muted)">
-                Get secure, request-limited access to multiple frontier AI models with a single
-                API key.
+      <main className="overflow-hidden pb-24">
+        <section className="relative mb-32 min-h-screen px-4 pt-24 md:mb-48 md:px-6">
+          <div className="absolute inset-0 -z-20 bg-black" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_28%,rgba(0,242,255,0.18),transparent_30%),radial-gradient(circle_at_38%_32%,rgba(168,85,247,0.2),transparent_28%),linear-gradient(180deg,rgba(0,0,0,0)_0%,#0a0c10_92%)]" />
+          <div className="absolute inset-x-0 top-0 -z-10 h-96 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[56px_56px] opacity-25 mask-[linear-gradient(to_bottom,black,transparent)]" />
+
+          <div className="mx-auto flex max-w-360 flex-col items-center">
+            <LogoHeroScene />
+
+            <div className="-mt-10 max-w-3xl text-center md:-mt-20">
+              <p className="mb-4 font-mono text-[12px] font-medium tracking-[0.24em] text-cyan-200/80">
+                UNIFIED AI GATEWAY
               </p>
-              <div className="flex flex-wrap gap-4 pt-4">
+              <h1 className="text-balance text-4xl font-semibold leading-[0.96] tracking-[-0.05em] text-white md:text-7xl">
+                One API for frontier AI models
+              </h1>
+              <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/55 md:text-base">
+                Access MiniMax, GLM, Kimi, and ChatGPT through a secure unified gateway built for
+                fast production workflows.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Link
-                  className="rounded-sm bg-(--brand) px-6 py-3 font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+                  className="rounded-full bg-white px-6 py-3 font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
                   href="/register"
                 >
                   Get Started
                 </Link>
                 <Link
-                  className="rounded border border-white/10 px-6 py-3 font-mono text-[13px] tracking-wider text-white transition hover:border-white/20 hover:bg-white/5 active:scale-95"
+                  className="rounded-full border border-white/10 bg-white/10 px-6 py-3 font-mono text-[12px] font-medium tracking-[0.04em] text-white transition hover:border-white/20 hover:bg-white/15 active:scale-95"
                   href="#pricing"
                 >
                   View Pricing
                 </Link>
-              </div>
-            </div>
-
-            <div className="relative h-100 overflow-hidden rounded-lg border border-white/10 bg-[#1a1c20] md:col-span-6 md:h-125">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(0,242,255,0.28),transparent_24%),radial-gradient(circle_at_82%_62%,rgba(168,85,247,0.24),transparent_28%),linear-gradient(135deg,rgba(0,242,255,0.08),rgba(111,0,190,0.06))]" />
-              <div className="absolute inset-0 opacity-35 bg-[repeating-linear-gradient(150deg,transparent_0px,transparent_20px,rgba(255,255,255,0.12)_21px,transparent_23px)]" />
-              <div className="absolute inset-0 flex items-center justify-center p-8">
-                <div className="w-full max-w-md rounded-lg border border-white/10 bg-black/80 p-6 shadow-2xl backdrop-blur-md">
-                  <div className="mb-4 flex items-center gap-2 border-b border-white/10 pb-2">
-                    <div className="h-3 w-3 rounded-full bg-[#ffb4ab]" />
-                    <div className="h-3 w-3 rounded-full bg-[#00dbe7]" />
-                    <div className="h-3 w-3 rounded-full bg-[#74f5ff]" />
-                    <span className="ml-2 font-mono text-[13px] tracking-wider text-[#849495]">terminal</span>
-                  </div>
-                  <pre className="overflow-x-auto font-mono text-sm leading-6 text-[#e2e2e8]">
-                    <code>{`curl -X POST https://api.dekadans.net/ai/chat/completions \\
-  -H "Authorization: Bearer dk_live_..." \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "gpt-5.5",
-    "messages": [{"role": "user", "content": "Hello"}]
-  }'`}</code>
-                  </pre>
-                </div>
               </div>
             </div>
           </div>
