@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { LogoHeroScene } from "./logo-hero-scene";
 import { ModelLogoMarquee } from "./model-logo-marquee";
+import { PricingPlanAction } from "./pricing-plan-action";
 import { getModelPresentation } from "@/lib/model-presentation";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
@@ -366,12 +367,7 @@ export default async function Home() {
 
                   <p className="mb-7 min-h-12 text-sm leading-6 text-white/50">{plan.description}</p>
 
-                  <Link
-                    className="mt-auto rounded-full bg-white px-6 py-3 text-center font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
-                    href="/login"
-                  >
-                    Start {plan.name} Plan
-                  </Link>
+                  <PricingPlanAction name={plan.name} slug={plan.slug} />
                 </div>
               </article>
             ))}
