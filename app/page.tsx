@@ -149,7 +149,7 @@ export default async function Home() {
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Link
                   className="rounded-full bg-white px-6 py-3 font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
-                  href="/register"
+                  href="/login"
                 >
                   Get Started
                 </Link>
@@ -180,7 +180,7 @@ export default async function Home() {
             </p>
             <Link
               className="mt-8 inline-flex rounded-full bg-white px-6 py-3 font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
-              href="/register"
+              href="/login"
             >
               Start building
             </Link>
@@ -368,7 +368,7 @@ export default async function Home() {
 
                   <Link
                     className="mt-auto rounded-full bg-white px-6 py-3 text-center font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
-                    href="/register"
+                    href="/login"
                   >
                     Start {plan.name} Plan
                   </Link>

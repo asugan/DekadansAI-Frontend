@@ -193,7 +193,7 @@ export default async function DocsPage() {
                 including MiniMax, GLM, Kimi, and ChatGPT. Here is how to get started in a few steps.
               </p>
               <ol className="mb-4 list-inside list-decimal space-y-3 text-(--ink-muted)">
-                <li><strong className="text-white">Create an account</strong> at the <Link className="text-(--brand) underline" href="/register">registration page</Link>.</li>
+                <li><strong className="text-white">Sign in</strong> with Google or GitHub from the <Link className="text-(--brand) underline" href="/login">login page</Link>.</li>
                 <li><strong className="text-white">Start a weekly plan</strong> from your dashboard. A valid subscription is required to use the AI endpoints.</li>
                 <li><strong className="text-white">Generate an API key</strong> from the dashboard. Store it securely — it is only shown once.</li>
                 <li><strong className="text-white">Make your first request</strong> using the examples below.</li>

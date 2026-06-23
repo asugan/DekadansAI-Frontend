@@ -28,7 +28,7 @@ export function HomeNavActions() {
         </Link>
         <Link
           className="rounded-sm bg-(--brand) px-4 py-2 font-mono text-[13px] font-medium tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
-          href="/register"
+          href="/login"
         >
           Get Started
         </Link>
