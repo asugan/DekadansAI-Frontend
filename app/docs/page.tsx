@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { getModelPresentation } from "@/lib/model-presentation";
+import { PUBLIC_PROVIDER_NAME, getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
@@ -15,10 +15,10 @@ interface DocsModel {
 }
 
 const FALLBACK_DOCS_MODELS: DocsModel[] = [
-  { id: "minimax-m3", name: "Minimax M3", provider: "minimax", requestCost: 1 },
-  { id: "glm-5.1", name: "GLM 5.1", provider: "zai", requestCost: 1 },
-  { id: "kimi-k2.6", name: "Kimi K2.6", provider: "kimi", requestCost: 1 },
-  { id: "gpt-5.5", name: "ChatGPT 5.5", provider: "openai", requestCost: 3 }
+  { id: "minimax-m3", name: "Minimax M3", provider: PUBLIC_PROVIDER_NAME, requestCost: 1 },
+  { id: "glm-5.1", name: "GLM 5.1", provider: PUBLIC_PROVIDER_NAME, requestCost: 1 },
+  { id: "kimi-k2.6", name: "Kimi K2.6", provider: PUBLIC_PROVIDER_NAME, requestCost: 1 },
+  { id: "gpt-5.5", name: "ChatGPT 5.5", provider: PUBLIC_PROVIDER_NAME, requestCost: 3 }
 ];
 
 function asObject(value: unknown): JsonObject {
@@ -48,7 +48,7 @@ function normalizeDocsModels(payload: unknown): DocsModel[] {
       return {
         id,
         name: typeof model.name === "string" && model.name.trim() ? model.name : id,
-        provider: typeof model.provider === "string" && model.provider.trim() ? model.provider : null,
+        provider: typeof model.provider === "string" && model.provider.trim() ? PUBLIC_PROVIDER_NAME : null,
         requestCost: Math.max(1, asNumber(model.requestCost, 1)),
       };
     })
@@ -474,7 +474,7 @@ export default async function DocsPage() {
                       <span className="font-mono text-[12px] text-(--ink-muted)">{m.id}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      {m.provider && <span className="rounded border border-white/10 px-2 py-0.5 font-mono text-[11px] text-(--ink-muted)">{m.provider}</span>}
+                      {m.provider && <span className="rounded border border-white/10 px-2 py-0.5 font-mono text-[11px] text-(--ink-muted)">{getProviderDisplayName()}</span>}
                       <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-2.5 py-0.5 font-mono text-[12px] font-medium text-cyan-300">
                         {m.requestCost}x
                       </span>
@@ -540,7 +540,7 @@ export default async function DocsPage() {
                         <span className="font-mono text-[12px] text-(--ink-muted)">{m.id}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        {m.provider && <span className="rounded border border-white/10 px-2 py-0.5 font-mono text-[11px] text-(--ink-muted)">{m.provider}</span>}
+                        {m.provider && <span className="rounded border border-white/10 px-2 py-0.5 font-mono text-[11px] text-(--ink-muted)">{getProviderDisplayName()}</span>}
                         <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-2.5 py-0.5 font-mono text-[12px] font-medium text-cyan-300">
                           {m.requestCost}x
                         </span>

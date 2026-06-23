@@ -10,6 +10,12 @@ export interface ModelPresentation {
   accent: string;
 }
 
+export const PUBLIC_PROVIDER_NAME = "Dekadans";
+
+export function getProviderDisplayName(): string {
+  return PUBLIC_PROVIDER_NAME;
+}
+
 const MODEL_PRESENTATIONS: Record<string, ModelPresentation> = {
   minimax: {
     description: "Fast, efficient reasoning for agents, workflow automation, and everyday API workloads.",

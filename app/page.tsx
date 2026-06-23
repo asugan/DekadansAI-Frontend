@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LogoHeroScene } from "./logo-hero-scene";
 import { ModelLogoMarquee } from "./model-logo-marquee";
 import { PricingPlanAction } from "./pricing-plan-action";
-import { getModelPresentation } from "@/lib/model-presentation";
+import { PUBLIC_PROVIDER_NAME, getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
@@ -18,10 +18,10 @@ interface HomepageModel {
 }
 
 const FALLBACK_MODELS: HomepageModel[] = [
-  { id: "minimax-m3", name: "Minimax M3", provider: "minimax", requestCost: 1 },
-  { id: "glm-5.1", name: "GLM 5.1", provider: "zai", requestCost: 1 },
-  { id: "kimi-k2.6", name: "Kimi K2.6", provider: "kimi", requestCost: 1 },
-  { id: "gpt-5.5", name: "ChatGPT 5.5", provider: "openai", requestCost: 3 }
+  { id: "minimax-m3", name: "Minimax M3", provider: PUBLIC_PROVIDER_NAME, requestCost: 1 },
+  { id: "glm-5.1", name: "GLM 5.1", provider: PUBLIC_PROVIDER_NAME, requestCost: 1 },
+  { id: "kimi-k2.6", name: "Kimi K2.6", provider: PUBLIC_PROVIDER_NAME, requestCost: 1 },
+  { id: "gpt-5.5", name: "ChatGPT 5.5", provider: PUBLIC_PROVIDER_NAME, requestCost: 3 }
 ];
 
 function asObject(value: unknown): JsonObject {
@@ -61,7 +61,7 @@ function normalizeHomepageModels(payload: unknown): HomepageModel[] {
         id,
         name: typeof model.name === "string" && model.name.trim() ? model.name : id,
         provider:
-          typeof model.provider === "string" && model.provider.trim() ? model.provider : null,
+          typeof model.provider === "string" && model.provider.trim() ? PUBLIC_PROVIDER_NAME : null,
         requestCost: Math.max(1, asNumber(model.requestCost, 1))
       };
     })
@@ -215,7 +215,7 @@ export default async function Home() {
                             {model.name}
                           </h3>
                           <p className="mt-1 truncate font-mono text-[11px] tracking-[0.1em] text-white/35">
-                            {model.provider || model.id}
+                            {getProviderDisplayName()}
                           </p>
                         </div>
                       </div>

@@ -16,7 +16,7 @@ import {
   getUsageSnapshot
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
-import { getModelPresentation } from "@/lib/model-presentation";
+import { getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
 import { getMarketingPlan } from "@/lib/plan-display";
 
 const POLL_INTERVAL_MS = 15000;
@@ -783,7 +783,7 @@ export default function DashboardPage() {
                       </p>
                       <p className="mt-1 font-mono text-xs text-(--ink-muted)">{selectedModel.id}</p>
                       {selectedModel.provider ? (
-                        <p className="mt-1 font-mono text-xs text-(--ink-muted)">Provider: {selectedModel.provider}</p>
+                        <p className="mt-1 font-mono text-xs text-(--ink-muted)">Provider: {getProviderDisplayName()}</p>
                       ) : null}
                     </div>
                   </div>

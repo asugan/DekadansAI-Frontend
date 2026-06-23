@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { getModelPresentation } from "@/lib/model-presentation";
+import { getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
 
 interface MarqueeModel {
   id: string;
@@ -36,7 +36,7 @@ export function ModelLogoMarquee({ models }: ModelLogoMarqueeProps) {
               {model.name}
             </p>
             <p className="mt-0.5 truncate font-mono text-[10px] tracking-[0.12em] text-white/35">
-              {model.provider || model.id}
+              {getProviderDisplayName()}
             </p>
           </div>
         </div>

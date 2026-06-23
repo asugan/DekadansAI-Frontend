@@ -1,5 +1,7 @@
 type JsonObject = Record<string, unknown>;
 
+const PUBLIC_PROVIDER_NAME = "Dekadans";
+
 export class ApiRequestError extends Error {
   status: number;
 
@@ -303,7 +305,7 @@ function normalizeModelsSnapshot(payload: unknown): ModelsSnapshot {
         id,
         name: typeof model.name === "string" && model.name.trim() ? model.name : id,
         provider:
-          typeof model.provider === "string" && model.provider.trim() ? model.provider : null,
+          typeof model.provider === "string" && model.provider.trim() ? PUBLIC_PROVIDER_NAME : null,
         enabled: asBoolean(model.enabled, true),
         requestCost: Math.max(1, asNumber(model.requestCost, 1))
       } satisfies ModelInfo;
