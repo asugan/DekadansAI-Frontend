@@ -154,6 +154,7 @@ export default async function DocsPage() {
                 { label: "Usage & Limits", href: "#limits" },
                 { label: "Model Catalog", href: "#model-catalog" },
                 { label: "Code Examples", href: "#code-examples" },
+                { label: "CLI Integrations", href: "#cli-integrations" },
                 { label: "Streaming", href: "#streaming" },
                 { label: "Errors", href: "#errors" },
                 { label: "FAQ", href: "#faq" },
@@ -273,6 +274,13 @@ export default async function DocsPage() {
                 Returns the model catalog. Requires a valid API key and an active weekly plan.
               </p>
 
+              <SubHeading id="endpoint-openai-compatible">OpenAI-Compatible Endpoints</SubHeading>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Use these endpoints with OpenAI-compatible clients, SDKs, and tools. Set the client base
+                URL to <InlineCode>https://api.dekadans.net/ai</InlineCode> when the client appends
+                paths such as <InlineCode>/chat/completions</InlineCode>.
+              </p>
+
               <SubHeading id="endpoint-chat-completions">Chat Completions</SubHeading>
               <div className="mb-4 flex items-center gap-3">
                 <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
@@ -364,6 +372,76 @@ export default async function DocsPage() {
     "input": "Hello!"
   }'`}
               </CodeBlock>
+
+              <SubHeading id="endpoint-anthropic-compatible">Anthropic-Compatible Endpoints</SubHeading>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Use these endpoints with Anthropic-compatible clients, SDKs, and tools. Set the client
+                base URL to <InlineCode>https://api.dekadans.net/ai</InlineCode> when the client appends
+                <InlineCode>/messages</InlineCode>.
+              </p>
+
+              <SubHeading id="endpoint-messages">Messages</SubHeading>
+              <div className="mb-4 flex items-center gap-3">
+                <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
+                <span className="font-mono text-[14px] text-white">/ai/messages</span>
+              </div>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Anthropic Messages API compatible endpoint. The <InlineCode>model</InlineCode> field is
+                required and usage is recorded under the selected model.
+              </p>
+              <PropTable
+                columns={[
+                  { header: "Field", key: "field" },
+                  { header: "Type", key: "type" },
+                  { header: "Required", key: "required" },
+                  { header: "Description", key: "description" },
+                ]}
+                rows={[
+                  { field: "model", type: "string", required: "Yes", description: "Model identifier (e.g. claude-sonnet-4)" },
+                  { field: "messages", type: "array", required: "Yes", description: "Array of Anthropic message objects with role and content" },
+                  { field: "max_tokens", type: "number", required: "Yes", description: "Maximum tokens in the response" },
+                  { field: "system", type: "string | array", required: "No", description: "System prompt or system content blocks" },
+                  { field: "stream", type: "boolean", required: "No", description: "Enable SSE streaming (default: false)" },
+                ]}
+              />
+              <CodeBlock>
+                {`curl -X POST https://api.dekadans.net/ai/messages \\
+  -H "Authorization: Bearer <YOUR_API_KEY>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "claude-sonnet-4",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'`}
+              </CodeBlock>
+
+              <SubHeading id="endpoint-count-tokens">Count Tokens</SubHeading>
+              <div className="mb-4 flex items-center gap-3">
+                <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
+                <span className="font-mono text-[14px] text-white">/ai/messages/count_tokens</span>
+              </div>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Counts input tokens for an Anthropic Messages request without generating output. Use it
+                to check context fit before sending a full request.
+              </p>
+              <CodeBlock>
+                {`curl -X POST https://api.dekadans.net/ai/messages/count_tokens \\
+  -H "Authorization: Bearer <YOUR_API_KEY>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "claude-sonnet-4",
+    "messages": [{"role": "user", "content": "Hello!"}]
+  }'`}
+              </CodeBlock>
+              <CodeBlock>
+                {`{
+  "input_tokens": 123
+}`}
+              </CodeBlock>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Token-count events are tracked separately from inference usage, so they do not inflate
+                generated-token statistics.
+              </p>
             </section>
 
             {/* Account Endpoints */}
@@ -598,12 +676,105 @@ console.log(data);`}
               </CodeBlock>
             </section>
 
+            {/* CLI Integrations */}
+            <section id="cli-integrations">
+              <SectionHeading id="cli-integrations">CLI Integrations</SectionHeading>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Configure CLI tools with your Dekadans API key and the AI gateway base URL. Use
+                <InlineCode>https://api.dekadans.net/ai</InlineCode> as the model provider base URL for
+                clients that append provider paths automatically.
+              </p>
+
+              <SubHeading id="cli-opencode">opencode</SubHeading>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Add a custom OpenAI-compatible provider in <InlineCode>opencode.json</InlineCode>. Set
+                <InlineCode>DEKADANS_API_KEY</InlineCode> in your shell before starting opencode.
+              </p>
+              <CodeBlock>
+                {`{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "dekadans": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Dekadans AI",
+      "options": {
+        "baseURL": "https://api.dekadans.net/ai",
+        "apiKey": "{env:DEKADANS_API_KEY}"
+      },
+      "models": {
+        "gpt-5.5": {
+          "name": "ChatGPT 5.5"
+        }
+      }
+    }
+  },
+  "model": "dekadans/gpt-5.5"
+}`}
+              </CodeBlock>
+
+              <SubHeading id="cli-claude-code">Claude Code / Claude CLI</SubHeading>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Claude-compatible tools should use the Anthropic-compatible endpoint family. Configure
+                the Anthropic base URL and bearer token with environment variables.
+              </p>
+              <CodeBlock>
+                {`export ANTHROPIC_BASE_URL="https://api.dekadans.net/ai"
+export ANTHROPIC_AUTH_TOKEN="<YOUR_API_KEY>"
+export ANTHROPIC_MODEL="claude-sonnet-4"`}
+              </CodeBlock>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                You can also store the same values in <InlineCode>.claude/settings.json</InlineCode>.
+              </p>
+              <CodeBlock>
+                {`{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.dekadans.net/ai",
+    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>",
+    "ANTHROPIC_MODEL": "claude-sonnet-4"
+  }
+}`}
+              </CodeBlock>
+
+              <SubHeading id="cli-droid">Droid CLI</SubHeading>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Add custom models to <InlineCode>~/.factory/settings.json</InlineCode>. Use
+                <InlineCode>provider: &quot;openai&quot;</InlineCode> for OpenAI-compatible models and
+                <InlineCode>provider: &quot;anthropic&quot;</InlineCode> for Anthropic-compatible models.
+              </p>
+              <CodeBlock>
+                {`{
+  "customModels": [
+    {
+      "model": "gpt-5.5",
+      "displayName": "Dekadans GPT 5.5",
+      "provider": "openai",
+      "baseUrl": "https://api.dekadans.net/ai",
+      "apiKey": "<YOUR_API_KEY>",
+      "maxOutputTokens": 16384
+    },
+    {
+      "model": "claude-sonnet-4",
+      "displayName": "Dekadans Claude Sonnet",
+      "provider": "anthropic",
+      "baseUrl": "https://api.dekadans.net/ai",
+      "apiKey": "<YOUR_API_KEY>",
+      "maxOutputTokens": 8192
+    }
+  ]
+}`}
+              </CodeBlock>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Replace model IDs with any available ID from the model catalog or your dashboard.
+              </p>
+            </section>
+
             {/* Streaming */}
             <section id="streaming">
               <SectionHeading id="streaming">Streaming</SectionHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                All chat and response endpoints support SSE (Server-Sent Events) streaming. Set
-                <InlineCode>stream: true</InlineCode> in the request body to receive streaming responses.
+                Chat, response, and Anthropic messages endpoints support SSE (Server-Sent Events)
+                streaming. Set <InlineCode>stream: true</InlineCode> in the request body to receive
+                streaming responses. The token-count endpoint does not stream.
               </p>
               <CodeBlock>
                 {`curl -X POST https://api.dekadans.net/ai/chat/completions \\
@@ -768,6 +939,17 @@ while (true) {
                     format with <InlineCode>messages</InlineCode>. <InlineCode>/ai/responses</InlineCode>
                     follows the OpenAI Responses API format with <InlineCode>input</InlineCode>. Both
                     are proxied to the upstream model provider.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="mb-1 font-semibold text-white">Should I use OpenAI-compatible or Anthropic-compatible endpoints?</h4>
+                  <p className="text-sm leading-relaxed text-(--ink-muted)">
+                    Use <InlineCode>/ai/chat/completions</InlineCode> or
+                    <InlineCode>/ai/responses</InlineCode> for OpenAI-compatible clients. Use
+                    <InlineCode>/ai/messages</InlineCode> for Anthropic-compatible clients, and
+                    <InlineCode>/ai/messages/count_tokens</InlineCode> when you only need to count
+                    input tokens.
                   </p>
                 </div>
 
