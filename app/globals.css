@@ -65,7 +65,7 @@ a {
 }
 
 .model-logo-marquee {
-  animation: model-marquee 12s linear infinite;
+  animation: model-marquee var(--marquee-duration, 12s) linear infinite;
   will-change: transform;
 }
 

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 
 import { getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
@@ -13,6 +14,12 @@ interface ModelLogoMarqueeProps {
 }
 
 export function ModelLogoMarquee({ models }: ModelLogoMarqueeProps) {
+  const secondsPerPixel = 0.012;
+  const cardWidth = 184;
+  const gap = 12;
+  const totalWidth = models.length * 2 * (cardWidth + gap);
+  const duration = Math.max(12, Math.round((totalWidth / 2) * secondsPerPixel));
+
   const renderModels = (group: string) =>
     models.map((model) => {
       const presentation = getModelPresentation(model);
@@ -48,7 +55,10 @@ export function ModelLogoMarquee({ models }: ModelLogoMarqueeProps) {
       <div className="absolute inset-y-0 left-0 z-10 w-24 bg-linear-to-r from-black to-transparent" />
       <div className="absolute inset-y-0 right-0 z-10 w-24 bg-linear-to-l from-black to-transparent" />
       <div className="absolute inset-x-20 top-1/2 h-16 -translate-y-1/2 rounded-full bg-cyan-300/10 blur-3xl" />
-      <div className="model-logo-marquee flex w-max gap-3">
+      <div
+        className="model-logo-marquee flex w-max gap-3"
+        style={{ "--marquee-duration": `${duration}s` } as CSSProperties}
+      >
         <div className="flex gap-3">{renderModels("primary")}</div>
         <div className="flex gap-3" aria-hidden="true">
           {renderModels("duplicate")}
