@@ -1,190 +1,304 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Float } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 
-export function LogoHeroScene() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+/* ---------- Config ---------- */
 
+const CONFIG = {
+  camera: { fov: 45, position: [0, 0, 6] as [number, number, number] },
+  logo: {
+    size: 3.2,
+    z: 0.5,
+    distortSpeed: 0.3,
+    distortStrength: 0.08,
+  },
+  icosahedron: {
+    radius: 4.5,
+    detail: 1,
+    rotationSpeed: 0.05,
+    color: "#00f2ff",
+    opacity: 0.06,
+  },
+  octahedron: {
+    radius: 3.5,
+    detail: 0,
+    rotationSpeed: -0.08,
+    color: "#a855f7",
+    opacity: 0.03,
+  },
+  particles: {
+    count: 250,
+    spread: 12,
+    size: 0.03,
+    color: "#00f2ff",
+    opacity: 0.4,
+    driftSpeed: 0.02,
+  },
+  bloom: {
+    intensity: 0.2,
+    luminanceThreshold: 0.35,
+    luminanceSmoothing: 0.9,
+    mipmapBlur: true,
+  },
+  float: { speed: 1.2, rotationIntensity: 0.2, floatIntensity: 0.4 },
+} as const;
+
+/* ---------- Hook ---------- */
+
+function subscribePrefersReducedMotion(callback: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
+function getPrefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function getPrefersReducedMotionServer() {
+  return false;
+}
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    subscribePrefersReducedMotion,
+    getPrefersReducedMotion,
+    getPrefersReducedMotionServer
+  );
+}
+
+/* ---------- Helpers ---------- */
+
+function generateParticlePositions(count: number, spread: number): Float32Array {
+  const arr = new Float32Array(count * 3);
+  for (let i = 0; i < count * 3; i++) {
+    arr[i] = (Math.random() - 0.5) * spread;
+  }
+  return arr;
+}
+
+/* ---------- Logo with subtle vertex distort ---------- */
+
+function DistortLogo({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const texture = useLoader(THREE.TextureLoader, "/logo.png");
+  const originalPositions = useRef<Float32Array | null>(null);
+  const { size, z, distortSpeed, distortStrength } = CONFIG.logo;
+
+  // Set color space on first load - texture is a THREE.js object, not React state
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const currentCanvas = canvas;
+    // eslint-disable-next-line react-hooks/immutability
+    texture.colorSpace = THREE.SRGBColorSpace;
+  }, [texture]);
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    camera.position.set(0, 0, 8);
+  useFrame((state) => {
+    if (!meshRef.current || prefersReducedMotion) return;
+    const geometry = meshRef.current.geometry;
+    const positions = geometry.attributes.position as THREE.BufferAttribute;
 
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      canvas: currentCanvas
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-    const pointer = new THREE.Vector2(0, 0);
-    const targetRotation = new THREE.Vector2(0, 0);
-
-    const group = new THREE.Group();
-    group.rotation.x = -0.12;
-    scene.add(group);
-
-    const textureLoader = new THREE.TextureLoader();
-    const logoTexture = textureLoader.load("/logo.png", () => {
-      logoTexture.colorSpace = THREE.SRGBColorSpace;
-      renderer.render(scene, camera);
-    });
-
-    const logoMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      map: logoTexture,
-      transparent: true
-    });
-    const logo = new THREE.Mesh(new THREE.PlaneGeometry(4.3, 4.3), logoMaterial);
-    logo.position.z = 0.25;
-    group.add(logo);
-
-    const glowMaterial = new THREE.MeshBasicMaterial({
-      blending: THREE.AdditiveBlending,
-      color: 0x00f2ff,
-      opacity: 0.18,
-      transparent: true
-    });
-    const glow = new THREE.Mesh(new THREE.CircleGeometry(2.65, 96), glowMaterial);
-    glow.position.z = -0.12;
-    group.add(glow);
-
-    const ringMaterials = [0x00f2ff, 0xa855f7, 0x3b82f6].map(
-      (color) =>
-        new THREE.MeshBasicMaterial({
-          blending: THREE.AdditiveBlending,
-          color,
-          opacity: 0.28,
-          transparent: true,
-          wireframe: true
-        })
-    );
-
-    const rings = ringMaterials.map((material, index) => {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.55 + index * 0.22, 0.012, 8, 180), material);
-      ring.rotation.x = Math.PI / 2.7;
-      ring.rotation.z = index * 0.35;
-      ring.position.z = -0.28 - index * 0.04;
-      group.add(ring);
-      return ring;
-    });
-
-    const particleCount = 900;
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-    const colorA = new THREE.Color("#00f2ff");
-    const colorB = new THREE.Color("#a855f7");
-    const colorC = new THREE.Color("#facc15");
-
-    for (let index = 0; index < particleCount; index += 1) {
-      const radius = Math.sqrt(Math.random()) * 3.4;
-      const angle = Math.random() * Math.PI * 2;
-      positions[index * 3] = Math.cos(angle) * radius * 1.12;
-      positions[index * 3 + 1] = Math.sin(angle) * radius * 0.52 + 0.18;
-      positions[index * 3 + 2] = -0.65 + Math.random() * 0.35;
-
-      const mixed = colorA.clone().lerp(index % 3 === 0 ? colorB : colorC, Math.random() * 0.75);
-      colors[index * 3] = mixed.r;
-      colors[index * 3 + 1] = mixed.g;
-      colors[index * 3 + 2] = mixed.b;
+    if (!originalPositions.current) {
+      originalPositions.current = Float32Array.from(positions.array as Float32Array);
     }
 
-    const particleGeometry = new THREE.BufferGeometry();
-    particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    particleGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const time = state.clock.elapsedTime;
+    const orig = originalPositions.current;
 
-    const particles = new THREE.Points(
-      particleGeometry,
-      new THREE.PointsMaterial({
-        blending: THREE.AdditiveBlending,
-        opacity: 0.7,
-        size: 0.025,
-        transparent: true,
-        vertexColors: true
-      })
-    );
-    particles.rotation.x = -0.18;
-    group.add(particles);
-
-    function resize() {
-      const parent = currentCanvas.parentElement;
-      if (!parent) return;
-
-      const { width, height } = parent.getBoundingClientRect();
-      renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+    for (let i = 0; i < positions.count; i++) {
+      const i3 = i * 3;
+      const ox = orig[i3];
+      const oy = orig[i3 + 1];
+      const wave = Math.sin(ox * 1.5 + time * distortSpeed) * Math.cos(oy * 1.5 + time * distortSpeed * 0.7);
+      positions.setZ(i, wave * distortStrength);
     }
 
-    function handlePointerMove(event: PointerEvent) {
-      const rect = currentCanvas.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-      pointer.y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
-    }
-
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(currentCanvas);
-    window.addEventListener("pointermove", handlePointerMove);
-    resize();
-
-    let frame = 0;
-    let animationId = 0;
-
-    function animate() {
-      frame += 0.01;
-      targetRotation.x += (-pointer.y * 0.08 - targetRotation.x) * 0.04;
-      targetRotation.y += (pointer.x * 0.12 - targetRotation.y) * 0.04;
-
-      group.rotation.x = -0.12 + targetRotation.x;
-      group.rotation.y = targetRotation.y;
-      logo.position.y = prefersReducedMotion ? 0 : Math.sin(frame) * 0.035;
-      glow.scale.setScalar(prefersReducedMotion ? 1 : 1 + Math.sin(frame * 1.4) * 0.035);
-      particles.rotation.z += prefersReducedMotion ? 0 : 0.0008;
-
-      rings.forEach((ring, index) => {
-        ring.rotation.z += prefersReducedMotion ? 0 : 0.0015 + index * 0.0007;
-      });
-
-      renderer.render(scene, camera);
-
-      if (!prefersReducedMotion) {
-        animationId = window.requestAnimationFrame(animate);
-      }
-    }
-
-    animate();
-
-    return () => {
-      window.cancelAnimationFrame(animationId);
-      window.removeEventListener("pointermove", handlePointerMove);
-      resizeObserver.disconnect();
-      logo.geometry.dispose();
-      logoMaterial.dispose();
-      logoTexture.dispose();
-      glow.geometry.dispose();
-      glowMaterial.dispose();
-      rings.forEach((ring) => {
-        ring.geometry.dispose();
-        (ring.material as THREE.Material).dispose();
-      });
-      particleGeometry.dispose();
-      (particles.material as THREE.Material).dispose();
-      renderer.dispose();
-    };
-  }, []);
+    positions.needsUpdate = true;
+    geometry.computeVertexNormals();
+  });
 
   return (
-    <div className="pointer-events-none relative mx-auto h-[360px] w-full max-w-4xl md:h-[520px]">
-      <div className="absolute inset-x-10 top-1/2 h-32 -translate-y-1/2 rounded-full bg-cyan-300/20 blur-3xl" />
-      <div className="absolute inset-x-20 top-1/3 h-32 rounded-full bg-fuchsia-500/15 blur-3xl" />
-      <canvas ref={canvasRef} className="relative h-full w-full" aria-hidden="true" />
+    <mesh ref={meshRef} position={[0, 0, z]}>
+      <planeGeometry args={[size, size, 64, 64]} />
+      <meshBasicMaterial
+        map={texture}
+        transparent
+        side={THREE.DoubleSide}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+}
+
+/* ---------- Wireframe icosahedron ---------- */
+
+function WireIcosahedron({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const { radius, detail, rotationSpeed, color, opacity } = CONFIG.icosahedron;
+
+  useFrame(() => {
+    if (!meshRef.current || prefersReducedMotion) return;
+    meshRef.current.rotation.y += rotationSpeed * 0.01;
+    meshRef.current.rotation.x += rotationSpeed * 0.005;
+  });
+
+  return (
+    <mesh ref={meshRef} position={[0, 0, -2]}>
+      <icosahedronGeometry args={[radius, detail]} />
+      <meshBasicMaterial color={color} wireframe transparent opacity={opacity} />
+    </mesh>
+  );
+}
+
+/* ---------- Wireframe octahedron ---------- */
+
+function WireOctahedron({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const { radius, detail, rotationSpeed, color, opacity } = CONFIG.octahedron;
+
+  useFrame(() => {
+    if (!meshRef.current || prefersReducedMotion) return;
+    meshRef.current.rotation.y += rotationSpeed * 0.01;
+    meshRef.current.rotation.z += rotationSpeed * 0.005;
+  });
+
+  return (
+    <mesh ref={meshRef} position={[0, 0, -1.5]}>
+      <octahedronGeometry args={[radius, detail]} />
+      <meshBasicMaterial color={color} wireframe transparent opacity={opacity} />
+    </mesh>
+  );
+}
+
+/* ---------- Particles ---------- */
+
+function Particles({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const [positions] = useState(() =>
+    generateParticlePositions(CONFIG.particles.count, CONFIG.particles.spread)
+  );
+  const { count, size, color, opacity, driftSpeed } = CONFIG.particles;
+
+  useFrame((state) => {
+    if (!pointsRef.current || prefersReducedMotion) return;
+    pointsRef.current.rotation.y += driftSpeed * 0.001;
+    pointsRef.current.rotation.x += driftSpeed * 0.0005;
+
+    const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const arr = posAttr.array as Float32Array;
+    const time = state.clock.elapsedTime;
+
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      arr[i3 + 1] += Math.sin(time * 0.3 + i) * 0.0008;
+    }
+    posAttr.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef} position={[0, 0, -1]}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[positions, 3]}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={size}
+        color={color}
+        transparent
+        opacity={opacity}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+/* ---------- Scene ---------- */
+
+function Scene({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const { speed, rotationIntensity, floatIntensity } = CONFIG.float;
+
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <pointLight position={[3, 3, 4]} intensity={0.5} color="#00f2ff" />
+      <pointLight position={[-3, -2, 2]} intensity={0.15} color="#a855f7" />
+
+      <Suspense fallback={null}>
+        <Float
+          speed={prefersReducedMotion ? 0 : speed}
+          rotationIntensity={prefersReducedMotion ? 0 : rotationIntensity}
+          floatIntensity={prefersReducedMotion ? 0 : floatIntensity}
+        >
+          <DistortLogo prefersReducedMotion={prefersReducedMotion} />
+        </Float>
+
+        <WireIcosahedron prefersReducedMotion={prefersReducedMotion} />
+        <WireOctahedron prefersReducedMotion={prefersReducedMotion} />
+        <Particles prefersReducedMotion={prefersReducedMotion} />
+      </Suspense>
+
+      <EffectComposer>
+        <Bloom
+          intensity={CONFIG.bloom.intensity}
+          luminanceThreshold={CONFIG.bloom.luminanceThreshold}
+          luminanceSmoothing={CONFIG.bloom.luminanceSmoothing}
+          mipmapBlur={CONFIG.bloom.mipmapBlur}
+        />
+      </EffectComposer>
+    </>
+  );
+}
+
+/* ---------- Main ---------- */
+
+export function LogoHeroScene() {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  return (
+    <div className="pointer-events-none relative mx-auto h-[420px] w-full max-w-5xl overflow-hidden md:h-[600px]">
+      {/* Grid background */}
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse 60% 50% at 50% 50%, black 30%, transparent 75%)",
+          WebkitMaskImage: "radial-gradient(ellipse 60% 50% at 50% 50%, black 30%, transparent 75%)",
+        }}
+      />
+
+      {/* Radial gradient glow */}
+      <div
+        className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(0,242,255,0.05) 0%, transparent 70%)",
+        }}
+      />
+
+      <noscript>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt="Dekadans AI"
+          className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 object-contain md:h-52 md:w-52"
+        />
+      </noscript>
+
+      <Canvas
+        className="relative h-full w-full"
+        gl={{ alpha: true, antialias: true }}
+        camera={{ fov: CONFIG.camera.fov, position: CONFIG.camera.position }}
+        dpr={[1, 2]}
+      >
+        <Scene prefersReducedMotion={prefersReducedMotion} />
+      </Canvas>
     </div>
   );
 }
