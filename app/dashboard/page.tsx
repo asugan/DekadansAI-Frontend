@@ -20,6 +20,8 @@ import { getModelPresentation, getProviderDisplayName } from "@/lib/model-presen
 import { getMarketingPlan } from "@/lib/plan-display";
 
 const POLL_INTERVAL_MS = 15000;
+const CHECKOUT_SYNC_INTERVAL_MS = 3000;
+const CHECKOUT_SYNC_MAX_ATTEMPTS = 20;
 
 type BillingStatus = "loading" | "active" | "inactive" | "error";
 
@@ -123,6 +125,9 @@ function extractRedirectUrl(payload: unknown): string | null {
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, isPending: isSessionPending } = useSession();
+  const [isCheckoutSuccess] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("checkout") === "success"
+  );
 
   const [snapshot, setSnapshot] = useState<RateLimitSnapshot | null>(null);
   const [isLoadingSnapshot, setIsLoadingSnapshot] = useState(true);
@@ -198,21 +203,23 @@ export default function DashboardPage() {
     [router]
   );
 
-  const loadBillingStatus = useCallback(async () => {
+  const loadBillingStatus = useCallback(async (options: { refresh?: boolean } = {}) => {
     setBillingError(null);
 
     try {
-      const payload = await getBillingSnapshot();
+      const payload = await getBillingSnapshot({ refresh: options.refresh });
       setBillingSnapshotFull(payload);
       setBillingStatus(payload.weeklyPlan.active ? "active" : "inactive");
+      return payload;
     } catch (error) {
       if (error instanceof ApiRequestError && error.status === 401) {
         router.replace("/login");
-        return;
+        return null;
       }
 
       setBillingStatus("error");
       setBillingError(resolveErrorMessage(error, "Unable to load billing details."));
+      return null;
     }
   }, [router]);
 
@@ -248,7 +255,7 @@ export default function DashboardPage() {
 
     void loadSnapshot(false);
     void loadUsage(false);
-    void loadBillingStatus();
+    void loadBillingStatus({ refresh: isCheckoutSuccess });
     void loadModels();
     const timer = window.setInterval(() => {
       void loadSnapshot(true);
@@ -258,7 +265,48 @@ export default function DashboardPage() {
     return () => {
       window.clearInterval(timer);
     };
-  }, [isSessionPending, loadBillingStatus, loadModels, loadSnapshot, loadUsage, router, session?.user]);
+  }, [isCheckoutSuccess, isSessionPending, loadBillingStatus, loadModels, loadSnapshot, loadUsage, router, session?.user]);
+
+  useEffect(() => {
+    if (!isCheckoutSuccess || isSessionPending || !session?.user) return;
+
+    let attempts = 0;
+    let isStopped = false;
+
+    async function refreshBillingAfterCheckout() {
+      attempts += 1;
+      const payload = await loadBillingStatus({ refresh: true });
+
+      if (isStopped) return;
+
+      if (payload?.weeklyPlan.active) {
+        void loadSnapshot(false);
+        void loadUsage(false);
+        router.replace("/dashboard");
+        isStopped = true;
+        return;
+      }
+
+      if (attempts >= CHECKOUT_SYNC_MAX_ATTEMPTS) {
+        isStopped = true;
+      }
+    }
+
+    void refreshBillingAfterCheckout();
+    const timer = window.setInterval(() => {
+      if (isStopped) {
+        window.clearInterval(timer);
+        return;
+      }
+
+      void refreshBillingAfterCheckout();
+    }, CHECKOUT_SYNC_INTERVAL_MS);
+
+    return () => {
+      isStopped = true;
+      window.clearInterval(timer);
+    };
+  }, [isCheckoutSuccess, isSessionPending, loadBillingStatus, loadSnapshot, loadUsage, router, session?.user]);
 
   const sessionUsagePercent = useMemo(() => {
     if (!snapshot || snapshot.account.quota.max <= 0) return 0;

@@ -403,8 +403,9 @@ export async function getRateLimitSnapshot(): Promise<RateLimitSnapshot> {
   return normalizeSnapshot(responsePayload);
 }
 
-export async function getBillingSnapshot(): Promise<BillingSnapshot> {
-  const response = await fetch("/api/account/billing", {
+export async function getBillingSnapshot(options: { refresh?: boolean } = {}): Promise<BillingSnapshot> {
+  const path = options.refresh ? "/api/account/billing?refresh=true" : "/api/account/billing";
+  const response = await fetch(path, {
     method: "GET",
     credentials: "include",
     cache: "no-store"
