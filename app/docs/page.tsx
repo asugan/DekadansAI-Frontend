@@ -212,6 +212,17 @@ export default async function DocsPage() {
                 {`https://api.dekadans.net`}
               </CodeBlock>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
+                Use the standard compatibility URLs below:
+              </p>
+              <ul className="mb-4 list-inside list-disc space-y-2 text-(--ink-muted)">
+                <li>
+                  OpenAI-compatible clients: <InlineCode>https://api.dekadans.net/v1</InlineCode>
+                </li>
+                <li>
+                  Anthropic-compatible clients: <InlineCode>https://api.dekadans.net</InlineCode>
+                </li>
+              </ul>
+              <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 When using the frontend app, the backend is automatically proxied through <InlineCode>/api/*</InlineCode> routes.
               </p>
             </section>
@@ -268,7 +279,7 @@ export default async function DocsPage() {
               <SubHeading id="endpoint-ai-models">AI Models (Authenticated)</SubHeading>
               <div className="mb-4 flex items-center gap-3">
                 <span className="rounded bg-green-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-green-400">GET</span>
-                <span className="font-mono text-[14px] text-white">/ai/models</span>
+                <span className="font-mono text-[14px] text-white">/v1/models</span>
               </div>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Returns the model catalog. Requires a valid API key and an active weekly plan.
@@ -277,14 +288,14 @@ export default async function DocsPage() {
               <SubHeading id="endpoint-openai-compatible">OpenAI-Compatible Endpoints</SubHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Use these endpoints with OpenAI-compatible clients, SDKs, and tools. Set the client base
-                URL to <InlineCode>https://api.dekadans.net/ai</InlineCode> when the client appends
+                URL to <InlineCode>https://api.dekadans.net/v1</InlineCode> when the client appends
                 paths such as <InlineCode>/chat/completions</InlineCode>.
               </p>
 
               <SubHeading id="endpoint-chat-completions">Chat Completions</SubHeading>
               <div className="mb-4 flex items-center gap-3">
                 <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
-                <span className="font-mono text-[14px] text-white">/ai/chat/completions</span>
+                <span className="font-mono text-[14px] text-white">/v1/chat/completions</span>
               </div>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Send a chat completion request. The <InlineCode>model</InlineCode> field in the request
@@ -306,7 +317,7 @@ export default async function DocsPage() {
                 ]}
               />
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/chat/completions \\
+                {`curl -X POST https://api.dekadans.net/v1/chat/completions \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -320,14 +331,14 @@ export default async function DocsPage() {
               <SubHeading id="endpoint-responses">Responses API</SubHeading>
               <div className="mb-4 flex items-center gap-3">
                 <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
-                <span className="font-mono text-[14px] text-white">/ai/responses</span>
+                <span className="font-mono text-[14px] text-white">/v1/responses</span>
               </div>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 OpenAI Responses API compatible endpoint. The <InlineCode>model</InlineCode> field is
                 required.
               </p>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/responses \\
+                {`curl -X POST https://api.dekadans.net/v1/responses \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -336,54 +347,17 @@ export default async function DocsPage() {
   }'`}
               </CodeBlock>
 
-              <SubHeading id="endpoint-default-chat">Default Chat Completions</SubHeading>
-              <div className="mb-4 flex items-center gap-3">
-                <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
-                <span className="font-mono text-[14px] text-white">/ai/default/chat/completions</span>
-              </div>
-              <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Same as chat completions, but <InlineCode>model</InlineCode> is optional. The backend
-                automatically uses the default model. If <InlineCode>reasoning_effort</InlineCode> is not
-                set, it defaults to <InlineCode>low</InlineCode>.
-              </p>
-              <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/default/chat/completions \\
-  -H "Authorization: Bearer <YOUR_API_KEY>" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "messages": [{"role": "user", "content": "Hello!"}]
-  }'`}
-              </CodeBlock>
-
-              <SubHeading id="endpoint-default-responses">Default Responses</SubHeading>
-              <div className="mb-4 flex items-center gap-3">
-                <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
-                <span className="font-mono text-[14px] text-white">/ai/default/responses</span>
-              </div>
-              <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Same as responses, but <InlineCode>model</InlineCode> is optional. The backend fills in
-                the default model and reasoning configuration.
-              </p>
-              <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/default/responses \\
-  -H "Authorization: Bearer <YOUR_API_KEY>" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "input": "Hello!"
-  }'`}
-              </CodeBlock>
-
               <SubHeading id="endpoint-anthropic-compatible">Anthropic-Compatible Endpoints</SubHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Use these endpoints with Anthropic-compatible clients, SDKs, and tools. Set the client
-                base URL to <InlineCode>https://api.dekadans.net/ai</InlineCode> when the client appends
-                <InlineCode>/messages</InlineCode>.
+                base URL to <InlineCode>https://api.dekadans.net</InlineCode> when the client appends
+                <InlineCode>/v1/messages</InlineCode>.
               </p>
 
               <SubHeading id="endpoint-messages">Messages</SubHeading>
               <div className="mb-4 flex items-center gap-3">
                 <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
-                <span className="font-mono text-[14px] text-white">/ai/messages</span>
+                <span className="font-mono text-[14px] text-white">/v1/messages</span>
               </div>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Anthropic Messages API compatible endpoint. The <InlineCode>model</InlineCode> field is
@@ -405,7 +379,7 @@ export default async function DocsPage() {
                 ]}
               />
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/messages \\
+                {`curl -X POST https://api.dekadans.net/v1/messages \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -418,14 +392,14 @@ export default async function DocsPage() {
               <SubHeading id="endpoint-count-tokens">Count Tokens</SubHeading>
               <div className="mb-4 flex items-center gap-3">
                 <span className="rounded bg-blue-500/20 px-2 py-0.5 font-mono text-[12px] font-bold text-blue-400">POST</span>
-                <span className="font-mono text-[14px] text-white">/ai/messages/count_tokens</span>
+                <span className="font-mono text-[14px] text-white">/v1/messages/count_tokens</span>
               </div>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Counts input tokens for an Anthropic Messages request without generating output. Use it
                 to check context fit before sending a full request.
               </p>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/messages/count_tokens \\
+                {`curl -X POST https://api.dekadans.net/v1/messages/count_tokens \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -442,6 +416,7 @@ export default async function DocsPage() {
                 Token-count events are tracked separately from inference usage, so they do not inflate
                 generated-token statistics.
               </p>
+
             </section>
 
             {/* Account Endpoints */}
@@ -637,7 +612,7 @@ export default async function DocsPage() {
 
               <SubHeading id="example-curl">cURL</SubHeading>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/chat/completions \\
+                {`curl -X POST https://api.dekadans.net/v1/chat/completions \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -648,7 +623,7 @@ export default async function DocsPage() {
 
               <SubHeading id="example-javascript">JavaScript (fetch)</SubHeading>
               <CodeBlock>
-                {`const response = await fetch("https://api.dekadans.net/ai/chat/completions", {
+                {`const response = await fetch("https://api.dekadans.net/v1/chat/completions", {
   method: "POST",
   headers: {
     "Authorization": "Bearer <YOUR_API_KEY>",
@@ -681,8 +656,9 @@ console.log(data);`}
               <SectionHeading id="cli-integrations">CLI Integrations</SectionHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Configure CLI tools with your Dekadans API key and the AI gateway base URL. Use
-                <InlineCode>https://api.dekadans.net/ai</InlineCode> as the model provider base URL for
-                clients that append provider paths automatically.
+                <InlineCode>https://api.dekadans.net/v1</InlineCode> for OpenAI-compatible clients and
+                <InlineCode>https://api.dekadans.net</InlineCode> for Anthropic-compatible clients that
+                append <InlineCode>/v1/messages</InlineCode> automatically.
               </p>
 
               <SubHeading id="cli-opencode">opencode</SubHeading>
@@ -698,7 +674,7 @@ console.log(data);`}
       "npm": "@ai-sdk/openai-compatible",
       "name": "Dekadans AI",
       "options": {
-        "baseURL": "https://api.dekadans.net/ai",
+        "baseURL": "https://api.dekadans.net/v1",
         "apiKey": "{env:DEKADANS_API_KEY}"
       },
       "models": {
@@ -718,7 +694,7 @@ console.log(data);`}
                 the Anthropic base URL and bearer token with environment variables.
               </p>
               <CodeBlock>
-                {`export ANTHROPIC_BASE_URL="https://api.dekadans.net/ai"
+                {`export ANTHROPIC_BASE_URL="https://api.dekadans.net"
 export ANTHROPIC_AUTH_TOKEN="<YOUR_API_KEY>"
 export ANTHROPIC_MODEL="claude-sonnet-4"`}
               </CodeBlock>
@@ -728,7 +704,7 @@ export ANTHROPIC_MODEL="claude-sonnet-4"`}
               <CodeBlock>
                 {`{
   "env": {
-    "ANTHROPIC_BASE_URL": "https://api.dekadans.net/ai",
+    "ANTHROPIC_BASE_URL": "https://api.dekadans.net",
     "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>",
     "ANTHROPIC_MODEL": "claude-sonnet-4"
   }
@@ -748,7 +724,7 @@ export ANTHROPIC_MODEL="claude-sonnet-4"`}
       "model": "gpt-5.5",
       "displayName": "Dekadans GPT 5.5",
       "provider": "openai",
-      "baseUrl": "https://api.dekadans.net/ai",
+      "baseUrl": "https://api.dekadans.net/v1",
       "apiKey": "<YOUR_API_KEY>",
       "maxOutputTokens": 16384
     },
@@ -756,7 +732,7 @@ export ANTHROPIC_MODEL="claude-sonnet-4"`}
       "model": "claude-sonnet-4",
       "displayName": "Dekadans Claude Sonnet",
       "provider": "anthropic",
-      "baseUrl": "https://api.dekadans.net/ai",
+      "baseUrl": "https://api.dekadans.net",
       "apiKey": "<YOUR_API_KEY>",
       "maxOutputTokens": 8192
     }
@@ -777,7 +753,7 @@ export ANTHROPIC_MODEL="claude-sonnet-4"`}
                 streaming responses. The token-count endpoint does not stream.
               </p>
               <CodeBlock>
-                {`curl -X POST https://api.dekadans.net/ai/chat/completions \\
+                {`curl -X POST https://api.dekadans.net/v1/chat/completions \\
   -H "Authorization: Bearer <YOUR_API_KEY>" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -793,7 +769,7 @@ export ANTHROPIC_MODEL="claude-sonnet-4"`}
                 <InlineCode>data: [DONE]</InlineCode>.
               </p>
               <CodeBlock>
-                {`const response = await fetch("https://api.dekadans.net/ai/chat/completions", {
+                {`const response = await fetch("https://api.dekadans.net/v1/chat/completions", {
   method: "POST",
   headers: {
     "Authorization": "Bearer <YOUR_API_KEY>",
@@ -933,10 +909,10 @@ while (true) {
                 </div>
 
                 <div>
-                  <h4 className="mb-1 font-semibold text-white">What is the difference between /ai/chat/completions and /ai/responses?</h4>
+                  <h4 className="mb-1 font-semibold text-white">What is the difference between /v1/chat/completions and /v1/responses?</h4>
                   <p className="text-sm leading-relaxed text-(--ink-muted)">
-                    <InlineCode>/ai/chat/completions</InlineCode> follows the OpenAI Chat Completions
-                    format with <InlineCode>messages</InlineCode>. <InlineCode>/ai/responses</InlineCode>
+                    <InlineCode>/v1/chat/completions</InlineCode> follows the OpenAI Chat Completions
+                    format with <InlineCode>messages</InlineCode>. <InlineCode>/v1/responses</InlineCode>
                     follows the OpenAI Responses API format with <InlineCode>input</InlineCode>. Both
                     are proxied to the upstream model provider.
                   </p>
@@ -945,20 +921,11 @@ while (true) {
                 <div>
                   <h4 className="mb-1 font-semibold text-white">Should I use OpenAI-compatible or Anthropic-compatible endpoints?</h4>
                   <p className="text-sm leading-relaxed text-(--ink-muted)">
-                    Use <InlineCode>/ai/chat/completions</InlineCode> or
-                    <InlineCode>/ai/responses</InlineCode> for OpenAI-compatible clients. Use
-                    <InlineCode>/ai/messages</InlineCode> for Anthropic-compatible clients, and
-                    <InlineCode>/ai/messages/count_tokens</InlineCode> when you only need to count
+                    Use <InlineCode>/v1/chat/completions</InlineCode> or
+                    <InlineCode>/v1/responses</InlineCode> for OpenAI-compatible clients. Use
+                    <InlineCode>/v1/messages</InlineCode> for Anthropic-compatible clients, and
+                    <InlineCode>/v1/messages/count_tokens</InlineCode> when you only need to count
                     input tokens.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="mb-1 font-semibold text-white">What does the default endpoint do?</h4>
-                  <p className="text-sm leading-relaxed text-(--ink-muted)">
-                    The <InlineCode>/ai/default/*</InlineCode> endpoints automatically fill in the
-                    default model and reasoning effort if you do not specify them. This is useful
-                    for quick experiments.
                   </p>
                 </div>
 

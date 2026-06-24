@@ -287,7 +287,7 @@ export default function DashboardPage() {
   }, [usageSnapshot]);
 
   const selectedModelCurl = useMemo(
-    () => `curl -X POST https://api.dekadans.net/ai/chat/completions \\
+    () => `curl -X POST https://api.dekadans.net/v1/chat/completions \\
   -H "Authorization: Bearer dk_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{
