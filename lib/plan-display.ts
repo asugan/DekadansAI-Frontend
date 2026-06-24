@@ -17,7 +17,7 @@ export interface MarketingPlan {
 export const MARKETING_PLANS: MarketingPlan[] = [
   {
     slug: "weekly-250",
-    name: "250 Request",
+    name: "Pro",
     price: "$5",
     subtitle: "Best for testing & light usage",
     description: "$5 per week — up to 250 quota points every 5 hours, with a safety limit of 4,000 requests per week.",
@@ -33,7 +33,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
   },
   {
     slug: "weekly-500",
-    name: "500 Request",
+    name: "Max",
     price: "$10",
     subtitle: "Best for regular development",
     description: "$10 per week — up to 500 quota points every 5 hours, with a safety limit of 8,000 requests per week.",

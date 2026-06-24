@@ -490,7 +490,7 @@ export default async function DocsPage() {
               </p>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 In addition to the 5-hour window, each plan has a <strong className="text-white">weekly quota limit</strong>
-                that resets every 7 days: 8,000 for the 500 Request plan and 4,000 for the 250 Request plan.
+                that resets every 7 days: 8,000 for the Max plan and 4,000 for the Pro plan.
               </p>
               <PropTable
                 columns={[{ header: "Setting", key: "setting" }, { header: "500 Plan", key: "value" }, { header: "250 Plan", key: "value2" }]}
