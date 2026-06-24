@@ -128,7 +128,7 @@ export default async function Home() {
   return (
     <>
       <main className="overflow-hidden pb-24">
-        <section className="relative mb-32 min-h-screen px-4 pt-24 md:mb-48 md:px-6">
+        <section className="relative mb-32 min-h-screen px-4 pt-20 md:mb-48 md:px-6">
           <div className="absolute inset-0 -z-20 bg-black" />
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_28%,rgba(0,242,255,0.12),transparent_30%),linear-gradient(180deg,rgba(0,0,0,0)_0%,#000_92%)]" />
           <div className="absolute inset-x-0 top-0 -z-10 h-96 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[56px_56px] opacity-25 mask-[linear-gradient(to_bottom,black,transparent)]" />
@@ -136,7 +136,7 @@ export default async function Home() {
           <div className="mx-auto flex max-w-360 flex-col items-center">
             <LogoHeroScene />
 
-            <div className="-mt-10 max-w-3xl text-center md:-mt-20">
+            <div className="-mt-6 max-w-3xl text-center md:-mt-14">
               <p className="mb-4 font-mono text-[12px] font-medium tracking-[0.24em] text-cyan-200/80">
                 DEKADANS AI GATEWAY
               </p>

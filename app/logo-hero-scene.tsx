@@ -9,22 +9,22 @@ import * as THREE from "three";
 /* ---------- Config ---------- */
 
 const CONFIG = {
-  camera: { fov: 45, position: [0, 0, 6] as [number, number, number] },
+  camera: { fov: 45, position: [0, 0, 8.5] as [number, number, number] },
   logo: {
-    size: 3.2,
+    size: 4.4,
     z: 0.5,
     distortSpeed: 0.3,
     distortStrength: 0.08,
   },
   icosahedron: {
-    radius: 4.5,
+    radius: 4.1,
     detail: 1,
     rotationSpeed: 0.05,
     color: "#00f2ff",
     opacity: 0.06,
   },
   octahedron: {
-    radius: 3.5,
+    radius: 3.2,
     detail: 0,
     rotationSpeed: -0.08,
     color: "#a855f7",
