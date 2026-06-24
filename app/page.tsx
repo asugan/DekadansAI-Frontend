@@ -134,7 +134,7 @@ export default async function Home() {
           <div className="absolute inset-x-0 top-0 -z-10 h-96 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[56px_56px] opacity-25 mask-[linear-gradient(to_bottom,black,transparent)]" />
 
           <div className="mx-auto flex max-w-360 flex-col items-center">
-            <LogoHeroScene />
+            <LogoHeroScene modelLabels={models.map((model) => model.name)} />
 
             <div className="-mt-6 max-w-3xl text-center md:-mt-14">
               <p className="mb-4 font-mono text-[12px] font-medium tracking-[0.24em] text-cyan-200/80">

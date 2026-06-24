@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { Float } from "@react-three/drei";
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { Float, Text } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 
@@ -45,7 +45,22 @@ const CONFIG = {
     mipmapBlur: true,
   },
   float: { speed: 1.8, rotationIntensity: 0.15, floatIntensity: 1.2 },
+  modelPlanets: {
+    color: "#39ff88",
+    streamCount: 16,
+    streamSpeed: 0.16,
+  },
 } as const;
+
+const DEFAULT_MODEL_LABELS = ["GLM", "Kimi", "DeepSeek", "Minimax", "GPT"];
+
+const PLANET_LAYOUT = [
+  { position: [-3.9, 1.25, -0.45] as [number, number, number], size: 0.26, color: "#39ff88" },
+  { position: [3.9, 1.05, -0.35] as [number, number, number], size: 0.28, color: "#00f2ff" },
+  { position: [-4.25, -0.75, -0.5] as [number, number, number], size: 0.23, color: "#7cffb2" },
+  { position: [4.25, -0.95, -0.55] as [number, number, number], size: 0.24, color: "#b7ff4a" },
+  { position: [0, 2.25, -0.65] as [number, number, number], size: 0.22, color: "#64ffda" },
+] as const;
 
 /* ---------- Hook ---------- */
 
@@ -79,6 +94,28 @@ function generateParticlePositions(count: number, spread: number): Float32Array 
     arr[i] = (Math.random() - 0.5) * spread;
   }
   return arr;
+}
+
+function getShortModelLabel(name: string): string {
+  const normalized = name.toLowerCase();
+
+  if (normalized.includes("deepseek")) return "DeepSeek";
+  if (normalized.includes("kimi")) return "Kimi";
+  if (normalized.includes("glm") || normalized.includes("zai")) return "GLM";
+  if (normalized.includes("minimax")) return "Minimax";
+  if (normalized.includes("gpt") || normalized.includes("chatgpt")) return "GPT";
+
+  return name.split(/[\s/-]+/).filter(Boolean).slice(0, 2).join(" ");
+}
+
+function getModelLabels(modelLabels: string[]): string[] {
+  const incomingLabels = modelLabels.map(getShortModelLabel);
+  const labels = [
+    ...DEFAULT_MODEL_LABELS.filter((label) => incomingLabels.includes(label) || label === "DeepSeek"),
+    ...incomingLabels,
+    ...DEFAULT_MODEL_LABELS,
+  ];
+  return labels.filter((label, index) => label && labels.indexOf(label) === index);
 }
 
 /* ---------- Logo with subtle vertex distort ---------- */
@@ -217,9 +254,177 @@ function Particles({ prefersReducedMotion }: { prefersReducedMotion: boolean }) 
   );
 }
 
+/* ---------- Model planets and API streams ---------- */
+
+function ModelPlanet({
+  label,
+  position,
+  size,
+  color,
+  prefersReducedMotion,
+}: {
+  label: string;
+  position: [number, number, number];
+  size: number;
+  color: string;
+  prefersReducedMotion: boolean;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  const labelX = position[0] < 0 ? -0.52 : 0.52;
+  const anchorX = position[0] < 0 ? "right" : "left";
+
+  useFrame(() => {
+    if (!groupRef.current || prefersReducedMotion) return;
+    groupRef.current.rotation.y += 0.004;
+    groupRef.current.rotation.z += 0.0015;
+  });
+
+  return (
+    <group ref={groupRef} position={position}>
+      <mesh>
+        <sphereGeometry args={[size, 24, 24]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.55}
+          roughness={0.35}
+          metalness={0.15}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2.8, 0, Math.PI / 8]}>
+        <torusGeometry args={[size * 1.45, 0.01, 8, 42]} />
+        <meshBasicMaterial color={color} transparent opacity={0.42} />
+      </mesh>
+      <Text
+        position={[labelX, 0.02, 0]}
+        fontSize={0.16}
+        color="#dfffee"
+        anchorX={anchorX}
+        anchorY="middle"
+        outlineWidth={0.008}
+        outlineColor="#02130b"
+      >
+        {label}
+      </Text>
+    </group>
+  );
+}
+
+function ApiStreams({
+  targets,
+  prefersReducedMotion,
+}: {
+  targets: readonly [number, number, number][];
+  prefersReducedMotion: boolean;
+}) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const linePositions = useMemo(() => {
+    const positions: number[] = [];
+    for (const target of targets) {
+      positions.push(0, 0, -0.15, target[0], target[1], target[2]);
+    }
+    return new Float32Array(positions);
+  }, [targets]);
+  const particleSeeds = useMemo(() => {
+    const seeds: { targetIndex: number; offset: number }[] = [];
+    targets.forEach((_, targetIndex) => {
+      for (let i = 0; i < CONFIG.modelPlanets.streamCount; i++) {
+        seeds.push({ targetIndex, offset: i / CONFIG.modelPlanets.streamCount });
+      }
+    });
+    return seeds;
+  }, [targets]);
+  const particlePositions = useMemo(() => new Float32Array(particleSeeds.length * 3), [particleSeeds.length]);
+
+  useFrame((state) => {
+    if (!pointsRef.current) return;
+    const positions = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const arr = positions.array as Float32Array;
+    const time = prefersReducedMotion ? 0 : state.clock.elapsedTime * CONFIG.modelPlanets.streamSpeed;
+
+    particleSeeds.forEach((seed, index) => {
+      const target = targets[seed.targetIndex];
+      const progress = (seed.offset + time) % 1;
+      const pulse = Math.sin(progress * Math.PI);
+      const i3 = index * 3;
+
+      arr[i3] = target[0] * progress;
+      arr[i3 + 1] = target[1] * progress + pulse * 0.12;
+      arr[i3 + 2] = -0.15 + (target[2] + 0.15) * progress;
+    });
+
+    positions.needsUpdate = true;
+  });
+
+  return (
+    <group>
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color={CONFIG.modelPlanets.color} transparent opacity={0.22} />
+      </lineSegments>
+      <points ref={pointsRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[particlePositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.045}
+          color={CONFIG.modelPlanets.color}
+          transparent
+          opacity={0.9}
+          sizeAttenuation
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+    </group>
+  );
+}
+
+function ModelNetwork({
+  modelLabels,
+  prefersReducedMotion,
+}: {
+  modelLabels: string[];
+  prefersReducedMotion: boolean;
+}) {
+  const { viewport } = useThree();
+  const isCompact = viewport.width < 7;
+  const planets = useMemo(() => {
+    const labels = getModelLabels(modelLabels);
+    return PLANET_LAYOUT.slice(0, isCompact ? 3 : PLANET_LAYOUT.length).map((planet, index) => ({
+      ...planet,
+      label: labels[index] ?? DEFAULT_MODEL_LABELS[index],
+    }));
+  }, [isCompact, modelLabels]);
+  const targets = useMemo(() => planets.map((planet) => planet.position), [planets]);
+
+  return (
+    <group>
+      <ApiStreams targets={targets} prefersReducedMotion={prefersReducedMotion} />
+      {planets.map((planet) => (
+        <ModelPlanet
+          key={planet.label}
+          label={planet.label}
+          position={planet.position}
+          size={planet.size}
+          color={planet.color}
+          prefersReducedMotion={prefersReducedMotion}
+        />
+      ))}
+    </group>
+  );
+}
+
 /* ---------- Scene ---------- */
 
-function Scene({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+function Scene({
+  modelLabels,
+  prefersReducedMotion,
+}: {
+  modelLabels: string[];
+  prefersReducedMotion: boolean;
+}) {
   const { speed, rotationIntensity, floatIntensity } = CONFIG.float;
 
   return (
@@ -237,6 +442,7 @@ function Scene({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
           <DistortLogo prefersReducedMotion={prefersReducedMotion} />
         </Float>
 
+        <ModelNetwork modelLabels={modelLabels} prefersReducedMotion={prefersReducedMotion} />
         <WireIcosahedron prefersReducedMotion={prefersReducedMotion} />
         <WireOctahedron prefersReducedMotion={prefersReducedMotion} />
         <Particles prefersReducedMotion={prefersReducedMotion} />
@@ -256,7 +462,7 @@ function Scene({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
 
 /* ---------- Main ---------- */
 
-export function LogoHeroScene() {
+export function LogoHeroScene({ modelLabels = [] }: { modelLabels?: string[] }) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   return (
@@ -297,7 +503,7 @@ export function LogoHeroScene() {
         camera={{ fov: CONFIG.camera.fov, position: CONFIG.camera.position }}
         dpr={[1, 2]}
       >
-        <Scene prefersReducedMotion={prefersReducedMotion} />
+        <Scene modelLabels={modelLabels} prefersReducedMotion={prefersReducedMotion} />
       </Canvas>
     </div>
   );
