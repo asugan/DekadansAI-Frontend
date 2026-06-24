@@ -655,92 +655,14 @@ console.log(data);`}
             <section id="cli-integrations">
               <SectionHeading id="cli-integrations">CLI Integrations</SectionHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Configure CLI tools with your Dekadans API key and the AI gateway base URL. Use
-                <InlineCode>https://api.dekadans.net/v1</InlineCode> for OpenAI-compatible clients and
-                <InlineCode>https://api.dekadans.net</InlineCode> for Anthropic-compatible clients that
-                append <InlineCode>/v1/messages</InlineCode> automatically.
+                For Claude CLI, OpenCode CLI, Droid CLI, and future CLI integrations, use the
+                dedicated setup page. It includes install commands, Dekadans gateway configuration,
+                verification steps, and troubleshooting notes.
               </p>
-
-              <SubHeading id="cli-opencode">opencode</SubHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Add a custom OpenAI-compatible provider in <InlineCode>opencode.json</InlineCode>. Set
-                <InlineCode>DEKADANS_API_KEY</InlineCode> in your shell before starting opencode.
-              </p>
-              <CodeBlock>
-                {`{
-  "$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "dekadans": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Dekadans AI",
-      "options": {
-        "baseURL": "https://api.dekadans.net/v1",
-        "apiKey": "{env:DEKADANS_API_KEY}"
-      },
-      "models": {
-        "gpt-5.5": {
-          "name": "ChatGPT 5.5"
-        }
-      }
-    }
-  },
-  "model": "dekadans/gpt-5.5"
-}`}
-              </CodeBlock>
-
-              <SubHeading id="cli-claude-code">Claude Code / Claude CLI</SubHeading>
-              <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Claude-compatible tools should use the Anthropic-compatible endpoint family. Configure
-                the Anthropic base URL and bearer token with environment variables.
-              </p>
-              <CodeBlock>
-                {`export ANTHROPIC_BASE_URL="https://api.dekadans.net"
-export ANTHROPIC_AUTH_TOKEN="<YOUR_API_KEY>"
-export ANTHROPIC_MODEL="claude-sonnet-4"`}
-              </CodeBlock>
-              <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                You can also store the same values in <InlineCode>.claude/settings.json</InlineCode>.
-              </p>
-              <CodeBlock>
-                {`{
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://api.dekadans.net",
-    "ANTHROPIC_AUTH_TOKEN": "<YOUR_API_KEY>",
-    "ANTHROPIC_MODEL": "claude-sonnet-4"
-  }
-}`}
-              </CodeBlock>
-
-              <SubHeading id="cli-droid">Droid CLI</SubHeading>
-              <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Add custom models to <InlineCode>~/.factory/settings.json</InlineCode>. Use
-                <InlineCode>provider: &quot;openai&quot;</InlineCode> for OpenAI-compatible models and
-                <InlineCode>provider: &quot;anthropic&quot;</InlineCode> for Anthropic-compatible models.
-              </p>
-              <CodeBlock>
-                {`{
-  "customModels": [
-    {
-      "model": "gpt-5.5",
-      "displayName": "Dekadans GPT 5.5",
-      "provider": "openai",
-      "baseUrl": "https://api.dekadans.net/v1",
-      "apiKey": "<YOUR_API_KEY>",
-      "maxOutputTokens": 16384
-    },
-    {
-      "model": "claude-sonnet-4",
-      "displayName": "Dekadans Claude Sonnet",
-      "provider": "anthropic",
-      "baseUrl": "https://api.dekadans.net",
-      "apiKey": "<YOUR_API_KEY>",
-      "maxOutputTokens": 8192
-    }
-  ]
-}`}
-              </CodeBlock>
-              <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Replace model IDs with any available ID from the model catalog or your dashboard.
+                <Link className="text-(--brand) underline" href="/cli-tools">
+                  Open the CLI setup guide
+                </Link>
               </p>
             </section>
 

@@ -5,7 +5,8 @@ import { HomeNavActions } from "./home-nav";
 const NAV_ITEMS = [
   { label: "Models", href: "/#models" },
   { label: "Pricing", href: "/#pricing" },
-  { label: "Docs", href: "/docs" }
+  { label: "Docs", href: "/docs" },
+  { label: "CLI Setup", href: "/cli-tools" }
 ];
 
 export function AppNav() {
