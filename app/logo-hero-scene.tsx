@@ -44,7 +44,7 @@ const CONFIG = {
     luminanceSmoothing: 0.9,
     mipmapBlur: true,
   },
-  float: { speed: 1.2, rotationIntensity: 0.2, floatIntensity: 0.4 },
+  float: { speed: 1.8, rotationIntensity: 0.15, floatIntensity: 1.2 },
 } as const;
 
 /* ---------- Hook ---------- */
