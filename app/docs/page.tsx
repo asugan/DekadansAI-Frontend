@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { SiteFooter } from "../site-footer";
 import { PUBLIC_PROVIDER_NAME, getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
 import { MARKETING_PLANS } from "@/lib/plan-display";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
@@ -872,27 +873,7 @@ while (true) {
         </div>
       </main>
 
-      <footer className="w-full border-t border-white/10 bg-[#0a0c10]/70 px-4 py-5 font-mono text-[13px] tracking-wider text-(--ink-muted) backdrop-blur-md md:px-6">
-        <div className="mx-auto grid max-w-360 items-center gap-4 md:grid-cols-3">
-          <div className="flex justify-center md:justify-start">
-            <Link className="group flex items-center text-white transition hover:text-(--brand)" href="/">
-              <Image
-                alt="Dekadans AI logo"
-                className="h-12 w-12 object-contain transition-transform duration-200 ease-out group-hover:scale-110"
-                height={48}
-                src="/logo.png"
-                width={48}
-              />
-            </Link>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-5">
-            <Link className="transition hover:text-(--brand)" href="/">Home</Link>
-            <Link className="transition hover:text-(--brand)" href="/docs">Docs</Link>
-            <Link className="transition hover:text-(--brand)" href="mailto:contact@dekadans.net">Contact</Link>
-          </div>
-          <div className="text-center text-[#6d7677] md:text-right">&copy; 2026 Dekadans AI</div>
-        </div>
-      </footer>
+      <SiteFooter className="bg-[#0a0c10]/70" />
     </>
   );
 }
