@@ -49,18 +49,21 @@ const CONFIG = {
     color: "#39ff88",
     streamCount: 16,
     streamSpeed: 0.16,
+    orbitYScale: 0.5,
   },
 } as const;
 
 const DEFAULT_MODEL_LABELS = ["GLM", "Kimi", "DeepSeek", "Minimax", "GPT"];
 
 const PLANET_LAYOUT = [
-  { position: [-3.9, 1.25, -0.45] as [number, number, number], size: 0.26, color: "#39ff88" },
-  { position: [3.9, 1.05, -0.35] as [number, number, number], size: 0.28, color: "#00f2ff" },
-  { position: [-4.25, -0.75, -0.5] as [number, number, number], size: 0.23, color: "#7cffb2" },
-  { position: [4.25, -0.95, -0.55] as [number, number, number], size: 0.24, color: "#b7ff4a" },
-  { position: [0, 2.25, -0.65] as [number, number, number], size: 0.22, color: "#64ffda" },
+  { position: [-3.9, 1.25, -0.45] as [number, number, number], size: 0.26, color: "#39ff88", rotationSpeed: 0.82 },
+  { position: [3.9, 1.05, -0.35] as [number, number, number], size: 0.28, color: "#00f2ff", rotationSpeed: 0.55 },
+  { position: [-4.25, -0.75, -0.5] as [number, number, number], size: 0.23, color: "#7cffb2", rotationSpeed: 1.08 },
+  { position: [4.25, -0.95, -0.55] as [number, number, number], size: 0.24, color: "#b7ff4a", rotationSpeed: 0.68 },
+  { position: [0, 2.25, -0.65] as [number, number, number], size: 0.22, color: "#64ffda", rotationSpeed: 0.94 },
 ] as const;
+
+type ModelPlanetConfig = (typeof PLANET_LAYOUT)[number] & { label: string };
 
 /* ---------- Hook ---------- */
 
@@ -116,6 +119,23 @@ function getModelLabels(modelLabels: string[]): string[] {
     ...DEFAULT_MODEL_LABELS,
   ];
   return labels.filter((label, index) => label && labels.indexOf(label) === index);
+}
+
+function getOrbitPosition(
+  position: readonly [number, number, number],
+  time: number,
+  orbitSpeed: number
+): [number, number, number] {
+  const [x, y, z] = position;
+  const radius = Math.hypot(x, y / CONFIG.modelPlanets.orbitYScale);
+  const startAngle = Math.atan2(y / CONFIG.modelPlanets.orbitYScale, x);
+  const angle = startAngle + time * orbitSpeed * 0.18;
+
+  return [
+    Math.cos(angle) * radius,
+    Math.sin(angle) * radius * CONFIG.modelPlanets.orbitYScale,
+    z,
+  ];
 }
 
 /* ---------- Logo with subtle vertex distort ---------- */
@@ -261,27 +281,46 @@ function ModelPlanet({
   position,
   size,
   color,
+  rotationSpeed,
   prefersReducedMotion,
 }: {
   label: string;
   position: [number, number, number];
   size: number;
   color: string;
+  rotationSpeed: number;
   prefersReducedMotion: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const planetRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
   const labelX = position[0] < 0 ? -0.52 : 0.52;
   const anchorX = position[0] < 0 ? "right" : "left";
 
-  useFrame(() => {
-    if (!groupRef.current || prefersReducedMotion) return;
-    groupRef.current.rotation.y += 0.004;
-    groupRef.current.rotation.z += 0.0015;
+  useFrame((state) => {
+    const [x, y, z] = getOrbitPosition(
+      position,
+      prefersReducedMotion ? 0 : state.clock.elapsedTime,
+      rotationSpeed
+    );
+    groupRef.current?.position.set(x, y, z);
+
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    if (planetRef.current) {
+      planetRef.current.rotation.y += rotationSpeed * 0.012;
+      planetRef.current.rotation.x += rotationSpeed * 0.004;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.z += rotationSpeed * 0.006;
+    }
   });
 
   return (
     <group ref={groupRef} position={position}>
-      <mesh>
+      <mesh ref={planetRef}>
         <sphereGeometry args={[size, 24, 24]} />
         <meshStandardMaterial
           color={color}
@@ -291,7 +330,7 @@ function ModelPlanet({
           metalness={0.15}
         />
       </mesh>
-      <mesh rotation={[Math.PI / 2.8, 0, Math.PI / 8]}>
+      <mesh ref={ringRef} rotation={[Math.PI / 2.8, 0, Math.PI / 8]}>
         <torusGeometry args={[size * 1.45, 0.01, 8, 42]} />
         <meshBasicMaterial color={color} transparent opacity={0.42} />
       </mesh>
@@ -314,17 +353,12 @@ function ApiStreams({
   targets,
   prefersReducedMotion,
 }: {
-  targets: readonly [number, number, number][];
+  targets: ModelPlanetConfig[];
   prefersReducedMotion: boolean;
 }) {
   const pointsRef = useRef<THREE.Points>(null);
-  const linePositions = useMemo(() => {
-    const positions: number[] = [];
-    for (const target of targets) {
-      positions.push(0, 0, -0.15, target[0], target[1], target[2]);
-    }
-    return new Float32Array(positions);
-  }, [targets]);
+  const linesRef = useRef<THREE.LineSegments>(null);
+  const linePositions = useMemo(() => new Float32Array(targets.length * 6), [targets.length]);
   const particleSeeds = useMemo(() => {
     const seeds: { targetIndex: number; offset: number }[] = [];
     targets.forEach((_, targetIndex) => {
@@ -337,20 +371,42 @@ function ApiStreams({
   const particlePositions = useMemo(() => new Float32Array(particleSeeds.length * 3), [particleSeeds.length]);
 
   useFrame((state) => {
+    const orbitTime = prefersReducedMotion ? 0 : state.clock.elapsedTime;
+
+    if (linesRef.current) {
+      const lineAttribute = linesRef.current.geometry.attributes.position as THREE.BufferAttribute;
+      const lineArr = lineAttribute.array as Float32Array;
+
+      targets.forEach((target, index) => {
+        const [x, y, z] = getOrbitPosition(target.position, orbitTime, target.rotationSpeed);
+        const i6 = index * 6;
+
+        lineArr[i6] = 0;
+        lineArr[i6 + 1] = 0;
+        lineArr[i6 + 2] = -0.15;
+        lineArr[i6 + 3] = x;
+        lineArr[i6 + 4] = y;
+        lineArr[i6 + 5] = z;
+      });
+
+      lineAttribute.needsUpdate = true;
+    }
+
     if (!pointsRef.current) return;
     const positions = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const arr = positions.array as Float32Array;
-    const time = prefersReducedMotion ? 0 : state.clock.elapsedTime * CONFIG.modelPlanets.streamSpeed;
+    const streamTime = orbitTime * CONFIG.modelPlanets.streamSpeed;
 
     particleSeeds.forEach((seed, index) => {
       const target = targets[seed.targetIndex];
-      const progress = (seed.offset + time) % 1;
+      const [x, y, z] = getOrbitPosition(target.position, orbitTime, target.rotationSpeed);
+      const progress = (seed.offset + streamTime) % 1;
       const pulse = Math.sin(progress * Math.PI);
       const i3 = index * 3;
 
-      arr[i3] = target[0] * progress;
-      arr[i3 + 1] = target[1] * progress + pulse * 0.12;
-      arr[i3 + 2] = -0.15 + (target[2] + 0.15) * progress;
+      arr[i3] = x * progress;
+      arr[i3 + 1] = y * progress + pulse * 0.12;
+      arr[i3 + 2] = -0.15 + (z + 0.15) * progress;
     });
 
     positions.needsUpdate = true;
@@ -358,7 +414,7 @@ function ApiStreams({
 
   return (
     <group>
-      <lineSegments>
+      <lineSegments ref={linesRef}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
         </bufferGeometry>
@@ -381,6 +437,33 @@ function ApiStreams({
   );
 }
 
+function OrbitPath({ position, color }: { position: readonly [number, number, number]; color: string }) {
+  const orbitPoints = useMemo(() => {
+    const radius = Math.hypot(position[0], position[1] / CONFIG.modelPlanets.orbitYScale);
+    const points: number[] = [];
+
+    for (let i = 0; i <= 96; i++) {
+      const angle = (i / 96) * Math.PI * 2;
+      points.push(
+        Math.cos(angle) * radius,
+        Math.sin(angle) * radius * CONFIG.modelPlanets.orbitYScale,
+        position[2] - 0.02
+      );
+    }
+
+    return new Float32Array(points);
+  }, [position]);
+
+  return (
+    <lineLoop>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[orbitPoints, 3]} />
+      </bufferGeometry>
+      <lineBasicMaterial color={color} transparent opacity={0.1} />
+    </lineLoop>
+  );
+}
+
 function ModelNetwork({
   modelLabels,
   prefersReducedMotion,
@@ -397,11 +480,13 @@ function ModelNetwork({
       label: labels[index] ?? DEFAULT_MODEL_LABELS[index],
     }));
   }, [isCompact, modelLabels]);
-  const targets = useMemo(() => planets.map((planet) => planet.position), [planets]);
 
   return (
     <group>
-      <ApiStreams targets={targets} prefersReducedMotion={prefersReducedMotion} />
+      {planets.map((planet) => (
+        <OrbitPath key={`${planet.label}-orbit`} position={planet.position} color={planet.color} />
+      ))}
+      <ApiStreams targets={planets} prefersReducedMotion={prefersReducedMotion} />
       {planets.map((planet) => (
         <ModelPlanet
           key={planet.label}
@@ -409,6 +494,7 @@ function ModelNetwork({
           position={planet.position}
           size={planet.size}
           color={planet.color}
+          rotationSpeed={planet.rotationSpeed}
           prefersReducedMotion={prefersReducedMotion}
         />
       ))}
