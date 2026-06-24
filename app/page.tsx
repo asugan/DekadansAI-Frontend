@@ -138,14 +138,15 @@ export default async function Home() {
 
             <div className="-mt-10 max-w-3xl text-center md:-mt-20">
               <p className="mb-4 font-mono text-[12px] font-medium tracking-[0.24em] text-cyan-200/80">
-                UNIFIED AI GATEWAY
+                DEKADANS AI GATEWAY
               </p>
               <h1 className="text-balance text-4xl font-semibold leading-[0.96] tracking-[-0.05em] text-white md:text-7xl">
-                One API for frontier AI models
+                All frontier AI models, behind one key
               </h1>
               <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/55 md:text-base">
-                Access MiniMax, GLM, Kimi, and ChatGPT through a secure unified gateway built for
-                fast production workflows.
+                Stop managing separate provider accounts and API keys. One unified endpoint,
+                built-in quota management, and a real-time dashboard to monitor every request
+                across all models.
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Link
