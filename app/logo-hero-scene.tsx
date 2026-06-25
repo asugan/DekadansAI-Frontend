@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Float, Text } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -54,6 +54,7 @@ const CONFIG = {
 } as const;
 
 const DEFAULT_MODEL_LABELS = ["GLM", "Kimi", "DeepSeek", "Minimax", "GPT"];
+const MIN_INTRO_MS = 1200;
 
 const PLANET_LAYOUT = [
   { position: [-3.9, 1.25, -0.45] as [number, number, number], size: 0.26, color: "#39ff88", rotationSpeed: 0.82 },
@@ -507,9 +508,11 @@ function ModelNetwork({
 function Scene({
   modelLabels,
   prefersReducedMotion,
+  onReady,
 }: {
   modelLabels: string[];
   prefersReducedMotion: boolean;
+  onReady: () => void;
 }) {
   const { speed, rotationIntensity, floatIntensity } = CONFIG.float;
 
@@ -532,6 +535,7 @@ function Scene({
         <WireIcosahedron prefersReducedMotion={prefersReducedMotion} />
         <WireOctahedron prefersReducedMotion={prefersReducedMotion} />
         <Particles prefersReducedMotion={prefersReducedMotion} />
+        <SceneReady onReady={onReady} />
       </Suspense>
 
       <EffectComposer>
@@ -546,14 +550,36 @@ function Scene({
   );
 }
 
+function SceneReady({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    onReady();
+  }, [onReady]);
+
+  return null;
+}
+
 /* ---------- Main ---------- */
 
 export function LogoHeroScene({ modelLabels = [] }: { modelLabels?: string[] }) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const [sceneLoaded, setSceneLoaded] = useState(false);
+  const [introElapsed, setIntroElapsed] = useState(false);
+  const sceneReady = sceneLoaded && introElapsed;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIntroElapsed(true);
+    }, prefersReducedMotion ? 0 : MIN_INTRO_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [prefersReducedMotion]);
+
+  const handleSceneReady = useCallback(() => {
+    setSceneLoaded(true);
+  }, []);
 
   return (
     <div className="pointer-events-none relative mx-auto h-[420px] w-full max-w-5xl overflow-hidden md:h-[600px]">
-      {/* Grid background */}
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -565,7 +591,6 @@ export function LogoHeroScene({ modelLabels = [] }: { modelLabels?: string[] }) 
         }}
       />
 
-      {/* Radial gradient glow */}
       <div
         className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
         style={{
@@ -573,6 +598,24 @@ export function LogoHeroScene({ modelLabels = [] }: { modelLabels?: string[] }) 
             "radial-gradient(circle, rgba(0,242,255,0.05) 0%, transparent 70%)",
         }}
       />
+
+      <div
+        aria-hidden="true"
+        className={`hero-logo-intro absolute inset-0 z-10 transition duration-700 ${
+          sceneReady ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <div className="hero-logo-intro__grid" />
+        <div className="hero-logo-intro__beam hero-logo-intro__beam--left" />
+        <div className="hero-logo-intro__beam hero-logo-intro__beam--right" />
+        <div className="hero-logo-intro__orb" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo.png"
+          alt=""
+          className="hero-logo-intro__logo"
+        />
+      </div>
 
       <noscript>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -584,12 +627,18 @@ export function LogoHeroScene({ modelLabels = [] }: { modelLabels?: string[] }) 
       </noscript>
 
       <Canvas
-        className="relative h-full w-full"
+        className={`relative h-full w-full transition duration-700 ${
+          sceneReady ? "opacity-100" : "opacity-0"
+        }`}
         gl={{ alpha: true, antialias: true }}
         camera={{ fov: CONFIG.camera.fov, position: CONFIG.camera.position }}
         dpr={[1, 2]}
       >
-        <Scene modelLabels={modelLabels} prefersReducedMotion={prefersReducedMotion} />
+        <Scene
+          modelLabels={modelLabels}
+          prefersReducedMotion={prefersReducedMotion}
+          onReady={handleSceneReady}
+        />
       </Canvas>
     </div>
   );

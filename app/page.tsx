@@ -138,18 +138,18 @@ export default async function Home() {
             <LogoHeroScene modelLabels={models.map((model) => model.name)} />
 
             <div className="-mt-6 max-w-3xl text-center md:-mt-14">
-              <p className="mb-4 font-mono text-[12px] font-medium tracking-[0.24em] text-cyan-200/80">
+              <p className="hero-reveal mb-4 font-mono text-[12px] font-medium tracking-[0.24em] text-cyan-200/80 [--hero-reveal-delay:120ms]">
                 DEKADANS AI GATEWAY
               </p>
-              <h1 className="text-balance text-4xl font-semibold leading-[0.96] tracking-[-0.05em] text-white md:text-7xl">
+              <h1 className="hero-reveal text-balance text-4xl font-semibold leading-[0.96] tracking-[-0.05em] text-white [--hero-reveal-delay:220ms] md:text-7xl">
                 All frontier AI models, behind one key
               </h1>
-              <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/55 md:text-base">
+              <p className="hero-reveal mx-auto mt-5 max-w-xl text-sm leading-6 text-white/55 [--hero-reveal-delay:340ms] md:text-base">
                 Stop managing separate provider accounts and API keys. One unified endpoint,
                 built-in quota management, and a real-time dashboard to monitor every request
                 across all models.
               </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <div className="hero-reveal mt-8 flex flex-wrap justify-center gap-3 [--hero-reveal-delay:460ms]">
                 <Link
                   className="rounded-full bg-white px-6 py-3 font-mono text-[12px] font-semibold tracking-[0.04em] text-black! transition hover:bg-cyan-100 active:scale-95"
                   href="/login"
