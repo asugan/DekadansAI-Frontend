@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ApiRequestError,
@@ -209,13 +209,36 @@ export default function DashboardPage() {
     [router]
   );
 
+  const wasBillingActive = useRef(false);
+
   const loadBillingStatus = useCallback(async (options: { refresh?: boolean } = {}) => {
     setBillingError(null);
 
     try {
       const payload = await getBillingSnapshot({ refresh: options.refresh });
+      const nowActive = payload.weeklyPlan.active;
       setBillingSnapshotFull(payload);
-      setBillingStatus(payload.weeklyPlan.active ? "active" : "inactive");
+      setBillingStatus(nowActive ? "active" : "inactive");
+
+      let portalWasOpen = false;
+      let portalWasActive = false;
+      try {
+        portalWasOpen = sessionStorage.getItem("dekadans_portal_was_open") === "1";
+        portalWasActive = sessionStorage.getItem("dekadans_portal_was_active") === "1";
+        sessionStorage.removeItem("dekadans_portal_was_open");
+        sessionStorage.removeItem("dekadans_portal_was_active");
+      } catch {
+        // sessionStorage may be blocked
+      }
+
+      if (portalWasOpen && (wasBillingActive.current || portalWasActive) && !nowActive) {
+        mixpanelTrack("subscription_cancelled", {
+          plan_slug: payload.weeklyPlan.tierSlug,
+          plan_name: payload.weeklyPlan.tier?.label
+        });
+      }
+
+      wasBillingActive.current = nowActive;
       return payload;
     } catch (error) {
       if (error instanceof ApiRequestError && error.status === 401) {
@@ -311,6 +334,11 @@ export default function DashboardPage() {
       if (isStopped) return;
 
       if (payload?.weeklyPlan.active) {
+        mixpanelTrack("checkout_completed", {
+          plan_slug: payload.weeklyPlan.tierSlug ?? "unknown",
+          plan_name: payload.weeklyPlan.tier?.label ?? "unknown"
+        });
+
         void loadSnapshot(false);
         void loadUsage(false);
         router.replace("/dashboard");
@@ -402,6 +430,11 @@ export default function DashboardPage() {
 
       setCreatedKey(generatedKey);
       setKeyName("");
+
+      mixpanelTrack("api_key_created", {
+        is_key_name_provided: Boolean(keyName.trim())
+      });
+
       await loadSnapshot(true);
     } finally {
       setIsCreatingKey(false);
@@ -492,6 +525,14 @@ export default function DashboardPage() {
 
       const portalUrl = extractRedirectUrl(data);
       if (portalUrl) {
+        mixpanelTrack("customer_portal_opened");
+        const isCurrentBillingActive = billingSnapshotFull?.weeklyPlan.active ?? wasBillingActive.current;
+        try {
+          sessionStorage.setItem("dekadans_portal_was_open", "1");
+          sessionStorage.setItem("dekadans_portal_was_active", isCurrentBillingActive ? "1" : "0");
+        } catch {
+          // sessionStorage may be blocked
+        }
         window.location.assign(portalUrl);
       }
     } finally {

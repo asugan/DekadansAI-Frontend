@@ -97,6 +97,11 @@ These are the Mixpanel events currently tracked in this project. **All new Mixpa
 |---|---|---|---|
 | `sign_up_completed` | User first lands on dashboard after social auth | `sign_up_method` ("social"), `platform` ("web") | `app/dashboard/page.tsx` |
 | `checkout_started` | User clicks a plan checkout button | `plan_slug`, `plan_name`, `source` ("homepage" or "dashboard"), `platform` ("web") | `app/pricing-plan-action.tsx`, `app/dashboard/page.tsx` |
+| `checkout_completed` | Checkout return with billing now active | `plan_slug`, `plan_name` | `app/dashboard/page.tsx` |
+| `api_key_created` | API key successfully created | `is_key_name_provided` | `app/dashboard/page.tsx` |
+| `customer_portal_opened` | User opens Polar customer portal | `platform` ("web") | `app/dashboard/page.tsx` |
+| `subscription_cancelled` | Billing transitions active to inactive after portal visit | `plan_slug`, `plan_name` | `app/dashboard/page.tsx` |
+| `page_viewed` | Route change (client-side navigation) | `page_path`, `page_name`, `platform` ("web") | `app/page-view-tracker.tsx` |
 
 ---
 

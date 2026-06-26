@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { AppNav } from "./app-nav";
 import { ConsentBanner } from "./consent-banner";
+import { PageViewTracker } from "./page-view-tracker";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${jetBrainsMono.variable} antialiased`}>
         <AppNav />
+        <PageViewTracker />
         {children}
         <ConsentBanner />
       </body>
