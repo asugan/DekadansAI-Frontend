@@ -3,7 +3,8 @@ import Link from "next/link";
 
 import { SiteFooter } from "../site-footer";
 import { PUBLIC_PROVIDER_NAME, getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
-import { MARKETING_PLANS } from "@/lib/plan-display";
+import { formatDuration, getDisplayMarketingPlans } from "@/lib/plan-display";
+import { getPublicPlans } from "@/lib/public-plans";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
 type JsonObject = Record<string, unknown>;
@@ -137,7 +138,53 @@ function PropTable({ columns, rows }: { columns: { header: string; key: string }
 }
 
 export default async function DocsPage() {
-  const models = await getDocsModels();
+  const [models, publicPlans] = await Promise.all([getDocsModels(), getPublicPlans()]);
+  const marketingPlans = getDisplayMarketingPlans(publicPlans.planTiers, publicPlans);
+  const planColumns = [
+    { header: "Setting", key: "setting" },
+    ...marketingPlans.map((plan, index) => ({ header: `${plan.name} Plan`, key: `plan_${index}` }))
+  ];
+  const planRows = [
+    {
+      setting: "Quota window",
+      ...Object.fromEntries(
+        marketingPlans.map((plan, index) => [
+          `plan_${index}`,
+          `${formatDuration(plan.quotaWindowMs)} (${new Intl.NumberFormat("en-US").format(plan.quotaWindowMs)} ms)`
+        ])
+      )
+    },
+    {
+      setting: "Quota max",
+      ...Object.fromEntries(
+        marketingPlans.map((plan, index) => [
+          `plan_${index}`,
+          `${new Intl.NumberFormat("en-US").format(plan.quotaMax)} points per window`
+        ])
+      )
+    },
+    {
+      setting: "Weekly limit",
+      ...Object.fromEntries(
+        marketingPlans.map((plan, index) => [
+          `plan_${index}`,
+          `${new Intl.NumberFormat("en-US").format(plan.weeklyQuotaMax)} points`
+        ])
+      )
+    },
+    {
+      setting: "Burst window",
+      ...Object.fromEntries(marketingPlans.map((_plan, index) => [`plan_${index}`, formatDuration(publicPlans.burstWindowMs)]))
+    },
+    {
+      setting: "Burst max",
+      ...Object.fromEntries(marketingPlans.map((_plan, index) => [`plan_${index}`, `${publicPlans.burstMax} requests per burst window`]))
+    },
+    {
+      setting: "Default request cost",
+      ...Object.fromEntries(marketingPlans.map((_plan, index) => [`plan_${index}`, `${publicPlans.defaultRequestCost} point per request`]))
+    }
+  ];
 
   return (
     <>
@@ -472,11 +519,11 @@ export default async function DocsPage() {
                 Two plans are available:
               </p>
               <div className="mb-4 space-y-3">
-                {MARKETING_PLANS.map((plan) => (
+                {marketingPlans.map((plan) => (
                   <div className="rounded-lg border border-white/10 bg-[#101214] p-4" key={plan.slug}>
                     <p className="font-semibold text-white">{plan.name} Plan</p>
                     <p className="text-sm text-(--ink-muted)">
-                      <strong className="text-white">{plan.price} per week</strong> — {plan.description.replace(`${plan.price} per week — `, "")}
+                      <strong className="text-white">{plan.price} per week</strong> — {plan.description.replace(`${plan.price} per week, `, "")}
                       Manage or start from the dashboard.
                     </p>
                   </div>
@@ -485,24 +532,17 @@ export default async function DocsPage() {
 
               <SubHeading id="limits-quota">Quota System</SubHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                Each account has a <strong className="text-white">quota window</strong> of 5 hours with a
+                Each account has a <strong className="text-white">quota window</strong> of {formatDuration(publicPlans.quotaWindowMs)} with a
                 plan-specific maximum of quota points. Every AI
                 request consumes a certain number of quota points based on the model used.
               </p>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
-                In addition to the 5-hour window, each plan has a <strong className="text-white">weekly quota limit</strong>
-                that resets every 7 days: 8,000 for the Max plan and 4,000 for the Pro plan.
+                In addition to the {formatDuration(publicPlans.quotaWindowMs)} window, each plan has a <strong className="text-white">weekly quota limit</strong>
+                that resets every {formatDuration(publicPlans.weeklyQuotaWindowMs)}.
               </p>
               <PropTable
-                columns={[{ header: "Setting", key: "setting" }, { header: "500 Plan", key: "value" }, { header: "250 Plan", key: "value2" }]}
-                rows={[
-                  { setting: "Quota window", value: "5 hours (18,000,000 ms)", value2: "5 hours (18,000,000 ms)" },
-                  { setting: "Quota max", value: "500 points per window", value2: "250 points per window" },
-                  { setting: "Weekly limit", value: "8,000 points", value2: "4,000 points" },
-                  { setting: "Burst window", value: "20 seconds", value2: "20 seconds" },
-                  { setting: "Burst max", value: "5 requests per burst window", value2: "5 requests per burst window" },
-                  { setting: "Default request cost", value: "1 point per request", value2: "1 point per request" },
-                ]}
+                columns={planColumns}
+                rows={planRows}
               />
 
               <SubHeading id="limits-model-costs">Model Request Costs</SubHeading>
@@ -562,8 +602,8 @@ export default async function DocsPage() {
               <SubHeading id="limits-reset">Reset Timing</SubHeading>
               <p className="mb-4 leading-relaxed text-(--ink-muted)">
                 Both quota and burst windows are tracked per account. The quota window resets
-                <strong className="text-white">5 hours after your first request</strong> in each window.
-                The burst window resets <strong className="text-white">20 seconds</strong> after the
+                <strong className="text-white">{formatDuration(publicPlans.quotaWindowMs)} after your first request</strong> in each window.
+                The burst window resets <strong className="text-white">{formatDuration(publicPlans.burstWindowMs)}</strong> after the
                 first request in that burst window.
               </p>
             </section>
@@ -794,7 +834,7 @@ while (true) {
                   <h4 className="mb-1 font-semibold text-white">What happens when my quota runs out?</h4>
                   <p className="text-sm leading-relaxed text-(--ink-muted)">
                     You will receive a <InlineCode>429</InlineCode> response with
-                    reason <InlineCode>quota</InlineCode>. The quota resets 5 hours after the start
+                    reason <InlineCode>quota</InlineCode>. The quota resets {formatDuration(publicPlans.quotaWindowMs)} after the start
                     of the current window. You can also purchase a new weekly plan to continue.
                   </p>
                 </div>

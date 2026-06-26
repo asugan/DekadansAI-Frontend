@@ -17,7 +17,7 @@ import {
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
 import { getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
-import { getMarketingPlan } from "@/lib/plan-display";
+import { formatDuration, getMarketingPlan } from "@/lib/plan-display";
 import {
   CONSENT_GRANTED_EVENT,
   identify as mixpanelIdentify,
@@ -566,7 +566,7 @@ export default function DashboardPage() {
                   {billingSnapshotFull.weeklyPlan.tier.label}
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
-                  {billingSnapshotFull.weeklyPlan.tier.quotaMax} requests every 5 hours &middot;{' '}
+                  {billingSnapshotFull.weeklyPlan.tier.quotaMax} requests every {formatDuration(billingSnapshotFull.quotaWindowMs)} &middot;{' '}
                   {billingSnapshotFull.weeklyPlan.tier.weeklyQuotaMax} weekly limit
                 </p>
               </>
@@ -586,7 +586,7 @@ export default function DashboardPage() {
               <>
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">Weekly plan required</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
-                  Choose a plan to get started. All plans include 5 hours of AI access.
+                  Choose a plan to get started. All plans include {billingSnapshotFull ? formatDuration(billingSnapshotFull.quotaWindowMs) : "quota-window"} AI access.
                 </p>
               </>
             )}
@@ -735,7 +735,9 @@ export default function DashboardPage() {
               <div className="mt-5 space-y-4">
                 <div className="rounded-xl border border-white/10 bg-black/20 p-4">
                   <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">5-hour limit</span>
+                    <span className="font-mono text-[12px] tracking-[0.05em] text-(--ink-muted)">
+                      {snapshot ? formatDuration(snapshot.account.quota.windowMs) : "Quota"} limit
+                    </span>
                     <span className="font-mono text-[12px] font-medium text-[#e1fdff]">{sessionUsagePercent}% used</span>
                   </div>
                   <div className="h-2.5 overflow-hidden rounded-full bg-[#25282d]">

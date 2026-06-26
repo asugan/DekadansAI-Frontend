@@ -69,6 +69,8 @@ export interface RateLimitSnapshot {
 
 export interface BillingSnapshot {
   generatedAt: string;
+  quotaWindowMs: number;
+  weeklyQuotaWindowMs: number;
   weeklyPlan: {
     active: boolean;
     tierSlug: string | null;
@@ -281,6 +283,8 @@ function normalizeBillingSnapshot(payload: unknown): BillingSnapshot {
   return {
     generatedAt:
       typeof root.generatedAt === "string" ? root.generatedAt : new Date().toISOString(),
+    quotaWindowMs: Math.max(1, asNumber(root.quotaWindowMs, 18000000)),
+    weeklyQuotaWindowMs: Math.max(1, asNumber(root.weeklyQuotaWindowMs, 604800000)),
     weeklyPlan: {
       active: asBoolean(weeklyPlan.active, false),
       tierSlug: typeof weeklyPlan.tierSlug === "string" ? weeklyPlan.tierSlug : null,

@@ -6,7 +6,8 @@ import { ModelLogoMarquee } from "./model-logo-marquee";
 import { PricingPlanAction } from "./pricing-plan-action";
 import { SiteFooter } from "./site-footer";
 import { PUBLIC_PROVIDER_NAME, getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
-import { MARKETING_PLANS } from "@/lib/plan-display";
+import { formatDuration } from "@/lib/plan-display";
+import { getPublicDisplayPlans } from "@/lib/public-plans";
 import { getBackendBaseUrl } from "@/lib/server/backend-url";
 
 type JsonObject = Record<string, unknown>;
@@ -118,8 +119,11 @@ function WhatsappIcon() {
 }
 
 export default async function Home() {
-  const models = await getHomepageModels();
-  const pricingPlans = MARKETING_PLANS;
+  const [models, pricingPlans] = await Promise.all([getHomepageModels(), getPublicDisplayPlans()]);
+  const featuredPlan = pricingPlans.find((plan) => plan.popular) || pricingPlans[0];
+  const featuredRemaining = featuredPlan ? Math.round(featuredPlan.quotaMax * 0.37) : 0;
+  const featuredUsagePercent = featuredPlan ? Math.round((featuredRemaining / featuredPlan.quotaMax) * 100) : 0;
+  const featuredThreeXRequests = featuredPlan ? Math.floor(featuredPlan.quotaMax / 3) : 0;
   const developerItems = [
     "Unified billing and invoicing",
     "Real-time usage monitoring",
@@ -272,16 +276,23 @@ export default async function Home() {
                 <div className="space-y-2">
                   <div className="flex justify-between font-mono text-[13px] tracking-wider">
                     <span>Remaining Requests</span>
-                    <span className="text-[#e1fdff]">184 / 500</span>
+                    <span className="text-[#e1fdff]">
+                      {featuredRemaining} / {featuredPlan?.quotaMax ?? 0}
+                    </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full w-[61%] bg-(--brand) shadow-[0_0_15px_rgba(0,242,255,0.3)]" />
+                    <div
+                      className="h-full bg-(--brand) shadow-[0_0_15px_rgba(0,242,255,0.3)]"
+                      style={{ width: `${featuredUsagePercent}%` }}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between font-mono text-[13px] tracking-wider">
                     <span>Time Remaining</span>
-                    <span className="text-[#ddb7ff]">3h 45m / 5h</span>
+                    <span className="text-[#ddb7ff]">
+                      {featuredPlan ? formatDuration(featuredPlan.quotaWindowMs) : "Quota"} window
+                    </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full w-[75%] bg-[#6f00be]" />
@@ -316,7 +327,7 @@ export default async function Home() {
               Pick a weekly quota plan for every model
             </h2>
             <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-white/55 md:text-base">
-              Plans include a rolling 5-hour quota plus a weekly safety limit. Model multipliers
+              Plans include a rolling {featuredPlan ? formatDuration(featuredPlan.quotaWindowMs) : "quota"} quota plus a weekly safety limit. Model multipliers
               decide how many quota points each successful request consumes.
             </p>
           </div>
@@ -381,8 +392,8 @@ export default async function Home() {
                 HOW MULTIPLIERS WORK
               </p>
               <p className="text-sm leading-6 text-white/55">
-                A 500 point plan can run up to 500 requests on a 1x model in each 5-hour window.
-                With a 3x model, that same window supports about 166 successful requests.
+                A {featuredPlan?.quotaMax ?? 0} point plan can run up to {featuredPlan?.quotaMax ?? 0} requests on a 1x model in each {featuredPlan ? formatDuration(featuredPlan.quotaWindowMs) : "quota"} window.
+                With a 3x model, that same window supports about {featuredThreeXRequests} successful requests.
               </p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-black/80 p-6 font-mono text-[12px] leading-6 text-white/45">
