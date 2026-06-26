@@ -3,24 +3,39 @@
 import mixpanel, { type OverridedMixpanel } from "mixpanel-browser";
 
 const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
+const MIXPANEL_API_HOST = process.env.NEXT_PUBLIC_MIXPANEL_API_HOST;
 export const CONSENT_KEY = "dekadans_analytics_consent";
 export const CONSENT_GRANTED_EVENT = "dekadans_analytics_consent_granted";
 export const CONSENT_PREFERENCES_EVENT = "dekadans_analytics_preferences_opened";
 
 let isInitialized = false;
 
+function syncStoredConsentWithMixpanel() {
+  if (hasConsented() && !mixpanel.has_opted_in_tracking()) {
+    mixpanel.opt_in_tracking({
+      track: () => undefined
+    });
+  }
+}
+
 function ensureInit(): boolean {
-  if (isInitialized) return true;
+  if (isInitialized) {
+    syncStoredConsentWithMixpanel();
+    return true;
+  }
   if (!MIXPANEL_TOKEN || typeof window === "undefined") return false;
 
   mixpanel.init(MIXPANEL_TOKEN, {
+    batch_requests: false,
     debug: process.env.NODE_ENV !== "production",
     opt_out_tracking_by_default: true,
     persistence: "localStorage",
-    track_pageview: false
+    track_pageview: false,
+    ...(MIXPANEL_API_HOST ? { api_host: MIXPANEL_API_HOST } : {})
   });
 
   isInitialized = true;
+  syncStoredConsentWithMixpanel();
   return true;
 }
 
@@ -72,6 +87,8 @@ export function track(eventName: string, properties?: Record<string, unknown>): 
   mp.track(eventName, {
     platform: "web",
     ...properties
+  }, {
+    send_immediately: true
   });
   return true;
 }
