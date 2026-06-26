@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AnalyticsPreferencesButton } from "./analytics-preferences-button";
+
 const FOOTER_LINKS = [
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms of Service", href: "/terms" },
@@ -33,6 +35,7 @@ export function SiteFooter({ className = "bg-black/70" }: { className?: string }
               {item.label}
             </Link>
           ))}
+          <AnalyticsPreferencesButton />
         </div>
         <div className="text-center text-[#6d7677] md:text-right">© 2026 Dekadans AI</div>
       </div>

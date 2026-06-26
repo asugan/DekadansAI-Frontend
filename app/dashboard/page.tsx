@@ -18,6 +18,11 @@ import {
 import { authClient, useSession } from "@/lib/auth-client";
 import { getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
 import { getMarketingPlan } from "@/lib/plan-display";
+import {
+  CONSENT_GRANTED_EVENT,
+  identify as mixpanelIdentify,
+  track as mixpanelTrack
+} from "@/lib/mixpanel";
 
 const POLL_INTERVAL_MS = 15000;
 const CHECKOUT_SYNC_INTERVAL_MS = 3000;
@@ -125,6 +130,7 @@ function extractRedirectUrl(payload: unknown): string | null {
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, isPending: isSessionPending } = useSession();
+  const sessionUserId = session?.user?.id;
   const [isCheckoutSuccess] = useState(
     () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("checkout") === "success"
   );
@@ -248,10 +254,34 @@ export default function DashboardPage() {
   useEffect(() => {
     if (isSessionPending) return;
 
-    if (!session?.user) {
+    if (!sessionUserId) {
       router.replace("/login");
       return;
     }
+
+    const userId = sessionUserId;
+    const signUpTrackedKey = `dekadans_sign_up_tracked:${userId}`;
+
+    function trackDashboardAnalytics() {
+      mixpanelIdentify(userId);
+
+      try {
+        if (!localStorage.getItem(signUpTrackedKey)) {
+          const didTrack = mixpanelTrack("sign_up_completed", {
+            sign_up_method: "social"
+          });
+
+          if (didTrack) {
+            localStorage.setItem(signUpTrackedKey, "1");
+          }
+        }
+      } catch {
+        // localStorage may be blocked
+      }
+    }
+
+    trackDashboardAnalytics();
+    window.addEventListener(CONSENT_GRANTED_EVENT, trackDashboardAnalytics);
 
     void loadSnapshot(false);
     void loadUsage(false);
@@ -263,12 +293,13 @@ export default function DashboardPage() {
     }, POLL_INTERVAL_MS);
 
     return () => {
+      window.removeEventListener(CONSENT_GRANTED_EVENT, trackDashboardAnalytics);
       window.clearInterval(timer);
     };
-  }, [isCheckoutSuccess, isSessionPending, loadBillingStatus, loadModels, loadSnapshot, loadUsage, router, session?.user]);
+  }, [isCheckoutSuccess, isSessionPending, loadBillingStatus, loadModels, loadSnapshot, loadUsage, router, sessionUserId]);
 
   useEffect(() => {
-    if (!isCheckoutSuccess || isSessionPending || !session?.user) return;
+    if (!isCheckoutSuccess || isSessionPending || !sessionUserId) return;
 
     let attempts = 0;
     let isStopped = false;
@@ -306,7 +337,7 @@ export default function DashboardPage() {
       isStopped = true;
       window.clearInterval(timer);
     };
-  }, [isCheckoutSuccess, isSessionPending, loadBillingStatus, loadSnapshot, loadUsage, router, session?.user]);
+  }, [isCheckoutSuccess, isSessionPending, loadBillingStatus, loadSnapshot, loadUsage, router, sessionUserId]);
 
   const sessionUsagePercent = useMemo(() => {
     if (!snapshot || snapshot.account.quota.max <= 0) return 0;
@@ -433,6 +464,12 @@ export default function DashboardPage() {
         setBillingError("Checkout did not return a redirect URL.");
         return;
       }
+
+      mixpanelTrack("checkout_started", {
+        plan_slug: slug,
+        plan_name: getMarketingPlan(slug)?.name ?? slug,
+        source: "dashboard"
+      });
 
       window.location.assign(checkoutUrl);
     } finally {

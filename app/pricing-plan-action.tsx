@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { getBillingSnapshot } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
+import { track as mixpanelTrack } from "@/lib/mixpanel";
 
 type PricingPlanActionProps = {
   slug: string;
@@ -90,6 +91,12 @@ export function PricingPlanAction({ slug, name }: PricingPlanActionProps) {
         setErrorMessage("Checkout did not return a redirect URL.");
         return;
       }
+
+      mixpanelTrack("checkout_started", {
+        plan_slug: slug,
+        plan_name: name,
+        source: "homepage"
+      });
 
       window.location.assign(checkoutUrl);
     } catch (error) {

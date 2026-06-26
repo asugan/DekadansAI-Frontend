@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { authClient, useSession } from "@/lib/auth-client";
+import { resetIdentity as mixpanelResetIdentity } from "@/lib/mixpanel";
 
 export function HomeNavActions() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export function HomeNavActions() {
 
   async function handleSignOut() {
     await authClient.signOut();
+    mixpanelResetIdentity();
     setIsProfileMenuOpen(false);
     router.refresh();
   }
