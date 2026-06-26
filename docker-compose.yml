@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:?Set NEXT_PUBLIC_APP_URL to the public frontend URL}
+        NEXT_PUBLIC_MIXPANEL_TOKEN: ${NEXT_PUBLIC_MIXPANEL_TOKEN:?Set NEXT_PUBLIC_MIXPANEL_TOKEN to the Mixpanel project token}
+        NEXT_PUBLIC_MIXPANEL_API_HOST: ${NEXT_PUBLIC_MIXPANEL_API_HOST:-https://api-eu.mixpanel.com}
         BACKEND_BASE_URL: ${BACKEND_BASE_URL:?Set BACKEND_BASE_URL to the public backend URL}
     image: dekadansai-frontend:latest
     container_name: dekadansai-frontend
@@ -13,6 +15,8 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:?Set NEXT_PUBLIC_APP_URL to the public frontend URL}
+      NEXT_PUBLIC_MIXPANEL_TOKEN: ${NEXT_PUBLIC_MIXPANEL_TOKEN:?Set NEXT_PUBLIC_MIXPANEL_TOKEN to the Mixpanel project token}
+      NEXT_PUBLIC_MIXPANEL_API_HOST: ${NEXT_PUBLIC_MIXPANEL_API_HOST:-https://api-eu.mixpanel.com}
       BACKEND_BASE_URL: ${BACKEND_BASE_URL:?Set BACKEND_BASE_URL to the public backend URL}
     ports:
       - "3000:3000"
