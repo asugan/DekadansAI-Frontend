@@ -17,7 +17,7 @@ import {
 } from "@/lib/account-client";
 import { authClient, useSession } from "@/lib/auth-client";
 import { getModelPresentation, getProviderDisplayName } from "@/lib/model-presentation";
-import { formatDuration, getMarketingPlan } from "@/lib/plan-display";
+import { formatDuration } from "@/lib/plan-display";
 import {
   CONSENT_GRANTED_EVENT,
   identify as mixpanelIdentify,
@@ -148,8 +148,6 @@ export default function DashboardPage() {
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [modelsError, setModelsError] = useState<string | null>(null);
   const [billingSnapshotFull, setBillingSnapshotFull] = useState<BillingSnapshot | null>(null);
-  const [isStartingCheckout, setIsStartingCheckout] = useState(false);
-  const [checkoutSlug, setCheckoutSlug] = useState<string | null>(null);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
   const [keyName, setKeyName] = useState("");
@@ -476,41 +474,6 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleStartCheckout(slug: string) {
-    setBillingError(null);
-    setIsStartingCheckout(true);
-    setCheckoutSlug(slug);
-
-    try {
-      const { data, error } = await authClient.checkout({
-        slug,
-        redirect: false
-      });
-
-      if (error) {
-        setBillingError(resolveErrorMessage(error, "Unable to start checkout."));
-        return;
-      }
-
-      const checkoutUrl = extractRedirectUrl(data);
-      if (!checkoutUrl) {
-        setBillingError("Checkout did not return a redirect URL.");
-        return;
-      }
-
-      mixpanelTrack("checkout_started", {
-        plan_slug: slug,
-        plan_name: getMarketingPlan(slug)?.name ?? slug,
-        source: "dashboard"
-      });
-
-      window.location.assign(checkoutUrl);
-    } finally {
-      setIsStartingCheckout(false);
-      setCheckoutSlug(null);
-    }
-  }
-
   async function handleOpenPortal() {
     setBillingError(null);
     setIsOpeningPortal(true);
@@ -586,7 +549,7 @@ export default function DashboardPage() {
               <>
                 <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e1fdff]">Weekly plan required</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-(--ink-muted)">
-                  Choose a plan to get started. All plans include {billingSnapshotFull ? formatDuration(billingSnapshotFull.quotaWindowMs) : "quota-window"} AI access.
+                  Choose a weekly plan to activate API access and account-level quota limits.
                 </p>
               </>
             )}
@@ -607,21 +570,13 @@ export default function DashboardPage() {
                 {isOpeningPortal ? "Opening..." : "Manage subscription"}
               </button>
             ) : (
-              <>
-                {(billingSnapshotFull?.planTiers ?? []).map((tier) => (
-                  <button
-                    key={tier.slug}
-                    type="button"
-                    onClick={() => void handleStartCheckout(tier.slug)}
-                    disabled={isStartingCheckout}
-                    className="rounded-sm bg-(--brand) px-5 py-3 font-mono text-[13px] font-semibold tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-65"
-                  >
-                    {isStartingCheckout && checkoutSlug === tier.slug
-                      ? "Redirecting..."
-                      : `${getMarketingPlan(tier.slug)?.price || "$?"} / wk`}
-                  </button>
-                ))}
-              </>
+              <button
+                type="button"
+                onClick={() => router.push("/#pricing")}
+                className="rounded-sm bg-(--brand) px-5 py-3 font-mono text-[13px] font-semibold tracking-[0.05em] text-[#002022]! shadow-[0_0_15px_rgba(0,242,255,0.3)] transition hover:shadow-[0_0_25px_rgba(0,242,255,0.5)] active:scale-95"
+              >
+                View pricing
+              </button>
             )}
           </div>
         </div>
